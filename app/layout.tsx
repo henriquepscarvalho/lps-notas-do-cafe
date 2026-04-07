@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Eczar, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+import { TrackingPixels } from "./components/tracking-pixels";
 
 const heading = Eczar({
   variable: "--heading",
@@ -29,6 +30,10 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
   },
+  icons: {
+    icon: "/images/simbolo.webp",
+    apple: "/images/simbolo.webp",
+  },
 };
 
 export default function RootLayout({
@@ -39,9 +44,12 @@ export default function RootLayout({
   return (
     <html
       lang="pt-BR"
-      className={`${heading.variable} ${body.variable} scroll-smooth`}
+      className={`dark ${heading.variable} ${body.variable} scroll-smooth`}
     >
-      <body>{children}</body>
+      <body>
+        {children}
+        <TrackingPixels />
+      </body>
     </html>
   );
 }
