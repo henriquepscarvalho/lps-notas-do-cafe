@@ -62,13 +62,13 @@ export default function CadastroConfirmado() {
       ],
     },
     {
-      title: "Adicione o remetente aos contatos",
+      title: "Entre no grupo do WhatsApp",
       description:
-        "Salve leia@notasdocafe.com.br na sua agenda. Garante que cada edição chega na caixa principal, nunca na promoções.",
+        "Receba um aviso antes de cada edição. Sem spam, sem conversa.",
       links: [
         {
-          label: "Como adicionar",
-          href: "https://support.google.com/mail/answer/6579?hl=pt-BR",
+          label: "Entrar no WhatsApp",
+          href: "https://sndflw.com/i/JhnzyvV5ALSzaITdywzN",
         },
       ],
     },
