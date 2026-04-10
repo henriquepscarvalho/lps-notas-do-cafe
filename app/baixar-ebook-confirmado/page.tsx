@@ -68,7 +68,7 @@ export default function EbookConfirmado() {
       links: [
         {
           label: "Entrar no WhatsApp",
-          href: "https://sndflw.com/i/JhnzyvV5ALSzaITdywzN",
+          href: "https://sndflw.com/i/Y5wmQThdplJBoBWEuJu5",
         },
       ],
     },
