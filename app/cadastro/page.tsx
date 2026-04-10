@@ -143,8 +143,7 @@ export default function CadastroPage() {
           </h1>
           <p className="text-lg md:text-xl text-text-secondary font-light leading-relaxed mb-10 reveal stagger-3">
             Uma edição por semana com o melhor do café especial brasileiro. Grão,
-            preparo, origem e equipamento. Sem elitismo, sem patrocínio, sem
-            enrolação.
+            preparo, origem e equipamento. Sem elitismo, sem enrolação.
           </p>
           <SubscribeForm
             className="flex flex-col sm:flex-row gap-3 mb-4 reveal stagger-4 max-w-lg mx-auto"
@@ -177,12 +176,12 @@ export default function CadastroPage() {
             </h2>
             <p className="text-text-secondary leading-relaxed mb-5 reveal-left stagger-3">
               O café especial no Brasil tem um problema. Não é falta de qualidade.
-              É excesso de ruído. Reviews patrocinados, jargão em inglês,
-              embalagens que não explicam nada. Notas do Café corta esse ruído.
+              É excesso de ruído. Jargão em inglês, embalagens que não explicam
+              nada, opiniões sem critério. Notas do Café corta esse ruído.
             </p>
             <p className="text-text-secondary leading-relaxed mb-5 reveal-left stagger-4">
               Uma edição por semana com três seções fixas: grão, preparo e
-              equipamento. Sem patrocínio disfarçado.
+              equipamento.
             </p>
             <p className="text-cream font-medium reveal-left stagger-5">
               Vale a xícara.
@@ -243,8 +242,7 @@ export default function CadastroPage() {
                 Setup Honesto
               </h3>
               <p className="text-sm text-text-secondary leading-relaxed">
-                Review de equipamento com prós e contras. Sem patrocínio, sem link
-                disfarçado.
+                Review de equipamento com prós e contras. Sem link disfarçado.
               </p>
             </div>
           </div>
@@ -382,10 +380,6 @@ export default function CadastroPage() {
               {
                 q: "Quando chega?",
                 a: "Todo sábado de manhã, no seu email. Leva uns 5 minutos pra ler. Combina com a primeira xícara do dia.",
-              },
-              {
-                q: "Tem patrocínio?",
-                a: "Não. Reviews são independentes, com prós e contras. Nenhum link de afiliado disfarçado de opinião. Se um equipamento não vale, a gente fala.",
               },
               {
                 q: "Posso cancelar quando quiser?",

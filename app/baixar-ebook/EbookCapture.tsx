@@ -128,7 +128,7 @@ export default function EbookCapture() {
         }}
       >
         <Image
-          src="/images/logo/simbolo-A-fullcolor-transparent.png"
+          src="/images/logo/simbolo.png"
           alt="Notas do Café"
           width={32}
           height={32}
