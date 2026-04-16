@@ -39,6 +39,11 @@ export default function SubscribeForm({
       });
       if (!res.ok) throw new Error();
       setFormStatus("success");
+      // Meta Pixel: dispara Lead event para atribuicao correta no Ads Manager.
+      // Sem isso, o pixel so conta PageView e o Meta subreporta conversoes.
+      if (typeof window !== "undefined" && (window as unknown as { fbq?: (...args: unknown[]) => void }).fbq) {
+        (window as unknown as { fbq: (...args: unknown[]) => void }).fbq("track", "Lead", { content_name: "notas-do-cafe" });
+      }
       form.reset();
       setTimeout(() => {
         window.location.href = "/pesquisa";
