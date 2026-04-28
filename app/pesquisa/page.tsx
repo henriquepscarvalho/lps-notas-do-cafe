@@ -253,6 +253,11 @@ function TextInput({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
+        inputMode={type === "tel" ? "tel" : type === "email" ? "email" : "text"}
+        autoComplete={type === "email" ? "email" : type === "tel" ? "tel" : "on"}
+        autoCapitalize={type === "email" ? "off" : "sentences"}
+        autoCorrect={type === "email" ? "off" : "on"}
+        spellCheck={type !== "email"}
       />
     </div>
   );
@@ -321,30 +326,48 @@ export default function Pesquisa() {
   const totalFields = Object.keys(form).length;
 
   useEffect(() => {
+    const REVEAL_SEL = ".reveal, .survey-reveal";
+    const targets = Array.from(document.querySelectorAll(REVEAL_SEL));
+    if (targets.length === 0) return;
+    let remaining = targets.length;
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const parent = entry.target.parentElement;
-            if (parent) {
-              const siblings = Array.from(parent.querySelectorAll(".survey-reveal"));
-              const index = siblings.indexOf(entry.target);
-              (entry.target as HTMLElement).style.transitionDelay = `${index * 0.08}s`;
-            }
-            entry.target.classList.add("visible");
-            observer.unobserve(entry.target);
+          if (!entry.isIntersecting) return;
+          const el = entry.target as HTMLElement;
+          if (el.classList.contains("visible")) {
+            observer.unobserve(el);
+            return;
           }
+          const parent = el.parentElement;
+          if (parent) {
+            const siblings = Array.from(parent.querySelectorAll(REVEAL_SEL));
+            const idx = siblings.indexOf(el);
+            el.style.transitionDelay = `${Math.min(idx * 0.08, 0.4)}s`;
+          }
+          el.classList.add("visible");
+          observer.unobserve(el);
+          remaining -= 1;
+          if (remaining <= 0) observer.disconnect();
         });
       },
-      { threshold: 0.08, rootMargin: "0px 0px -20px 0px" }
+      { threshold: 0.01, rootMargin: "0px 0px 0px 0px" }
     );
-    document.querySelectorAll(".survey-reveal").forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
+    targets.forEach((el) => observer.observe(el));
+    // Safety net: force-reveal everything after 3s in case observer stalls (low-mem mobile)
+    const timer = setTimeout(() => {
+      targets.forEach((el) => (el as HTMLElement).classList.add("visible"));
+      observer.disconnect();
+    }, 3000);
+    return () => {
+      clearTimeout(timer);
+      observer.disconnect();
+    };
   }, []);
 
   // Close dropdowns on outside click
   useEffect(() => {
-    const handler = (e: MouseEvent) => {
+    const handler = (e: Event) => {
       const target = e.target as HTMLElement;
       if (!target.closest(".dropdown-wrapper")) {
         document.querySelectorAll(".dropdown-wrapper[data-open='true']").forEach((el) => {
@@ -353,8 +376,8 @@ export default function Pesquisa() {
         });
       }
     };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
+    document.addEventListener("pointerdown", handler);
+    return () => document.removeEventListener("pointerdown", handler);
   }, []);
 
   // Progressive reveal
@@ -366,7 +389,7 @@ export default function Pesquisa() {
   const section2Done = REQUIRED_FIELDS.slice(6, 10).every(f => form[f].trim() !== "");
   const section3Done = REQUIRED_FIELDS.slice(10).every(f => form[f].trim() !== "");
 
-  const [revealed, setRevealed] = useState(1);
+  const [revealed, setRevealed] = useState(4);
 
   useEffect(() => {
     if (section1Done && revealed === 1) setRevealed(2);
@@ -379,16 +402,6 @@ export default function Pesquisa() {
   useEffect(() => {
     if (section3Done && revealed === 3) setRevealed(4);
   }, [section3Done, revealed]);
-
-  useEffect(() => {
-    const refs = [null, null, section2Ref, section3Ref, section4Ref];
-    const ref = refs[revealed];
-    if (ref?.current) {
-      setTimeout(() => {
-        ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 150);
-    }
-  }, [revealed]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -429,10 +442,10 @@ export default function Pesquisa() {
     }
   }
 
-  if (status === "success") {
-    window.location.href = "/cadastro";
-    return null;
-  }
+  useEffect(() => {
+    if (status === "success") window.location.href = "/cadastro-confirmado";
+  }, [status]);
+  if (status === "success") return null;
 
   return (
     <>
@@ -545,7 +558,7 @@ export default function Pesquisa() {
           </section>
 
           {revealed >= 2 && (
-          <div ref={section2Ref} style={{ animation: "surveyFadeUp 0.7s ease forwards" }}>
+          <div ref={section2Ref}>
           {/* ─── O Primeiro Gole ─── */}
           <section className="survey-section">
             <h2 className="survey-section-title">O Primeiro Gole</h2>
@@ -591,7 +604,7 @@ export default function Pesquisa() {
           )}
 
           {revealed >= 3 && (
-          <div ref={section3Ref} style={{ animation: "surveyFadeUp 0.7s ease forwards" }}>
+          <div ref={section3Ref}>
           {/* ─── A Xícara ─── */}
           <section className="survey-section">
             <h2 className="survey-section-title">A Xícara</h2>
@@ -646,7 +659,7 @@ export default function Pesquisa() {
           )}
 
           {revealed >= 4 && (
-          <div ref={section4Ref} style={{ animation: "surveyFadeUp 0.7s ease forwards" }}>
+          <div ref={section4Ref}>
           {/* ─── A Última Nota ─── */}
           <section className="survey-section">
             <h2 className="survey-section-title">A Última Nota</h2>
