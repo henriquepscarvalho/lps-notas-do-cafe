@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 
 const OPCOES_GENERO = ["Masculino", "Feminino", "Outro", "Prefiro não informar"];
@@ -167,11 +168,59 @@ function Dropdown({
   required?: boolean;
 }) {
   const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState<{ top: number; left: number; width: number; maxHeight: number; placement: "below" | "above" } | null>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
 
   const normalizedOptions =
     typeof options[0] === "string"
       ? (options as string[]).map((o) => ({ emoji: "", label: o }))
       : (options as { emoji: string; label: string }[]);
+
+  const updatePos = () => {
+    if (!triggerRef.current) return;
+    const r = triggerRef.current.getBoundingClientRect();
+    const vh = window.innerHeight;
+    const GAP = 4;
+    const PAD = 12;
+    const spaceBelow = vh - r.bottom - GAP - PAD;
+    const spaceAbove = r.top - GAP - PAD;
+    const minDesired = 200;
+    let placement: "below" | "above" = "below";
+    let maxHeight = spaceBelow;
+    if (spaceBelow < minDesired && spaceAbove > spaceBelow) {
+      placement = "above";
+      maxHeight = spaceAbove;
+    }
+    maxHeight = Math.max(140, Math.min(maxHeight, 320));
+    const top = placement === "below" ? r.bottom + GAP : r.top - GAP - maxHeight;
+    setPos({ top, left: r.left, width: r.width, maxHeight, placement });
+  };
+
+  useEffect(() => {
+    if (!open) return;
+    updatePos();
+    const onScrollOrResize = () => updatePos();
+    window.addEventListener("scroll", onScrollOrResize, true);
+    window.addEventListener("resize", onScrollOrResize);
+    return () => {
+      window.removeEventListener("scroll", onScrollOrResize, true);
+      window.removeEventListener("resize", onScrollOrResize);
+    };
+  }, [open]);
+
+  // Close on outside click — portal'd menu lives in body, so check menu ref too
+  useEffect(() => {
+    if (!open) return;
+    const onPointer = (e: Event) => {
+      const target = e.target as HTMLElement;
+      if (target.closest(".dropdown-portal-menu")) return;
+      if (wrapperRef.current?.contains(target)) return;
+      setOpen(false);
+    };
+    document.addEventListener("pointerdown", onPointer);
+    return () => document.removeEventListener("pointerdown", onPointer);
+  }, [open]);
 
   return (
     <div className="survey-field">
@@ -180,8 +229,9 @@ function Dropdown({
         {label}
         {required && <span className="survey-required">*</span>}
       </label>
-      <div className="dropdown-wrapper" data-open={open}>
+      <div className="dropdown-wrapper" data-open={open} ref={wrapperRef}>
         <button
+          ref={triggerRef}
           type="button"
           className="dropdown-trigger"
           onClick={() => setOpen(!open)}
@@ -198,8 +248,19 @@ function Dropdown({
             />
           </svg>
         </button>
-        {open && (
-          <div className="dropdown-menu">
+        {open && pos && typeof document !== "undefined" && createPortal(
+          <div
+            className="dropdown-menu dropdown-portal-menu"
+            style={{
+              position: "fixed",
+              top: pos.top,
+              left: pos.left,
+              width: pos.width,
+              maxHeight: pos.maxHeight,
+              overflowY: "auto",
+              zIndex: 100000,
+            }}
+          >
             {normalizedOptions.map((opt) => (
               <button
                 type="button"
@@ -215,7 +276,8 @@ function Dropdown({
                 <span>{opt.label}</span>
               </button>
             ))}
-          </div>
+          </div>,
+          document.body
         )}
       </div>
     </div>
@@ -363,21 +425,6 @@ export default function Pesquisa() {
       clearTimeout(timer);
       observer.disconnect();
     };
-  }, []);
-
-  // Close dropdowns on outside click
-  useEffect(() => {
-    const handler = (e: Event) => {
-      const target = e.target as HTMLElement;
-      if (!target.closest(".dropdown-wrapper")) {
-        document.querySelectorAll(".dropdown-wrapper[data-open='true']").forEach((el) => {
-          const btn = el.querySelector(".dropdown-trigger") as HTMLButtonElement;
-          if (btn) btn.click();
-        });
-      }
-    };
-    document.addEventListener("pointerdown", handler);
-    return () => document.removeEventListener("pointerdown", handler);
   }, []);
 
   // Progressive reveal

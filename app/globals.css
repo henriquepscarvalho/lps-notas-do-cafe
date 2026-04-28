@@ -634,3 +634,29 @@ body {
 
 /* mobile-no-zoom-fix */
 .survey-input, .survey-textarea, .dropdown-trigger, .dropdown-option { font-size: 16px !important; }
+
+
+/* dropdown-stacking-context-fix */
+/* Override section animation: avoid `transform` on final state which
+   creates a stacking context and clips dropdown menus inside it. */
+.survey-section {
+  animation: surveySectionFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+  transform: none !important;
+}
+@keyframes surveySectionFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+/* Lift open dropdown above subsequent survey fields */
+.dropdown-menu { z-index: 9999 !important; }
+.dropdown-wrapper { position: relative; }
+.dropdown-wrapper[data-open="true"] { z-index: 9000 !important; }
+
+
+/* fadeUp-no-stacking-context-fix */
+/* Override `fadeUp` so the final state has no transform (avoids creating
+   a stacking context that traps absolutely-positioned dropdowns). */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: none; }
+}
