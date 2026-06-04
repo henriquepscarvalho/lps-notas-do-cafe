@@ -45,7 +45,7 @@ export default function CadastroConfirmado() {
     {
       title: "Confirme seu email",
       description:
-        "Procure o email de confirmação na sua caixa de entrada e clique no link. Sem isso, você não recebe a edição de sábado.",
+        "Procure o email de confirmação na sua caixa de entrada e clique no link. Sem isso, você não recebe a edição de amanhã.",
       links: [
         {
           label: "Abrir Gmail",
@@ -197,7 +197,7 @@ export default function CadastroConfirmado() {
             animation: "fadeUp 0.9s ease-out 0.9s both",
           }}
         >
-          Sua primeira edição chega sábado de manhã. Enquanto isso, complete as 3 missões
+          Sua primeira edição chega amanhã de manhã. Enquanto isso, complete as 3 missões
           abaixo para não perder nenhum café.
         </p>
 
@@ -303,7 +303,7 @@ export default function CadastroConfirmado() {
             animation: "fadeUp 0.9s ease-out 1.8s both",
           }}
         >
-          Bom café. Até sábado.
+          Bom café. Até amanhã.
         </p>
       </main>
     </>

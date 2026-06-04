@@ -142,7 +142,7 @@ export default function CadastroPage() {
             <span className="typewriter-cursor"></span>
           </h1>
           <p className="text-lg md:text-xl text-text-secondary font-light leading-relaxed mb-10 reveal stagger-3">
-            Uma edição por semana com o melhor do café especial brasileiro. Grão,
+            Uma edição por dia com o melhor do café especial brasileiro. Grão,
             preparo, origem e equipamento. Sem elitismo, sem enrolação.
           </p>
           <SubscribeForm
@@ -150,7 +150,7 @@ export default function CadastroPage() {
             inputId="email-hero"
             inputClassName="email-input flex-1 px-5 py-3.5 rounded-lg text-base font-body"
             buttonClassName="cta-btn px-7 py-3.5 rounded-lg text-base whitespace-nowrap"
-            buttonText="Quero meu primeiro sábado"
+            buttonText="Quero minha primeira edição"
           />
           <p className="text-sm text-text-muted reveal stagger-5">
             Grátis. 5 minutos de leitura. Cancele quando quiser.
@@ -172,7 +172,7 @@ export default function CadastroPage() {
               O que é
             </p>
             <h2 className="font-heading text-3xl md:text-4xl font-bold mb-6 leading-tight reveal-left stagger-2">
-              50 perfis. 20 canais. 10 blogs. Nenhum editorial semanal.
+              50 perfis. 20 canais. 10 blogs. Nenhum editorial diário.
             </h2>
             <p className="text-text-secondary leading-relaxed mb-5 reveal-left stagger-3">
               O café especial no Brasil tem um problema. Não é falta de qualidade.
@@ -180,7 +180,7 @@ export default function CadastroPage() {
               nada, opiniões sem critério. Notas do Café corta esse ruído.
             </p>
             <p className="text-text-secondary leading-relaxed mb-5 reveal-left stagger-4">
-              Uma edição por semana com três seções fixas: grão, preparo e
+              Uma edição por dia com três seções fixas: grão, preparo e
               equipamento.
             </p>
             <p className="text-cream font-medium reveal-left stagger-5">
@@ -207,10 +207,10 @@ export default function CadastroPage() {
               Como funciona
             </p>
             <h2 className="font-heading text-3xl md:text-4xl font-bold reveal stagger-1">
-              Três seções, todo sábado de manhã
+              Três seções, todo dia de manhã
             </h2>
             <p className="text-text-secondary text-lg font-light leading-relaxed mt-5 max-w-2xl mx-auto reveal stagger-2">
-              Toda semana, o mesmo ritual. 3 seções que cobrem o que importa, na
+              Todo dia, o mesmo ritual. 3 seções que cobrem o que importa, na
               ordem certa.
             </p>
           </div>
@@ -219,7 +219,7 @@ export default function CadastroPage() {
             <div className="feature-card rounded-xl p-7 reveal stagger-1">
               <div className="text-3xl mb-4">🫘</div>
               <h3 className="font-heading text-lg font-bold mb-2">
-                Grão da Semana
+                Grão do Dia
               </h3>
               <p className="text-sm text-text-secondary leading-relaxed">
                 Um café destrinchado por completo: origem, notas de sabor, preparo
@@ -229,7 +229,7 @@ export default function CadastroPage() {
             <div className="feature-card rounded-xl p-7 reveal stagger-2">
               <div className="text-3xl mb-4">☕</div>
               <h3 className="font-heading text-lg font-bold mb-2">
-                Preparo da Semana
+                Preparo do Dia
               </h3>
               <p className="text-sm text-text-secondary leading-relaxed">
                 Uma receita detalhada com proporções, temperatura, tempo. E por que
@@ -283,12 +283,12 @@ export default function CadastroPage() {
                 </div>
               </div>
               <span className="text-xs text-text-muted font-medium">
-                Sábado, 8h
+                Todo dia, 8h
               </span>
             </div>
             <div className="px-6 md:px-8 py-8">
               <p className="text-xs text-gold font-semibold tracking-widest uppercase mb-3">
-                Grão da Semana
+                Grão do Dia
               </p>
               <h3 className="font-heading text-2xl font-bold mb-4">
                 Catuaí Vermelho da Chapada Diamantina
@@ -316,7 +316,7 @@ export default function CadastroPage() {
                 style={{ borderTop: "1px solid var(--border)" }}
               >
                 <p className="font-heading font-bold text-gold text-lg">
-                  Bom café. Até sábado.
+                  Bom café. Até amanhã.
                 </p>
               </div>
             </div>
@@ -379,7 +379,7 @@ export default function CadastroPage() {
               },
               {
                 q: "Quando chega?",
-                a: "Todo sábado de manhã, no seu email. Leva uns 5 minutos pra ler. Combina com a primeira xícara do dia.",
+                a: "Todo dia de manhã, no seu email. Leva uns 5 minutos pra ler. Combina com a primeira xícara do dia.",
               },
               {
                 q: "Posso cancelar quando quiser?",
@@ -445,7 +445,7 @@ export default function CadastroPage() {
                 initial: "R",
               },
               {
-                text: "Finalmente alguém que explica café sem parecer sommelier. Direto, útil, e chega na hora certa do sábado.",
+                text: "Finalmente alguém que explica café sem parecer sommelier. Direto, útil, e chega na hora certa do dia.",
                 name: "Camila S.",
                 since: "Leitora desde a edição #7",
                 initial: "C",
@@ -506,17 +506,17 @@ export default function CadastroPage() {
               />
             </div>
             <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-extrabold mb-5 leading-tight reveal stagger-2">
-              O próximo sábado pode ser diferente
+              A próxima xícara pode ser diferente
             </h2>
             <p className="text-lg text-text-secondary font-light leading-relaxed mb-3 reveal stagger-3">
-              Da fazenda à xícara, sem frescura. Todo sábado no seu email.
+              Da fazenda à xícara, sem frescura. Todo dia no seu email.
             </p>
             <SubscribeForm
               className="flex flex-col sm:flex-row gap-3 mb-4 reveal stagger-4"
               inputId="email-final"
               inputClassName="email-input flex-1 px-5 py-3.5 rounded-lg text-base font-body"
               buttonClassName="cta-btn px-7 py-3.5 rounded-lg text-base whitespace-nowrap"
-              buttonText="Começar no próximo sábado"
+              buttonText="Começar na próxima edição"
             />
             <p className="text-sm text-text-muted reveal stagger-5">
               Grátis. 5 minutos de leitura. Cancele quando quiser.
@@ -558,7 +558,7 @@ export default function CadastroPage() {
           href="#cta"
           className="cta-btn flex-1 text-center py-3 rounded-lg text-sm font-bold"
         >
-          Receber todo sábado, grátis
+          Receber todo dia, grátis
         </a>
       </div>
     </>
