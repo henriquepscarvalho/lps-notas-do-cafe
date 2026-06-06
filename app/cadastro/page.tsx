@@ -1,5 +1,6 @@
 "use client";
 
+import PageBeacon from "../PageBeacon";
 import { useEffect, useRef } from "react";
 import SubscribeForm from "../components/SubscribeForm";
 
@@ -80,6 +81,7 @@ export default function CadastroPage() {
 
   return (
     <>
+      <PageBeacon slug="notas-do-cafe" step="topo" />
       {/* NAV */}
       <nav
         className="fixed top-0 w-full z-50"

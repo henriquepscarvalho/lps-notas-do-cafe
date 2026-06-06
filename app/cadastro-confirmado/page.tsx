@@ -1,5 +1,6 @@
 "use client";
 
+import PageBeacon from "../PageBeacon";
 import { useEffect, useState } from "react";
 
 interface ConfettiPiece {
@@ -87,6 +88,7 @@ export default function CadastroConfirmado() {
 
   return (
     <>
+      <PageBeacon slug="notas-do-cafe" step="confirmado" />
       <style>{`
         @keyframes confettiFall {
           0% { opacity: 0.6; transform: translateY(0) rotate(0deg); }
