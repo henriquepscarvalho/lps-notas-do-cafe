@@ -44,6 +44,11 @@ export default function SubscribeForm({
       if (typeof window !== "undefined" && (window as unknown as { fbq?: (...args: unknown[]) => void }).fbq) {
         (window as unknown as { fbq: (...args: unknown[]) => void }).fbq("track", "Lead", { content_name: "notas-do-cafe" });
       }
+      // Carry the email into /pesquisa so it isn't re-typed (avoids the
+      // mismatch/typo that broke the Beehiiv custom_field sync).
+      try {
+        localStorage.setItem("vdn_lead_email", email);
+      } catch {}
       form.reset();
       setTimeout(() => {
         window.location.href = "/pesquisa";

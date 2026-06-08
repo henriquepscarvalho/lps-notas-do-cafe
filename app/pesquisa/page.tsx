@@ -294,6 +294,7 @@ function TextInput({
   required,
   type = "text",
   placeholder,
+  readOnly,
 }: {
   label: string;
   questionNumber: number;
@@ -302,6 +303,7 @@ function TextInput({
   required?: boolean;
   type?: string;
   placeholder?: string;
+  readOnly?: boolean;
 }) {
   return (
     <div className="survey-field">
@@ -316,6 +318,8 @@ function TextInput({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
+        readOnly={readOnly}
+        style={readOnly ? { opacity: 0.7, cursor: "not-allowed" } : undefined}
         inputMode={type === "tel" ? "tel" : type === "email" ? "email" : "text"}
         autoComplete={type === "email" ? "email" : type === "tel" ? "tel" : "on"}
         autoCapitalize={type === "email" ? "off" : "sentences"}
@@ -378,9 +382,24 @@ export default function Pesquisa() {
   const [form, setForm] = useState<FormData>(INITIAL);
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
+  const [emailLocked, setEmailLocked] = useState(false);
 
   const set = (field: keyof FormData) => (value: string) =>
     setForm((prev) => ({ ...prev, [field]: value }));
+
+  // Carry the email captured at /cadastro so the respondent never re-types it
+  // (re-typing caused mismatches/typos that broke the Beehiiv custom_field
+  // sync). Lock the field when we have it; leave it editable for anyone who
+  // reached /pesquisa directly.
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("vdn_lead_email");
+      if (saved && saved.includes("@")) {
+        setForm((prev) => ({ ...prev, email: saved }));
+        setEmailLocked(true);
+      }
+    } catch {}
+  }, []);
 
   const filledCount = Object.entries(form).filter(
     ([, v]) => v.trim() !== ""
@@ -575,6 +594,7 @@ export default function Pesquisa() {
               required
               type="email"
               placeholder="seu@email.com"
+              readOnly={emailLocked}
             />
 
             <TextInput
