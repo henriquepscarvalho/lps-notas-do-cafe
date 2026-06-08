@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
+import PageBeacon from "../PageBeacon";
 
 const OPCOES_GENERO = ["Masculino", "Feminino", "Outro", "Prefiro não informar"];
 
@@ -496,6 +497,7 @@ export default function Pesquisa() {
 
   return (
     <>
+      <PageBeacon slug="notas-do-cafe" step="pesquisa" />
       <main className="survey-page">
         {/* Header */}
         <header className="survey-header">
