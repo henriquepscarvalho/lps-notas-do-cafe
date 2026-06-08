@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import PageBeacon from "../PageBeacon";
 
 const PRIMARY = "#8B4513";
 const ACCENT = "#C8963E";
@@ -8,6 +9,7 @@ const ACCENT = "#C8963E";
 export default function QuizErrou() {
   return (
     <>
+      <PageBeacon slug="notas-do-cafe" step="quiz-errou" />
       <style>{`
         @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
       `}</style>

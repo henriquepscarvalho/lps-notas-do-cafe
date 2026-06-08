@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import PageBeacon from "../PageBeacon";
 
 interface ConfettiPiece { id: number; left: number; delay: number; duration: number; size: number; emoji: string; }
 
@@ -28,6 +29,7 @@ export default function QuizAcertou() {
 
   return (
     <>
+      <PageBeacon slug="notas-do-cafe" step="quiz-acertou" />
       <style>{`
         @keyframes confettiFall { 0% { opacity: 0.6; transform: translateY(0) rotate(0deg); } 100% { opacity: 0; transform: translateY(100vh) rotate(720deg); } }
         @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }

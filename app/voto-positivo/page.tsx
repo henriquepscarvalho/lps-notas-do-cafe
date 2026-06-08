@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import PageBeacon from "../PageBeacon";
 
 interface ConfettiPiece {
   id: number;
@@ -29,6 +30,7 @@ export default function VotoPositivo() {
 
   return (
     <>
+      <PageBeacon slug="notas-do-cafe" step="voto-positivo" />
       <style>{`
         @keyframes confettiFall {
           0% { opacity: 0.6; transform: translateY(0) rotate(0deg); }
