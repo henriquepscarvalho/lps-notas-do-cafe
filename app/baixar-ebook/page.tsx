@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import PageBeacon from "../PageBeacon";
 import EbookCapture from "./EbookCapture";
 
 export const metadata: Metadata = {
@@ -8,5 +9,10 @@ export const metadata: Metadata = {
 };
 
 export default function BaixarEbook() {
-  return <EbookCapture />;
+  return (
+    <>
+      <PageBeacon slug="notas-do-cafe" step="ebook-topo" />
+      <EbookCapture />
+    </>
+  );
 }
