@@ -71,14 +71,15 @@ export async function POST(req: Request) {
   const utm_campaign = clean(c.campaign) ?? r.campaign ?? "";
   const referring_site = clean(c.referrer) ?? (ref || undefined);
 
-  // Atribuição fina vai como custom_field (Beehiiv não tem campo nativo)
+  // Atribuição fina vai como custom_field (Beehiiv não tem campo nativo).
+  // "utm_content"/"utm_term" são nomes RESERVADOS no Beehiiv -> ad_content/ad_term.
   const custom_fields: { name: string; value: string }[] = [];
   if (fbclid) custom_fields.push({ name: "fbclid", value: fbclid });
   if (gclid) custom_fields.push({ name: "gclid", value: gclid });
   const utm_content = clean(c.content);
-  if (utm_content) custom_fields.push({ name: "utm_content", value: utm_content });
+  if (utm_content) custom_fields.push({ name: "ad_content", value: utm_content });
   const utm_term = clean(c.term);
-  if (utm_term) custom_fields.push({ name: "utm_term", value: utm_term });
+  if (utm_term) custom_fields.push({ name: "ad_term", value: utm_term });
 
   const headers = {
     Authorization: `Bearer ${apiKey}`,
