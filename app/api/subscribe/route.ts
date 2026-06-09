@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 
 // Contrato de origem de lead (UTM).
-// Ordem de captura: body.utm (cliente) > Referer da LP > click-id > "direct" honesto.
+// Ordem de captura: body.utm (cliente, via localStorage) > Referer da LP > click-id > "direct" honesto.
 // Nunca cair pra nome da news no fallback (mascara o ponto cego).
+// fbclid/gclid (e utm_content/term) vao como custom_fields no Beehiiv.
 
 const clean = (v: unknown): string | undefined =>
   typeof v === "string" && v.trim() ? v.trim().slice(0, 200) : undefined;
@@ -11,25 +12,21 @@ function fromReferer(ref: string) {
   try {
     const p = new URL(ref).searchParams;
     const get = (k: string) => clean(p.get(k));
-    let source = get("utm_source");
-    let medium = get("utm_medium");
-    // sem utm_source explícito: inferir pelo click-id da plataforma
-    if (!source) {
-      if (p.get("fbclid")) {
-        source = "meta";
-        medium = medium ?? "paid_social";
-      } else if (p.get("gclid")) {
-        source = "google";
-        medium = medium ?? "cpc";
-      }
-    }
     return {
-      source,
-      medium,
+      source: get("utm_source"),
+      medium: get("utm_medium"),
       campaign: get("utm_campaign"),
+      fbclid: get("fbclid"),
+      gclid: get("gclid"),
     };
   } catch {
-    return {} as { source?: string; medium?: string; campaign?: string };
+    return {} as {
+      source?: string;
+      medium?: string;
+      campaign?: string;
+      fbclid?: string;
+      gclid?: string;
+    };
   }
 }
 
@@ -52,38 +49,70 @@ export async function POST(req: Request) {
     );
   }
 
-  // Origem: cliente > Referer > click-id > direct
+  // Origem: cliente (body.utm) > Referer > click-id > direct
   const ref = req.headers.get("referer") ?? "";
   const r = fromReferer(ref);
   const c = (body?.utm ?? {}) as Record<string, unknown>;
 
-  const utm_source = clean(c.source) ?? r.source ?? "direct";
-  const utm_medium = clean(c.medium) ?? r.medium ?? "";
+  const fbclid = clean(c.fbclid) ?? r.fbclid;
+  const gclid = clean(c.gclid) ?? r.gclid;
+
+  let utm_source = clean(c.source) ?? r.source;
+  let utm_medium = clean(c.medium) ?? r.medium;
+  // sem utm_source explícito: inferir pelo click-id da plataforma
+  if (!utm_source && fbclid) {
+    utm_source = "meta";
+    utm_medium = utm_medium ?? "paid_social";
+  } else if (!utm_source && gclid) {
+    utm_source = "google";
+    utm_medium = utm_medium ?? "cpc";
+  }
+
   const utm_campaign = clean(c.campaign) ?? r.campaign ?? "";
   const referring_site = clean(c.referrer) ?? (ref || undefined);
+
+  // Atribuição fina vai como custom_field (Beehiiv não tem campo nativo)
+  const custom_fields: { name: string; value: string }[] = [];
+  if (fbclid) custom_fields.push({ name: "fbclid", value: fbclid });
+  if (gclid) custom_fields.push({ name: "gclid", value: gclid });
+  const utm_content = clean(c.content);
+  if (utm_content) custom_fields.push({ name: "utm_content", value: utm_content });
+  const utm_term = clean(c.term);
+  if (utm_term) custom_fields.push({ name: "utm_term", value: utm_term });
 
   const headers = {
     Authorization: `Bearer ${apiKey}`,
     "Content-Type": "application/json",
   };
 
+  const payload: Record<string, unknown> = {
+    email,
+    reactivate_existing: true,
+    send_welcome_email: true,
+    utm_source: utm_source ?? "direct",
+    utm_medium: utm_medium ?? "",
+    utm_campaign,
+    referring_site,
+  };
+  if (custom_fields.length) payload.custom_fields = custom_fields;
+
   // 1. Cria a inscrição com a origem carimbada
-  const subRes = await fetch(
-    `https://api.beehiiv.com/v2/publications/${pubId}/subscriptions`,
-    {
+  const subUrl = `https://api.beehiiv.com/v2/publications/${pubId}/subscriptions`;
+  let subRes = await fetch(subUrl, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(payload),
+  });
+
+  // custom_fields nunca podem derrubar o cadastro: retry sem eles
+  if (!subRes.ok && custom_fields.length) {
+    delete payload.custom_fields;
+    subRes = await fetch(subUrl, {
       method: "POST",
       headers,
-      body: JSON.stringify({
-        email,
-        reactivate_existing: true,
-        send_welcome_email: true,
-        utm_source,
-        utm_medium,
-        utm_campaign,
-        referring_site,
-      }),
-    }
-  );
+      body: JSON.stringify(payload),
+    });
+  }
 
   if (!subRes.ok) {
     const err = await subRes.text();

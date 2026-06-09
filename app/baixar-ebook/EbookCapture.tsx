@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { captureUtm, getUtm } from "../lib/utm";
 
 const AUTOMATION_ID = "aut_e7997773-c01a-46ec-b616-a3a08ea4e3cf";
 
@@ -53,6 +54,7 @@ export default function EbookCapture() {
   const [status, setStatus] = useState<Status>("idle");
 
   useEffect(() => {
+    captureUtm();
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const groups: [string, number][] = [
       [".ebk-hero > div:first-child > *", 90],
@@ -92,7 +94,7 @@ export default function EbookCapture() {
       const res = await fetch("/api/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, automationId: AUTOMATION_ID }),
+        body: JSON.stringify({ email, automationId: AUTOMATION_ID, utm: getUtm() }),
       });
       if (!res.ok) throw new Error();
       setStatus("success");

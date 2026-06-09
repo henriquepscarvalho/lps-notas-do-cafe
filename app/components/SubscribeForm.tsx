@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, CSSProperties } from "react";
+import { useEffect, useState, CSSProperties } from "react";
+import { captureUtm, getUtm } from "../lib/utm";
 
 interface SubscribeFormProps {
   id?: string;
@@ -25,6 +26,11 @@ export default function SubscribeForm({
     "idle" | "sending" | "success" | "error"
   >("idle");
 
+  // Captura UTMs/click-ids da URL no load (persiste em localStorage)
+  useEffect(() => {
+    captureUtm();
+  }, []);
+
   async function handleSubscribe(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
@@ -35,7 +41,7 @@ export default function SubscribeForm({
       const res = await fetch("/api/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, utm: getUtm() }),
       });
       if (!res.ok) throw new Error();
       setFormStatus("success");
@@ -86,7 +92,7 @@ export default function SubscribeForm({
         {formStatus === "idle" && buttonText}
         {formStatus === "sending" && "Enviando..."}
         {formStatus === "success" && "Inscrito!"}
-        {formStatus === "error" && "Erro \u2014 tente novamente"}
+        {formStatus === "error" && "Erro, tente novamente"}
       </button>
     </form>
   );
