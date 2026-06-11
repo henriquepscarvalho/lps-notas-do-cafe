@@ -20,11 +20,11 @@ const body = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   title: "Notas do Café | Você toma café todo dia. Mas sabe o que está tomando?",
   description:
-    "Curadoria semanal de café especial brasileiro. Grão, preparo, origem, equipamento. Todo sábado de manhã no seu email.",
+    "Curadoria diária de café especial brasileiro. Grão, preparo, origem, equipamento. Todo dia, 08:08, no seu email.",
   openGraph: {
     title: "Notas do Café",
     description:
-      "Curadoria semanal de café especial brasileiro. Sem frescura, com origem.",
+      "Curadoria diária de café especial brasileiro. Sem frescura, com origem.",
     type: "website",
   },
   twitter: {

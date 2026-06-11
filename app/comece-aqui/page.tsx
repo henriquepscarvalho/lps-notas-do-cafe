@@ -46,7 +46,7 @@ export default function ComeceAqui() {
   const passos = [
     {
       step: "01",
-      title: "Leia todo sábado de manhã",
+      title: "Leia todo dia de manhã",
       desc: "Antes do primeiro gole, você recebe a edição da semana. 5 minutos de leitura. Combina com a primeira xícara.",
     },
     {
@@ -156,7 +156,7 @@ export default function ComeceAqui() {
             lineHeight: 1.75,
           }}
         >
-          Tudo que você precisa saber para transformar 5 minutos por semana em café de verdade na sua xícara.
+          Tudo que você precisa saber para transformar 5 minutos por dia em café de verdade na sua xícara.
           Sem elitismo. Sem patrocínio. Só curadoria.
         </p>
         <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
@@ -177,7 +177,7 @@ export default function ComeceAqui() {
               transition: "all 0.3s",
             }}
           >
-            Receber todo sábado
+            Receber todo dia
           </a>
           <a
             href="#pilares"
@@ -225,7 +225,7 @@ export default function ComeceAqui() {
               marginBottom: "1rem",
             }}
           >
-            O que você recebe toda semana
+            O que você recebe todo dia
           </p>
           <h2
             className="reveal"
@@ -450,7 +450,7 @@ export default function ComeceAqui() {
               marginBottom: "1rem",
             }}
           >
-            Uma edição por semana. Direto no seu email.
+            Uma edição por dia. Direto no seu email.
           </h3>
           <p style={{ fontSize: "1rem", color: "var(--text-secondary)", lineHeight: 1.75, marginBottom: "1.5rem" }}>
             Comece no próximo sábado de manhã. Cancele quando quiser. Sem taxa, sem patrocínio, sem elitismo.
@@ -472,7 +472,7 @@ export default function ComeceAqui() {
               transition: "background 0.3s",
             }}
           >
-            Receber todo sábado
+            Receber todo dia
           </a>
         </div>
       </section>

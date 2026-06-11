@@ -213,7 +213,7 @@ export default function Reengajamento() {
               lineHeight: 1.3,
             }}
           >
-            Uma edição por semana. Cinco minutos. Três seções que cabem na primeira xícara.
+            Uma edição por dia. Cinco minutos. Três seções que cabem na primeira xícara.
           </h2>
           <p
             style={{

@@ -169,10 +169,10 @@ export default function Sobre() {
             <p style={{ fontSize: "1.125rem", color: "var(--text-secondary)", lineHeight: 1.8 }}>
               O Brasil é o maior produtor de café do mundo e tem um dos cenários mais vivos de café especial
               do planeta. Mas o conteúdo sobre isso está espalhado: 50 perfis no Instagram, 20 canais no
-              YouTube, reviews patrocinados e jargão em inglês. Nenhum editorial semanal que organiza tudo.
+              YouTube, reviews patrocinados e jargão em inglês. Nenhum editorial que organiza tudo.
             </p>
             <p style={{ fontSize: "1.125rem", color: "var(--text-secondary)", lineHeight: 1.8 }}>
-              Notas do Café é curadoria semanal de café especial. Uma edição todo sábado com três seções
+              Notas do Café é curadoria diária de café especial. Uma edição todo dia com três seções
               fixas: Grão da Semana, Preparo da Semana, Setup Honesto. Pensado pra quem quer entender o que
               toma, sem virar barista.
             </p>
@@ -320,8 +320,8 @@ export default function Sobre() {
             }}
           >
             {[
-              { label: "Frequência", value: "Semanal" },
-              { label: "Quando", value: "Sábado" },
+              { label: "Frequência", value: "Diária" },
+              { label: "Quando", value: "Todo dia, 08:08" },
               { label: "Leitura", value: "5 minutos" },
               { label: "Custo", value: "Gratuita" },
             ].map((item) => (
@@ -378,7 +378,7 @@ export default function Sobre() {
             Comece sábado. <em style={{ fontStyle: "italic", color: "var(--accent)" }}>Bom café.</em>
           </h3>
           <p style={{ fontSize: "1rem", color: "var(--text-secondary)", marginBottom: "2rem", lineHeight: 1.75 }}>
-            Uma edição por semana. Cinco minutos. Três seções que cabem na primeira xícara.
+            Uma edição por dia. Cinco minutos. Três seções que cabem na primeira xícara.
           </p>
           <a
             href="/cadastro"
@@ -397,7 +397,7 @@ export default function Sobre() {
               transition: "background 0.3s",
             }}
           >
-            Receber todo sábado
+            Receber todo dia
           </a>
         </div>
       </section>

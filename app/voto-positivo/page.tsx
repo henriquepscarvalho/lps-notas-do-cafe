@@ -141,8 +141,8 @@ export default function VotoPositivo() {
             position: "relative",
           }}
         >
-          Saber que a edição de hoje acertou na xícara é o que faz cada sábado valer a pena.
-          Semana que vem tem mais — sábado de manhã, como sempre.
+          Saber que a edição de hoje acertou na xícara é o que faz cada manhã valer a pena.
+          Amanhã tem mais, como sempre.
         </p>
 
         <a
