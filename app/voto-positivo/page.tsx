@@ -1,189 +1,124 @@
 "use client";
 
+/* ============================================================
+ * PÁGINA /voto-positivo — MODELO CANÔNICO ÚNICO (rede Scriptorium)
+ * AUTO-GERADO por _shared/voto-positivo/build.py
+ * NÃO EDITAR À MÃO. Fonte = page.template.tsx + config.json.
+ * Para re-skinar TODAS as news: editar este template ou o config
+ * e rodar `python3 _shared/voto-positivo/build.py`.
+ * Layout = referência bizshot: tela única, CTA sempre acima da dobra.
+ * ============================================================ */
+
 import { useEffect, useState } from "react";
 import PageBeacon from "../PageBeacon";
 import VoteBeacon from "../VoteBeacon";
 
-interface ConfettiPiece {
-  id: number;
-  left: number;
-  delay: number;
-  duration: number;
-  size: number;
-  emoji: string;
-}
+const CFG = {
+  "slug": "notas-do-cafe",
+  "brand": "Notas do Café",
+  "logo": "/images/logo/simbolo.png",
+  "logoW": 56,
+  "logoH": 56,
+  "kicker": "VOTO REGISTRADO",
+  "headline": "Obrigado pelo seu",
+  "highlight": "voto.",
+  "paragraph": "Saber que a edição de hoje acertou na xícara é o que faz cada manhã valer a pena.",
+  "tagline": "Bom café. Até amanhã.",
+  "shareUrl": "https://api.whatsapp.com/send/?text=A%20Notas%20do%20Caf%C3%A9%20traz%20o%20gr%C3%A3o%2C%20o%20m%C3%A9todo%20e%20a%20curadoria%20pra%20sua%20x%C3%ADcara%20render%20mais.%20https%3A%2F%2Flp.notasdocafe.com.br%2Fcadastro",
+  "emojis": [
+    "☕",
+    "🫘",
+    "♨️",
+    "📦",
+    "✨"
+  ],
+  "theme": {
+    "bg": "#2C1810",
+    "text": "#D4C4AE",
+    "accent": "#C8963E",
+    "heading": "#F5EDE0",
+    "btnBg": "#C8963E",
+    "btnText": "#2C1810",
+    "glow": "rgba(200,150,62,0.14)",
+    "font": "var(--font-heading)"
+  }
+};
+
+interface Piece { id: number; left: number; delay: number; duration: number; size: number; emoji: string; }
 
 export default function VotoPositivo() {
-  const [confetti, setConfetti] = useState<ConfettiPiece[]>([]);
+  const [confetti, setConfetti] = useState<Piece[]>([]);
 
   useEffect(() => {
-    const emojis = ["☕", "🫘", "♨️", "📦", "✨"];
-    const pieces: ConfettiPiece[] = Array.from({ length: 25 }, (_, i) => ({
-      id: i,
-      left: Math.random() * 100,
-      delay: Math.random() * 7,
-      duration: 3 + Math.random() * 3,
-      size: 16 + Math.random() * 14,
-      emoji: emojis[Math.floor(Math.random() * emojis.length)],
-    }));
-    setConfetti(pieces);
+    setConfetti(
+      Array.from({ length: 22 }, (_, i) => ({
+        id: i,
+        left: Math.random() * 100,
+        delay: Math.random() * 7,
+        duration: 3 + Math.random() * 3,
+        size: 16 + Math.random() * 12,
+        emoji: CFG.emojis[Math.floor(Math.random() * CFG.emojis.length)],
+      }))
+    );
   }, []);
+
+  const t = CFG.theme;
 
   return (
     <>
-      <PageBeacon slug="notas-do-cafe" step="voto-positivo" />
-      <VoteBeacon slug="notas-do-cafe" />
+      <PageBeacon slug={CFG.slug} step="voto-positivo" />
+      <VoteBeacon slug={CFG.slug} />
+
       <style>{`
-        @keyframes confettiFall {
-          0% { opacity: 0.6; transform: translateY(0) rotate(0deg); }
-          100% { opacity: 0; transform: translateY(100vh) rotate(720deg); }
-        }
-        @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(12px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes vpFall { 0% { opacity:.6; transform:translateY(0) rotate(0) } 100% { opacity:0; transform:translateY(100vh) rotate(720deg) } }
+        @keyframes vpUp { from { opacity:0; transform:translateY(12px) } to { opacity:1; transform:translateY(0) } }
+        .vp-btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; font-weight:700; font-size:16px; padding:15px 28px; border-radius:10px; text-decoration:none; line-height:1; transition:transform .16s ease, opacity .16s ease }
+        .vp-btn:hover { transform:translateY(-1px); opacity:.92 }
+        @media (max-width:480px){ .vp-btn{ width:100%; max-width:340px } }
       `}</style>
 
-      {/* Confetti */}
+      {/* Confetti — emojis da marca, some após ~10s */}
       <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 50, overflow: "hidden" }}>
         {confetti.map((p) => (
-          <span
-            key={p.id}
-            style={{
-              position: "absolute",
-              top: "-40px",
-              left: `${p.left}%`,
-              fontSize: `${p.size}px`,
-              animation: `confettiFall ${p.duration}s ease-in ${p.delay}s forwards`,
-              opacity: 0,
-            }}
-          >
-            {p.emoji}
-          </span>
+          <span key={p.id} style={{ position: "absolute", top: -30, left: `${p.left}%`, fontSize: p.size, animation: `vpFall ${p.duration}s ease-in ${p.delay}s forwards`, opacity: 0 }}>{p.emoji}</span>
         ))}
       </div>
 
       <main
         style={{
-          minHeight: "100vh",
+          minHeight: "100dvh",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          padding: "4rem 1.5rem",
+          padding: "2.5rem 1.5rem",
           textAlign: "center",
-          background: "var(--bg)",
           position: "relative",
+          background: t.bg,
+          ["--vp-accent" as string]: t.accent,
         }}
       >
-        {/* Gold glow */}
-        <div
-          style={{
-            position: "absolute",
-            top: "30%",
-            left: "50%",
-            transform: "translateX(-50%)",
-            width: "500px",
-            height: "500px",
-            background: "radial-gradient(circle, rgba(200,150,62,0.10) 0%, transparent 65%)",
-            pointerEvents: "none",
-          }}
-        />
+        {/* glow de acento atrás do conteúdo */}
+        <div style={{ position: "absolute", top: "28%", left: "50%", transform: "translateX(-50%)", width: 480, height: 480, maxWidth: "92vw", background: `radial-gradient(circle, ${t.glow}, transparent 65%)`, pointerEvents: "none" }} />
 
-        <a href="/" style={{ marginBottom: "2rem", animation: "fadeUp 0.9s ease-out 0.3s both", position: "relative" }}>
-          <img
-            src="/images/logo/simbolo.png"
-            alt="Notas do Café"
-            width={64}
-            height={64}
-          />
+        <a href="/" style={{ marginBottom: "1.75rem", animation: "vpUp .9s ease-out .3s both", position: "relative" }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={CFG.logo} alt={CFG.brand} width={CFG.logoW} height={CFG.logoH} style={{ height: "auto", maxWidth: "70vw" }} />
         </a>
 
-        <p
-          style={{
-            fontFamily: "var(--font-body)",
-            fontSize: "0.7rem",
-            fontWeight: 600,
-            letterSpacing: "0.22em",
-            textTransform: "uppercase",
-            color: "var(--accent)",
-            marginBottom: "1rem",
-            animation: "fadeUp 0.9s ease-out 0.5s both",
-            position: "relative",
-          }}
-        >
-          Voto registrado
-        </p>
+        <p style={{ fontFamily: t.font, letterSpacing: ".22em", textTransform: "uppercase", fontSize: 12, fontWeight: 600, color: "var(--vp-accent)", marginBottom: "1rem", animation: "vpUp .9s ease-out .5s both", position: "relative" }}>{CFG.kicker}</p>
 
-        <h1
-          style={{
-            fontFamily: "var(--font-heading)",
-            fontSize: "clamp(2rem, 5vw, 3.5rem)",
-            fontWeight: 700,
-            lineHeight: 1.1,
-            color: "var(--text)",
-            marginBottom: "1.25rem",
-            maxWidth: "640px",
-            animation: "fadeUp 0.9s ease-out 0.7s both",
-            position: "relative",
-          }}
-        >
-          Obrigado pelo seu{" "}
-          <em style={{ fontStyle: "italic", color: "var(--accent)" }}>voto</em>
+        <h1 style={{ fontFamily: t.font, fontWeight: 800, fontSize: "clamp(2rem, 5vw, 3.25rem)", lineHeight: 1.1, letterSpacing: "-.015em", color: t.heading, marginBottom: "1.25rem", maxWidth: 640, animation: "vpUp .9s ease-out .7s both", position: "relative" }}>
+          {CFG.headline} <span style={{ color: "var(--vp-accent)" }}>{CFG.highlight}</span>
         </h1>
 
-        <p
-          style={{
-            fontSize: "1.125rem",
-            color: "var(--text-secondary)",
-            maxWidth: "480px",
-            lineHeight: 1.8,
-            marginBottom: "2.5rem",
-            animation: "fadeUp 0.9s ease-out 0.9s both",
-            position: "relative",
-          }}
-        >
-          Saber que a edição de hoje acertou na xícara é o que faz cada manhã valer a pena.
-          Amanhã tem mais, como sempre.
-        </p>
+        <p style={{ fontSize: "1.125rem", color: t.text, maxWidth: 480, lineHeight: 1.7, marginBottom: "2.5rem", animation: "vpUp .9s ease-out .9s both", position: "relative" }}>{CFG.paragraph}</p>
 
-        <a
-          href="https://api.whatsapp.com/send/?text=https%3A%2F%2Flp.notasdocafe.com.br%2Fcadastro"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            display: "inline-block",
-            fontFamily: "var(--font-body)",
-            fontSize: "0.8rem",
-            fontWeight: 700,
-            letterSpacing: "0.12em",
-            textTransform: "uppercase",
-            padding: "0.95rem 2rem",
-            background: "var(--accent)",
-            color: "var(--bg)",
-            borderRadius: "4px",
-            textDecoration: "none",
-            transition: "background 0.3s",
-            animation: "fadeUp 0.9s ease-out 1.1s both",
-            position: "relative",
-          }}
-        >
-          Indicar para um amigo no WhatsApp
+        <a href={CFG.shareUrl} target="_blank" rel="noopener noreferrer" className="vp-btn" style={{ background: t.btnBg, color: t.btnText, animation: "vpUp .9s ease-out 1.1s both", position: "relative" }}>
+          Indicar pra um amigo no WhatsApp
         </a>
 
-        <p
-          style={{
-            fontFamily: "var(--font-heading)",
-            fontStyle: "italic",
-            fontSize: "1rem",
-            color: "var(--text-muted)",
-            marginTop: "3rem",
-            animation: "fadeUp 0.9s ease-out 1.3s both",
-            position: "relative",
-          }}
-        >
-          Bom café. Até sábado.
-        </p>
+        <p style={{ fontFamily: t.font, fontStyle: "italic", fontSize: "1rem", color: t.text, opacity: .7, marginTop: "3rem", animation: "vpUp .9s ease-out 1.3s both", position: "relative" }}>{CFG.tagline}</p>
       </main>
     </>
   );
