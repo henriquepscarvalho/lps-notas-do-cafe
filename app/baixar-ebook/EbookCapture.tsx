@@ -35,7 +35,7 @@ const CHAPTERS = [
 type Status = "idle" | "sending" | "success" | "error";
 
 const BUTTON_LABEL: Record<Status, string> = {
-  idle: "Baixar grátis",
+  idle: "Quero baixar grátis ↓",
   sending: "Enviando...",
   success: "Pronto!",
   error: "Erro, tente de novo",
@@ -217,7 +217,7 @@ export default function EbookCapture() {
               <form className="ebk-form" onSubmit={handleSubmit}>
                 <span className="ebk-field">
                   <MailIcon />
-                  <input type="email" name="email" placeholder="Seu melhor e-mail" required />
+                  <input type="email" name="email" placeholder="seu@email.com" required />
                 </span>
                 <button className="ebk-btn" type="submit" disabled={disabled}>
                   {BUTTON_LABEL[status]}
@@ -284,10 +284,10 @@ export default function EbookCapture() {
             <form className="ebk-form" onSubmit={handleSubmit}>
               <span className="ebk-field">
                 <MailIcon />
-                <input type="email" name="email" placeholder="Seu melhor e-mail" required />
+                <input type="email" name="email" placeholder="seu@email.com" required />
               </span>
               <button className="ebk-btn" type="submit" disabled={disabled}>
-                {status === "idle" ? "Quero o guia grátis" : BUTTON_LABEL[status]}
+                {status === "idle" ? "Quero baixar grátis ↓" : BUTTON_LABEL[status]}
               </button>
             </form>
             <div className="ebk-seal">
