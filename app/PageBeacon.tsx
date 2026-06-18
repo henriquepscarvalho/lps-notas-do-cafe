@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { getExp014Variant } from "./lib/exp014";
 
 /**
  * Pageview beacon → Supabase (tabela public.lp_page_views).
@@ -65,6 +66,7 @@ export default function PageBeacon({ slug, step }: { slug: string; step: string 
         path: window.location.pathname,
         referrer: document.referrer || null,
         user_agent: navigator.userAgent,
+        variant: getExp014Variant(),
       }),
     }).catch(() => {
       /* beacon best-effort, nunca quebra a página */
