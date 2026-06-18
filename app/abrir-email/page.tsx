@@ -1,5 +1,6 @@
 import Image from "next/image";
 import type { Metadata } from "next";
+import PageBeacon from "../PageBeacon";
 
 export const metadata: Metadata = {
   title: "Abra a edição — Notas do Café",
@@ -38,6 +39,7 @@ export default function AbrirEmail() {
         background: "var(--bg, #ffffff)",
       }}
     >
+      <PageBeacon slug="notas-do-cafe" step="abrir-email" />
       <Image
         src="/images/logo/simbolo.png"
         alt="Notas do Café"
