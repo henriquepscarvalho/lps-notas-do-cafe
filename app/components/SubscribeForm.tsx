@@ -57,6 +57,7 @@ export default function SubscribeForm({
       } catch {}
       form.reset();
       setTimeout(() => {
+        try { sessionStorage.setItem("vdn_funnel", String(Date.now())); } catch {}
         window.location.href = "/pesquisa";
       }, 1200);
     } catch {

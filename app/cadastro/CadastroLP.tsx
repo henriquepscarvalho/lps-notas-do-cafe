@@ -58,6 +58,7 @@ export default function CadastroLP() {
           const w = window as unknown as { fbq?: (...a: unknown[]) => void };
           if (w.fbq) w.fbq("track", "Lead", { content_name: "notas-do-cafe" });
           try { localStorage.setItem("vdn_lead_email", email); } catch {}
+          try { sessionStorage.setItem("vdn_funnel", String(Date.now())); } catch {}
           setTimeout(() => { window.location.href = "/pesquisa"; }, 900);
         } catch {
           btn.disabled = false;
