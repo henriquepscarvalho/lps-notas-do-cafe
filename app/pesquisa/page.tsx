@@ -510,7 +510,7 @@ export default function Pesquisa() {
   }
 
   useEffect(() => {
-    if (status === "success") window.location.href = "/cadastro-confirmado";
+    if (status === "success") { try { sessionStorage.setItem("vdn_pesquisa", "filled"); } catch {} window.location.href = "/cadastro-confirmado"; }
   }, [status]);
   if (status === "success") return null;
 
@@ -543,7 +543,7 @@ export default function Pesquisa() {
         {/* Skip */}
         <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
           <a
-            href="/cadastro-confirmado"
+            href="/cadastro-confirmado" onClick={() => { try { sessionStorage.setItem("vdn_pesquisa", "skip"); } catch {} }}
             style={{
               color: "var(--text-3, #8A7060)",
               fontSize: "0.85rem",

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-import { getExp014Variant } from "./lib/exp014";
 
 /**
  * Pageview beacon → Supabase (tabela public.lp_page_views).
@@ -14,6 +13,12 @@ import { getExp014Variant } from "./lib/exp014";
  * presente e recente. Sem ele (entrada pelo ebook, email, PDF ou link direto) o
  * evento vira `${step}-direct`, mantendo a conversão visita→lead honesta (valores
  * únicos: cada etapa do funil vira subconjunto da anterior).
+ *
+ * Phase 2 — preencheu vs pulou: a /pesquisa grava `vdn_pesquisa` no momento da
+ * escolha (`filled` no submit, `skip` no link "Preencher depois"). O confirmado
+ * in-funnel lê esse token: `skip` → `confirmado-skip` (pulou a pesquisa), senão
+ * → `confirmado` (respondeu). O total de leads não muda; só desmembra o
+ * confirmado pra revelar a taxa real de preenchimento da pesquisa.
  *
  * Uso:
  *   <PageBeacon slug="techshot" step="topo" />            // app/page.tsx
@@ -40,7 +45,18 @@ export default function PageBeacon({ slug, step }: { slug: string; step: string 
       } catch {
         /* sessionStorage indisponível — trata como entrada direta */
       }
-      if (!inFunnel) effectiveStep = `${step}-direct`;
+      if (!inFunnel) {
+        effectiveStep = `${step}-direct`;
+      } else if (step === "confirmado") {
+        // Phase 2: confirmado in-funnel — pulou a pesquisa ou respondeu?
+        try {
+          if (sessionStorage.getItem("vdn_pesquisa") === "skip") {
+            effectiveStep = "confirmado-skip";
+          }
+        } catch {
+          /* sessionStorage indisponível — trata como preenchido (confirmado) */
+        }
+      }
     }
 
     const k = `lpv_${slug}_${effectiveStep}`;
@@ -66,7 +82,6 @@ export default function PageBeacon({ slug, step }: { slug: string; step: string 
         path: window.location.pathname,
         referrer: document.referrer || null,
         user_agent: navigator.userAgent,
-        variant: getExp014Variant(),
       }),
     }).catch(() => {
       /* beacon best-effort, nunca quebra a página */
