@@ -210,8 +210,8 @@ export default function EbookCapture() {
           <div className="ebk-hero">
             <div>
               <span className="ebk-eyebrow">☕ Guia gratuito · 7 métodos</span>
-              <h1>7 métodos passados pelo filtro editorial da Notas do Café.</h1>
-              <p className="ebk-lead">7 métodos, cada um com nota, ponto de moagem e tempo de extração. Sem snobismo, só o que vale a xícara. Pra ler num café.</p>
+              <h1>7 métodos passados pelo <em>filtro editorial</em> da Notas do Café.</h1>
+              <p className="ebk-lead">7 métodos, cada um com <b>nota, ponto de moagem e tempo de extração</b>. Sem snobismo, só o que vale a xícara. Pra ler num café.</p>
               <form className="ebk-form" onSubmit={handleSubmit}>
                 <span className="ebk-field">
                   <MailIcon />
