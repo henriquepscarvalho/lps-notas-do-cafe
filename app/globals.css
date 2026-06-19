@@ -264,7 +264,7 @@ body {
   --s-accent: #C8963E; --s-accent-rgb: 200, 150, 62; --s-text-btn: #2C1810;
   max-width: 640px;
   margin: 0 auto;
-  padding: 80px 1.5rem 5rem;
+  padding: clamp(5rem, 8vw, 8rem) clamp(1.25rem, 4vw, 3rem) clamp(5rem, 8vw, 8rem);
   background: var(--s-bg);
   min-height: 100vh;
   color: var(--s-text-1);
@@ -415,9 +415,11 @@ body {
 }
 
 /* Fields */
-.survey-field {
-  margin-bottom: 1.5rem;
-}
+.survey-field { display: flex; flex-direction: column; margin-bottom: 1.5rem; }
+.survey-field .survey-input,
+.survey-field .dropdown-wrapper,
+.survey-field .survey-textarea { margin-top: auto; }
+
 
 .survey-label {
   display: block;
