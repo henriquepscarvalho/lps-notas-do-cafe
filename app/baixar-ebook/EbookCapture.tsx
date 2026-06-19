@@ -176,14 +176,16 @@ export default function EbookCapture() {
   .ebk .ebk-foot{padding:36px 0 50px;text-align:center;border-top:1px solid var(--hair);color:var(--faint);font-size:13px}
   .ebk .ebk-fsig{font-family:var(--heading),'Eczar',Georgia,serif;font-style:italic;font-size:16px;color:var(--muted);margin-top:6px}
   @media(max-width:820px){
-    .ebk .ebk-hero{grid-template-columns:1fr;gap:36px;text-align:center;padding-bottom:40px}
-    .ebk .ebk-hero .ebk-eyebrow{margin-left:auto;margin-right:auto}
-    .ebk h1{font-size:40px} .ebk .ebk-lead{margin-left:auto;margin-right:auto}
-    .ebk .ebk-form{margin-left:auto;margin-right:auto;flex-direction:column}
-    .ebk .ebk-trust{justify-content:center}
-    .ebk .ebk-bookw{order:-1} .ebk .ebk-book{width:240px;transform:rotateY(-9deg)}
+    .ebk .ebk-hero{grid-template-columns:1fr;gap:0;text-align:center;padding:8px 0 40px}
+    .ebk .ebk-hero>div:first-child{display:flex;flex-direction:column;align-items:center}
+    .ebk .ebk-eyebrow{display:none}
+    .ebk h1{font-size:27px;line-height:1.12;order:1;margin-bottom:18px}
+    .ebk .ebk-form{margin-left:auto;margin-right:auto;flex-direction:column;order:2;max-width:340px;width:100%}
+    .ebk .ebk-trust{justify-content:center;order:3}
+    .ebk .ebk-lead{margin:22px auto 0;order:4;font-size:15px;max-width:340px}
+    .ebk .ebk-bookw{order:-1;margin-bottom:16px} .ebk .ebk-book{width:128px;transform:rotateY(-7deg)}
     .ebk .ebk-inside{grid-template-columns:1fr}
-    .ebk .ebk-final h2,.ebk .ebk-sech h2{font-size:32px}
+    .ebk .ebk-final h2,.ebk .ebk-sech h2{font-size:30px}
   }
   @media (prefers-reduced-motion: no-preference){
     .ebk .hcm-rise{opacity:0;transform:translateY(24px);transition:opacity .7s cubic-bezier(.22,.61,.36,1),transform .7s cubic-bezier(.22,.61,.36,1)}
