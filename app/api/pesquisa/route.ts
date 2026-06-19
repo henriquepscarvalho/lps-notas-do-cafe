@@ -63,7 +63,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Email inválido." }, { status: 400 });
     }
 
-    const { error } = await supabase.from("nc_pesquisa").insert({
+    const { error } = await supabase.from("network_pesquisa").insert({
+      slug: "notas-do-cafe",
       nome: nome.trim(),
       sobrenome: sobrenome.trim(),
       email: email.trim().toLowerCase(),
@@ -71,16 +72,16 @@ export async function POST(request: Request) {
       genero,
       idade,
       origem,
-      interesse_conteudo,
+      q_interesse: interesse_conteudo,
       situacao_profissional,
-      nivel_experiencia,
-      consome_cafe,
-      investe_cafe,
-      tipo_recurso,
-      area_principal,
+      q_experiencia: nivel_experiencia,
+      q_consumo: consome_cafe,
+      q_objetivo: investe_cafe,
+      q_recurso: tipo_recurso,
+      q_area: area_principal,
       faixa_renda,
       maior_desafio: maior_desafio?.trim() || null,
-      pergunta_mentoria: pergunta_mentoria?.trim() || null,
+      pergunta: pergunta_mentoria?.trim() || null,
     });
 
     if (error) {
