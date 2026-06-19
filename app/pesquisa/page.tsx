@@ -5,20 +5,18 @@ import { createPortal } from "react-dom";
 import Image from "next/image";
 import PageBeacon from "../PageBeacon";
 
-const OPCOES_GENERO = ["Masculino", "Feminino", "Outro", "Prefiro não informar"];
+const OPCOES_GENERO = ["👨 Masculino", "👩 Feminino", "🌈 Outro", "🙊 Prefiro não informar"];
 
-const OPCOES_IDADE = ["< 18", "18-24", "25-34", "35-44", "45-54", "55+"];
+const OPCOES_IDADE = ["🧒 < 18", "🧑 18-24", "👨 25-34", "🧔 35-44", "👨‍🦱 45-54", "👴 55+"];
 
 const OPCOES_ORIGEM = [
   { emoji: "📣", label: "Vi um anúncio" },
-  { emoji: "📸", label: "Instagram (já seguia ou vi um post)" },
-  { emoji: "👍", label: "Facebook (já seguia ou vi um post)" },
+  { emoji: "📸", label: "Instagram ou Facebook (post)" },
   { emoji: "▶️", label: "YouTube" },
   { emoji: "🔍", label: "Pesquisei no Google" },
   { emoji: "🤝", label: "Indicação de alguém" },
-  { emoji: "📩", label: "Outra newsletter ou email" },
-  { emoji: "📱", label: "Outra rede social (TikTok, LinkedIn, X...)" },
-  { emoji: "🌐", label: "Outro" },
+  { emoji: "📩", label: "Newsletter ou email" },
+  { emoji: "🌐", label: "Outro (TikTok, LinkedIn, X...)" },
 ];
 
 const OPCOES_INTERESSE = [
@@ -28,8 +26,7 @@ const OPCOES_INTERESSE = [
   { emoji: "👅", label: "Cafés de especialidade e avaliação sensorial" },
   { emoji: "🛠️", label: "Equipamentos e acessórios (moedores, balanças)" },
   { emoji: "📖", label: "História do café brasileiro" },
-  { emoji: "🌍", label: "Sustentabilidade na cadeia do café" },
-  { emoji: "🏪", label: "Curadoria de produtos e onde comprar" },
+  { emoji: "🌍", label: "Sustentabilidade na cadeia do café" }
 ];
 
 const OPCOES_SITUACAO = [
@@ -46,21 +43,21 @@ const OPCOES_EXPERIENCIA = [
   { emoji: "☕", label: "Bebo café diariamente mas não escolho com critério" },
   { emoji: "🔍", label: "Já experimentei alguns cafés especiais por curiosidade" },
   { emoji: "⚖️", label: "Escolho grãos e métodos com atenção" },
-  { emoji: "🏆", label: "Tenho setup completo e compro direto de torrefadores" },
+  { emoji: "🏆", label: "Tenho setup completo e compro direto de torrefadores" }
 ];
 
 const OPCOES_CONSOME = [
   { emoji: "📚", label: "Sim, regularmente (blogs, cursos, comunidades de barista)" },
   { emoji: "📄", label: "Sim, mas de forma esporádica" },
   { emoji: "🔍", label: "Não, mas quero começar" },
-  { emoji: "❌", label: "Não tenho interesse além da newsletter" },
+  { emoji: "❌", label: "Não tenho interesse além da newsletter" }
 ];
 
 const OPCOES_INVESTE = [
   { emoji: "💰", label: "Sim, tenho setup completo (moedor, método de gotejamento, etc.)" },
   { emoji: "🪙", label: "Sim, tenho pelo menos um equipamento de qualidade" },
   { emoji: "🤔", label: "Uso o básico mas quero evoluir meu setup" },
-  { emoji: "❌", label: "Ainda faço só no cafeteira elétrica comum" },
+  { emoji: "❌", label: "Ainda faço só no cafeteira elétrica comum" }
 ];
 
 const OPCOES_RECURSO = [
@@ -70,7 +67,7 @@ const OPCOES_RECURSO = [
   { emoji: "👥", label: "Comunidade de apreciadores de café especial" },
   { emoji: "📚", label: "Biblioteca de reviews de grãos e torrefações" },
   { emoji: "🛒", label: "Curadoria de onde comprar o melhor café" },
-  { emoji: "❓", label: "Ainda não sei" },
+  { emoji: "❓", label: "Ainda não sei" }
 ];
 
 const OPCOES_AREA = [
@@ -79,18 +76,17 @@ const OPCOES_AREA = [
   { emoji: "🌱", label: "Conhecer origens e torrefadores de qualidade" },
   { emoji: "🛠️", label: "Montar um setup caseiro funcional" },
   { emoji: "👥", label: "Compartilhar a experiência com outras pessoas" },
-  { emoji: "🌍", label: "Apoiar produtores e torrefadores brasileiros" },
+  { emoji: "🌍", label: "Apoiar produtores e torrefadores brasileiros" }
 ];
 
 const OPCOES_RENDA = [
-  "Sem renda no momento",
-  "Até R$ 2.000",
-  "R$ 2.000 - R$ 5.000",
-  "R$ 5.000 - R$ 10.000",
-  "R$ 10.000 - R$ 25.000",
-  "R$ 25.000 - R$ 50.000",
-  "Acima de R$ 50.000",
-  "Prefiro não informar",
+  "🚫 Sem renda no momento",
+  "💵 Até R$ 2.000",
+  "💵 R$ 2.000 - R$ 5.000",
+  "💴 R$ 5.000 - R$ 10.000",
+  "💶 R$ 10.000 - R$ 25.000",
+  "🤑 Acima de R$ 25.000",
+  "🙊 Prefiro não informar",
 ];
 
 interface FormData {
@@ -192,7 +188,7 @@ function Dropdown({
       placement = "above";
       maxHeight = spaceAbove;
     }
-    maxHeight = Math.max(140, Math.min(maxHeight, 320));
+    maxHeight = Math.max(140, Math.min(maxHeight, 360));
     const top = placement === "below" ? r.bottom + GAP : r.top - GAP - maxHeight;
     setPos({ top, left: r.left, width: r.width, maxHeight, placement });
   };
@@ -364,17 +360,6 @@ function TextArea({
 }
 
 /* ─── Progress Bar ─── */
-function ProgressBar({ filled, total }: { filled: number; total: number }) {
-  const pct = Math.round((filled / total) * 100);
-  return (
-    <div className="progress-wrapper">
-      <div className="progress-bar">
-        <div className="progress-fill" style={{ width: `${pct}%` }} />
-      </div>
-      <span className="progress-label">{pct}% completo</span>
-    </div>
-  );
-}
 
 /* ─── Main Page ─── */
 export default function Pesquisa() {
@@ -399,12 +384,6 @@ export default function Pesquisa() {
       }
     } catch {}
   }, []);
-
-  const filledCount = Object.entries(form).filter(
-    ([, v]) => v.trim() !== ""
-  ).length;
-
-  const totalFields = Object.keys(form).length;
 
   useEffect(() => {
     const REVEAL_SEL = ".reveal, .survey-reveal";
@@ -527,47 +506,22 @@ export default function Pesquisa() {
               height={40}
             />
           </a>
-          <div className="survey-header-line" />
-          <p className="survey-kicker survey-reveal">PESQUISA DE BOAS-VINDAS</p>
-          <h1 className="survey-title survey-reveal">
-            Quero te conhecer.
-          </h1>
-          <p className="survey-subtitle survey-reveal">
-            Responda as perguntas abaixo. Leva 3 minutos.
-            <br />
-            Suas respostas moldam o conteúdo que você recebe.
-          </p>
+          <p className="survey-kicker survey-reveal">Falta 1 Passo</p>
+          <h1 className="survey-title survey-reveal">Quero te conhecer.</h1>
+          <p className="survey-subtitle survey-reveal">Responda as perguntas abaixo. Leva menos de 1 minuto e suas respostas moldam as edições que você recebe.</p>
         </header>
 
         {/* Skip */}
-        <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
-          <a
-            href="/cadastro-confirmado" onClick={() => { try { sessionStorage.setItem("vdn_pesquisa", "skip"); } catch {} }}
-            style={{
-              color: "var(--text-3, #8A7060)",
-              fontSize: "0.85rem",
-              textDecoration: "none",
-              padding: "0.5rem 0.75rem",
-              borderRadius: "6px",
-              border: "1px solid rgba(255,255,255,0.08)",
-              opacity: 0.7,
-            }}
-          >
-            Preencher depois
-          </a>
-        </div>
 
         {/* Progress */}
-        <ProgressBar filled={filledCount} total={totalFields} />
 
         {/* Form */}
         <form className="survey-form" onSubmit={handleSubmit} noValidate>
           {/* ─── O Apreciador ─── */}
           <section className="survey-section survey-reveal">
-            <h2 className="survey-section-title">O Apreciador</h2>
-            <div className="survey-section-line" />
 
-            <TextInput
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 0.9rem" }}>
+<TextInput
               questionNumber={1}
               label="Qual é o seu primeiro nome?"
               value={form.nome}
@@ -575,8 +529,7 @@ export default function Pesquisa() {
               required
               placeholder="Seu primeiro nome"
             />
-
-            <TextInput
+<TextInput
               questionNumber={2}
               label="Qual é o seu sobrenome?"
               value={form.sobrenome}
@@ -584,6 +537,7 @@ export default function Pesquisa() {
               required
               placeholder="Seu sobrenome"
             />
+</div>
 
             <TextInput
               questionNumber={3}
@@ -606,7 +560,8 @@ export default function Pesquisa() {
               placeholder="11987654321"
             />
 
-            <Dropdown
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 0.9rem" }}>
+<Dropdown
               questionNumber={5}
               label="Com qual gênero você se identifica?"
               value={form.genero}
@@ -614,8 +569,7 @@ export default function Pesquisa() {
               options={OPCOES_GENERO}
               required
             />
-
-            <Dropdown
+<Dropdown
               questionNumber={6}
               label="Em qual faixa de idade você se encontra?"
               value={form.idade}
@@ -623,14 +577,13 @@ export default function Pesquisa() {
               options={OPCOES_IDADE}
               required
             />
+</div>
           </section>
 
           {revealed >= 2 && (
           <div ref={section2Ref}>
           {/* ─── O Primeiro Gole ─── */}
           <section className="survey-section">
-            <h2 className="survey-section-title">O Primeiro Gole</h2>
-            <div className="survey-section-line" />
 
             <Dropdown
               questionNumber={7}
@@ -675,8 +628,6 @@ export default function Pesquisa() {
           <div ref={section3Ref}>
           {/* ─── A Xícara ─── */}
           <section className="survey-section">
-            <h2 className="survey-section-title">A Xícara</h2>
-            <div className="survey-section-line" />
 
             <Dropdown
               questionNumber={11}
@@ -730,8 +681,6 @@ export default function Pesquisa() {
           <div ref={section4Ref}>
           {/* ─── A Última Nota ─── */}
           <section className="survey-section">
-            <h2 className="survey-section-title">A Última Nota</h2>
-            <div className="survey-section-line" />
             <p className="survey-section-desc">
               Essas duas perguntas são opcionais, mas são as mais valiosas.
               <br />
@@ -771,6 +720,12 @@ export default function Pesquisa() {
             >
               {status === "sending" ? "Enviando..." : "Enviar Respostas"}
             </button>
+            <a href="/cadastro-confirmado" onClick={() => { try { sessionStorage.setItem("vdn_pesquisa", "skip"); } catch {} }} style={{ display: "block", textAlign: "center", marginTop: 14, fontSize: "0.875rem", color: "var(--s-text-3)", textDecoration: "underline", textUnderlineOffset: 3 }}>
+              Preencher depois
+            </a>
+            <p style={{ fontFamily: "var(--font-mono, monospace)", fontSize: 11.5, color: "var(--s-text-3)", textAlign: "center", marginTop: 16, letterSpacing: ".04em" }}>
+              SEUS DADOS SÃO PRIVADOS.
+            </p>
           </div>
           </div>
           )}
