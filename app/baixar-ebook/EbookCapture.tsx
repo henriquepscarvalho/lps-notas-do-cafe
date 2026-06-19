@@ -118,7 +118,7 @@ export default function EbookCapture() {
   .ebk *{box-sizing:border-box}
   .ebk .ebk-wrap{max-width:1080px;margin:0 auto;padding:0 24px}
   .ebk a{color:inherit}
-  .ebk .ebk-nav{display:flex;align-items:center;gap:12px;padding:24px;max-width:1080px;margin:0 auto;background:transparent;min-height:0}
+  .ebk .ebk-nav{display:flex;align-items:center;gap:12px;padding:24px;max-width:1080px;margin:0 auto;background:transparent;min-height:0;position:relative;top:auto;justify-content:flex-start}
   .ebk .ebk-nav img{height:34px;width:auto}
   .ebk .ebk-nm{font-family:var(--heading),'Eczar',Georgia,serif;font-size:23px;font-weight:700;letter-spacing:.01em;color:var(--cream);-webkit-text-fill-color:var(--cream)}
   .ebk .ebk-nm span{color:var(--gold-br);-webkit-text-fill-color:var(--gold-br)}
@@ -176,6 +176,8 @@ export default function EbookCapture() {
   .ebk .ebk-foot{padding:36px 0 50px;text-align:center;border-top:1px solid var(--hair);color:var(--faint);font-size:13px}
   .ebk .ebk-fsig{font-family:var(--heading),'Eczar',Georgia,serif;font-style:italic;font-size:16px;color:var(--muted);margin-top:6px}
   @media(max-width:820px){
+    .ebk .ebk-nav{padding:16px 18px}
+    .ebk .ebk-badge{display:none}
     .ebk .ebk-hero{grid-template-columns:1fr;gap:0;text-align:center;padding:8px 0 40px}
     .ebk .ebk-hero>div:first-child{display:flex;flex-direction:column;align-items:center}
     .ebk .ebk-eyebrow{display:none}
