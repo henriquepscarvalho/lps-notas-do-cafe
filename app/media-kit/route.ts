@@ -213,7 +213,7 @@ const HTML = `<!DOCTYPE html>
   <div class="net"><b>Notas do Café</b> faz parte do Scriptorium, rede de newsletters com mais de 31 mil leitores somados em dezenas de nichos. Quer um pacote de rede? Fale com a gente.</div>
   <div class="dom">notasdocafe.com.br</div>
 </div></footer>
-<div class="wrap"><p class="src">Fontes: subscribers e métricas de e-mail via beehiiv (Pharos), soma dos últimos 30 dias, junho/2026. Perfil de renda via pesquisa de inscrição (amostra: 134 respostas). Valores arredondados.</p></div>
+<div class="wrap"><p class="src">Dados atualizados em 19/06/2026.</p></div>
 
 </body>
 </html>
