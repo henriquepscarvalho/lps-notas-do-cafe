@@ -10,16 +10,15 @@ const OPCOES_GENERO = ["Masculino", "Feminino", "Outro", "Prefiro não informar"
 const OPCOES_IDADE = ["< 18", "18-24", "25-34", "35-44", "45-54", "55+"];
 
 const OPCOES_ORIGEM = [
-  { emoji: "📩", label: "Newsletter" },
-  { emoji: "🤝", label: "Indicação" },
-  { emoji: "📸", label: "Instagram" },
-  { emoji: "🎥", label: "YouTube" },
-  { emoji: "💼", label: "LinkedIn" },
-  { emoji: "✖️", label: "X" },
-  { emoji: "🎵", label: "TikTok" },
-  { emoji: "📝", label: "Blog" },
-  { emoji: "🎤", label: "Palestra" },
-  { emoji: "🎙️", label: "Podcast" },
+  { emoji: "📣", label: "Vi um anúncio" },
+  { emoji: "📸", label: "Instagram (já seguia ou vi um post)" },
+  { emoji: "👍", label: "Facebook (já seguia ou vi um post)" },
+  { emoji: "▶️", label: "YouTube" },
+  { emoji: "🔍", label: "Pesquisei no Google" },
+  { emoji: "🤝", label: "Indicação de alguém" },
+  { emoji: "📩", label: "Outra newsletter ou email" },
+  { emoji: "📱", label: "Outra rede social (TikTok, LinkedIn, X...)" },
+  { emoji: "🌐", label: "Outro" },
 ];
 
 const OPCOES_INTERESSE = [

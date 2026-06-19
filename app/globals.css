@@ -258,7 +258,7 @@ body {
    SURVEY / PESQUISA
    ═══════════════════════════════════════════ */
 
-.survey-page {
+:root, .survey-page {
   --s-bg: #2C1810; --s-elevated: #3D2517; --s-card: #1E100A;
   --s-text-1: #F5EDE0; --s-text-2: #C8B49A; --s-text-3: #8A7060;
   --s-accent: #C8963E; --s-accent-rgb: 200, 150, 62; --s-text-btn: #2C1810;
