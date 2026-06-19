@@ -210,14 +210,8 @@ export default function EbookCapture() {
           <div className="ebk-hero">
             <div>
               <span className="ebk-eyebrow">☕ Guia gratuito · 7 métodos</span>
-              <h1>
-                Os métodos de café que ninguém avalia <em>sem frescura</em>.
-              </h1>
-              <p className="ebk-lead">
-                <b>A Xícara Certa</b> reúne 7 métodos de preparo avaliados com o
-                filtro editorial, sem snobismo, só o que vale a xícara. Pra ler
-                num café, aplicar amanhã.
-              </p>
+              <h1>7 métodos passados pelo filtro editorial da Notas do Café.</h1>
+              <p className="ebk-lead">7 métodos, cada um com nota, ponto de moagem e tempo de extração. Sem snobismo, só o que vale a xícara. Pra ler num café.</p>
               <form className="ebk-form" onSubmit={handleSubmit}>
                 <span className="ebk-field">
                   <MailIcon />
