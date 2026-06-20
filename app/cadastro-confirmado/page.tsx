@@ -1,312 +1,84 @@
 "use client";
 
+import { useEffect, useState, type CSSProperties } from "react";
 import PageBeacon from "../PageBeacon";
-import { useEffect, useState } from "react";
 
-interface ConfettiPiece {
-  id: number;
-  color: string;
-  left: number;
-  delay: number;
-  duration: number;
-  width: number;
-  height: number;
-  rotation: number;
-}
+/* Pagina cadastro-confirmado: PADRAO OURO da rede (gerado, nao editar a mao).
+   Fonte: _shared (gen_confirmado_pages.py). Reskin por marca: cor + fonte + logo. */
+
+const C = {
+  bg: "#2C1810", card: "#1E100A", accent: "#C8963E",
+  accentText: "#2C1810", text: "#F5EDE0", muted: "#9E8E7A", border: "rgba(200, 150, 62, 0.12)",
+};
+const FH = "\"Eczar\", Georgia, serif";
+const FB = "\"Plus Jakarta Sans\", -apple-system, system-ui, sans-serif";
+const FONTS_HREF = "https://fonts.googleapis.com/css2?family=Eczar:ital,wght@0,400;0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap";
+const LOGO = "/images/logo/simbolo.png";
+const ENC = "leia%40notasdocafe.com.br";
+const WHATS = "https://sndflw.com/i/3bRJTg1vXSQL9pyKp5nE";
+const HORA = "08:08";
+const SLUG = "notas-do-cafe";
 
 export default function CadastroConfirmado() {
-  const [confetti, setConfetti] = useState<ConfettiPiece[]>([]);
-  const [visibleMissions, setVisibleMissions] = useState<boolean[]>([false, false, false]);
-
+  const [filled, setFilled] = useState(false);
   useEffect(() => {
-    const colors = ["#8B4513", "#C8963E", "#D2691E"];
-    setConfetti(
-      Array.from({ length: 24 }, (_, i) => ({
-        id: i,
-        color: colors[Math.floor(Math.random() * colors.length)],
-        left: Math.random() * 100,
-        delay: Math.random() * 3,
-        duration: 3 + Math.random() * 3,
-        width: 4 + Math.random() * 4,
-        height: 8 + Math.random() * 8,
-        rotation: Math.random() * 360,
-      }))
-    );
-
-    const timers = [
-      setTimeout(() => setVisibleMissions((v) => [true, v[1], v[2]]), 600),
-      setTimeout(() => setVisibleMissions((v) => [v[0], true, v[2]]), 1000),
-      setTimeout(() => setVisibleMissions((v) => [v[0], v[1], true]), 1400),
-    ];
-
-    return () => timers.forEach(clearTimeout);
+    try { if (sessionStorage.getItem("vdn_pesquisa") === "filled") setFilled(true); } catch {}
   }, []);
+  const total = filled ? 2 : 3;
+  const gmail = `https://mail.google.com/mail/u/0/#search/from%3A${ENC}`;
+  const hotmail = `https://outlook.live.com/mail/0/search?q=from%3A${ENC}`;
+  const yahoo = `https://mail.yahoo.com/d/search/keyword=from%3A${ENC}`;
 
-  const missions = [
-    {
-      title: "Confirme seu email",
-      description:
-        "Procure o email de confirmação na sua caixa de entrada e clique no link. Sem isso, você não recebe a edição de amanhã.",
-      links: [
-        {
-          label: "Abrir Gmail",
-          href: "https://mail.google.com/mail/u/0/?utm_source=notasdocafe.com.br&utm_medium=referral#search/from%3Aleia%40notasdocafe.com.br",
-        },
-        {
-          label: "Abrir Hotmail",
-          href: "https://outlook.live.com/mail/0/search?q=from%3Aleia%40notasdocafe.com.br&utm_source=notasdocafe.com.br&utm_medium=referral",
-        },
-        {
-          label: "Abrir Yahoo",
-          href: "https://mail.yahoo.com/d/search/keyword=from%3Aleia%40notasdocafe.com.br?utm_source=notasdocafe.com.br&utm_medium=referral",
-        },
-      ],
-    },
-    {
-      title: "Entre no grupo do WhatsApp",
-      description:
-        "Receba um aviso antes de cada edição. Sem spam, sem conversa.",
-      links: [
-        {
-          label: "Entrar no WhatsApp",
-          href: "https://sndflw.com/i/3bRJTg1vXSQL9pyKp5nE",
-        },
-      ],
-    },
-    {
-      title: "Responda a pesquisa",
-      description:
-        "3 minutos pra contar como você toma café. Assim cada edição chega mais próxima da sua xícara.",
-      links: [
-        {
-          label: "Responder pesquisa",
-          href: "https://lp.notasdocafe.com.br/pesquisa",
-        },
-      ],
-    },
-  ];
+  const card: CSSProperties = { background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "20px 20px 22px" };
+  const lab: CSSProperties = { fontFamily: FB, fontSize: 10.5, fontWeight: 700, letterSpacing: ".18em", textTransform: "uppercase", color: C.accent, marginBottom: 9 };
+  const h3: CSSProperties = { fontFamily: FH, fontWeight: 700, fontSize: 18.5, lineHeight: 1.2, color: C.text, margin: "0 0 7px" };
+  const desc: CSSProperties = { fontSize: 14, lineHeight: 1.6, color: C.muted, margin: "0 0 16px" };
+  const btnPrimary: CSSProperties = { display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center", textDecoration: "none", fontFamily: FB, fontWeight: 700, borderRadius: 9, background: C.accent, color: C.accentText, fontSize: 15, padding: "14px 18px", border: `1px solid ${C.accent}`, width: "100%" };
+  const btnGhost: CSSProperties = { display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center", textDecoration: "none", fontFamily: FB, fontWeight: 600, borderRadius: 9, background: "transparent", color: C.text, fontSize: 13.5, padding: "12px 10px", border: `1px solid ${C.border}` };
 
   return (
     <>
-      <PageBeacon slug="notas-do-cafe" step="confirmado" />
-      <style>{`
-        @keyframes confettiFall {
-          0% { opacity: 0.6; transform: translateY(0) rotate(0deg); }
-          100% { opacity: 0; transform: translateY(110vh) rotate(540deg); }
-        }
-        @keyframes badgePop {
-          0% { transform: scale(0); opacity: 0; }
-          60% { transform: scale(1.15); opacity: 1; }
-          100% { transform: scale(1); opacity: 1; }
-        }
-        @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(12px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
-
-      {/* Confetti */}
-      <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 50, overflow: "hidden" }}>
-        {confetti.map((p) => (
-          <span
-            key={p.id}
-            style={{
-              position: "absolute",
-              top: "-20px",
-              left: `${p.left}%`,
-              width: `${p.width}px`,
-              height: `${p.height}px`,
-              background: p.color,
-              borderRadius: "1px",
-              transform: `rotate(${p.rotation}deg)`,
-              animation: `confettiFall ${p.duration}s ease-in ${p.delay}s forwards`,
-              opacity: 0,
-            }}
-          />
-        ))}
-      </div>
-
-      <main
-        style={{
-          minHeight: "100vh",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: "4rem 1.5rem",
-          textAlign: "center",
-          background: "var(--bg)",
-        }}
-      >
-        {/* Logo */}
-        <img
-          src="/images/logo/simbolo.png"
-          alt="Notas do Café"
-          width={64}
-          height={64}
-          style={{
-            marginBottom: "2rem",
-            animation: "badgePop 0.6s cubic-bezier(0.34,1.56,0.64,1) 0.3s both",
-          }}
-        />
-
-        <p
-          style={{
-            fontFamily: "var(--font-body)",
-            fontSize: "0.7rem",
-            fontWeight: 600,
-            letterSpacing: "0.22em",
-            textTransform: "uppercase",
-            color: "var(--accent)",
-            marginBottom: "1rem",
-            animation: "fadeUp 0.9s ease-out 0.5s both",
-          }}
-        >
-          Cadastro confirmado
-        </p>
-
-        <h1
-          style={{
-            fontFamily: "var(--font-heading)",
-            fontSize: "clamp(2rem, 5vw, 3.5rem)",
-            fontWeight: 700,
-            lineHeight: 1.15,
-            color: "var(--text)",
-            marginBottom: "1.25rem",
-            animation: "fadeUp 0.9s ease-out 0.7s both",
-          }}
-        >
-          Bem-vindo às <em style={{ fontStyle: "italic", color: "var(--accent)" }}>Notas do Café</em>
-        </h1>
-
-        <div
-          style={{
-            width: "40px",
-            height: "1px",
-            background: "var(--accent)",
-            margin: "0 auto 1.25rem",
-            animation: "fadeUp 0.9s ease-out 0.8s both",
-          }}
-        />
-
-        <p
-          style={{
-            fontSize: "1.0625rem",
-            color: "var(--text-secondary)",
-            maxWidth: "480px",
-            lineHeight: 1.75,
-            marginBottom: "3rem",
-            animation: "fadeUp 0.9s ease-out 0.9s both",
-          }}
-        >
-          Sua primeira edição chega amanhã de manhã. Enquanto isso, complete as 3 missões
-          abaixo para não perder nenhum café.
-        </p>
-
-        {/* Missions */}
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "1rem",
-            maxWidth: "580px",
-            width: "100%",
-          }}
-        >
-          {missions.map((mission, i) => (
-            <div
-              key={i}
-              style={{
-                background: "var(--surface)",
-                border: "1px solid var(--border)",
-                borderRadius: "6px",
-                padding: "1.5rem 1.5rem 1.5rem 1.75rem",
-                textAlign: "left",
-                opacity: visibleMissions[i] ? 1 : 0,
-                transform: visibleMissions[i] ? "translateY(0)" : "translateY(20px)",
-                transition: "opacity 0.6s cubic-bezier(0.16,1,0.3,1), transform 0.6s cubic-bezier(0.16,1,0.3,1)",
-                boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
-              }}
-            >
-              <p
-                style={{
-                  fontFamily: "var(--font-body)",
-                  fontSize: "0.65rem",
-                  fontWeight: 700,
-                  letterSpacing: "0.18em",
-                  textTransform: "uppercase",
-                  color: "var(--accent)",
-                  marginBottom: "0.4rem",
-                }}
-              >
-                Missão {i + 1}
-              </p>
-              <h3
-                style={{
-                  fontFamily: "var(--font-heading)",
-                  fontSize: "1.25rem",
-                  fontWeight: 700,
-                  color: "var(--text)",
-                  marginBottom: "0.5rem",
-                }}
-              >
-                {mission.title}
-              </h3>
-              <p
-                style={{
-                  fontSize: "0.9375rem",
-                  color: "var(--text-secondary)",
-                  lineHeight: 1.65,
-                  marginBottom: "1rem",
-                }}
-              >
-                {mission.description}
-              </p>
-              <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-                {mission.links.map((link, j) => (
-                  <a
-                    key={j}
-                    href={link.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      fontFamily: "var(--font-body)",
-                      fontSize: "0.78rem",
-                      fontWeight: 700,
-                      letterSpacing: "0.06em",
-                      textTransform: "uppercase",
-                      color: "var(--bg)",
-                      background: "var(--accent)",
-                      border: "1px solid var(--accent)",
-                      padding: "0.55rem 1.1rem",
-                      borderRadius: "4px",
-                      textDecoration: "none",
-                      transition: "background 0.3s",
-                      whiteSpace: "nowrap",
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.background = "#D4A44A")}
-                    onMouseLeave={(e) => (e.currentTarget.style.background = "var(--accent)")}
-                  >
-                    {link.label}
-                  </a>
-                ))}
+      <link rel="stylesheet" href={FONTS_HREF} />
+      <PageBeacon slug={SLUG} step="confirmado" />
+      <main style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", padding: "54px 22px 60px", textAlign: "center", background: C.bg, color: C.text, fontFamily: FB }}>
+        <div style={{ width: "100%", maxWidth: 432 }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={LOGO} alt="Notas do Café" width={78} height={78} style={{ display: "block", margin: "0 auto 24px", width: 78, height: 78, objectFit: "contain" }} />
+          <p style={{ fontFamily: FB, fontSize: 11.5, fontWeight: 700, letterSpacing: ".22em", textTransform: "uppercase", color: C.accent, margin: "0 0 14px" }}>Cadastro confirmado</p>
+          <h1 style={{ fontFamily: FH, fontWeight: 700, fontSize: "clamp(28px,8vw,38px)", lineHeight: 1.1, color: C.text, letterSpacing: "-.01em", margin: "0 0 18px" }}>
+            Bem-vindo à <em style={{ color: C.accent, fontStyle: "italic" }}>Notas do Café</em>
+          </h1>
+          <div style={{ width: 42, height: 2, background: C.accent, borderRadius: 2, margin: "0 auto 18px", opacity: .85 }} />
+          <p style={{ fontSize: 16, lineHeight: 1.62, color: C.muted, maxWidth: 380, margin: "0 auto 34px" }}>
+            A primeira edição chega em breve, às {HORA}. Enquanto isso, complete {total === 2 ? "as 2 missões" : "as 3 missões"} abaixo.
+          </p>
+          <ol style={{ listStyle: "none", display: "grid", gap: 14, textAlign: "left", padding: 0, margin: 0 }}>
+            <li style={card}>
+              <div style={lab}>Missão 1</div>
+              <h3 style={h3}>Confirme seu email</h3>
+              <p style={desc}>Procure o email de confirmação na sua caixa de entrada e clique no link. Sem isso, as edições não chegam.</p>
+              <a href={gmail} target="_blank" rel="noopener noreferrer" style={btnPrimary}>Abrir Gmail</a>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 9, marginTop: 9 }}>
+                <a href={hotmail} target="_blank" rel="noopener noreferrer" style={btnGhost}>Hotmail</a>
+                <a href={yahoo} target="_blank" rel="noopener noreferrer" style={btnGhost}>Yahoo</a>
               </div>
-            </div>
-          ))}
+            </li>
+            <li style={card}>
+              <div style={lab}>Missão 2</div>
+              <h3 style={h3}>Entre no grupo do WhatsApp</h3>
+              <p style={desc}>Receba um aviso antes de cada edição. Sem spam, sem conversa. Leva 10 segundos.</p>
+              <a href={WHATS} target="_blank" rel="noopener noreferrer" style={btnPrimary}>Entrar no grupo →</a>
+            </li>
+            {!filled && (
+            <li style={card}>
+              <div style={lab}>Missão 3</div>
+              <h3 style={h3}>Responda a pesquisa</h3>
+              <p style={desc}>Conta rápido quem é você pra cada edição chegar mais afiada pro seu perfil. Leva 1 minuto.</p>
+              <a href="/pesquisa" style={btnPrimary}>Responder pesquisa →</a>
+            </li>
+            )}
+          </ol>
         </div>
-
-        <p
-          style={{
-            fontFamily: "var(--font-heading)",
-            fontStyle: "italic",
-            fontSize: "1rem",
-            color: "var(--text-muted)",
-            marginTop: "3rem",
-            animation: "fadeUp 0.9s ease-out 1.8s both",
-          }}
-        >
-          Bom café. Até amanhã.
-        </p>
       </main>
     </>
   );
