@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Eczar, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { TrackingPixels } from "./components/tracking-pixels";
+import Clarity from "./Clarity";
 
 const heading = Eczar({
   variable: "--heading",
@@ -49,6 +50,7 @@ export default function RootLayout({
       <body>
         {children}
         <TrackingPixels />
+        <Clarity projectId="xa1rux43pd" />
       </body>
     </html>
   );
