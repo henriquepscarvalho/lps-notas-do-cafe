@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import PageBeacon from "../PageBeacon";
 
 export const metadata: Metadata = {
-  title: "Abra a edição — Notas do Café",
+  title: "Abra a edição · Notas do Café",
   description: "A edição de hoje já chegou no seu email. Abra agora.",
 };
 
