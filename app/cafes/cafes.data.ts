@@ -2,6 +2,11 @@
 // Sem link de produto fixo: estoque de microlote é instável (foi por isso que grão ficou
 // fora do /produtos). Cada card abre uma BUSCA por perfil no Mercado Livre, sempre as
 // ofertas vivas no estoque, nunca um link quebrado. Espelha o padrão do /produtos.
+//
+// ÚNICO ponto de controle do link de compra de café: as edições mandam o leitor pra
+// /cafes#<slug>, NUNCA direto pro varejista. Se um link quebrar, conserta-se 1 página,
+// não N emails. Edição nova que recomenda café: adicionar o grão aqui (com edicao=NNN)
+// e rodar _shared/scripts/fix_cafe_links.py no HTML.
 
 export interface Cafe {
   slug: string;
@@ -26,6 +31,7 @@ export const RETAILER = {
 
 // Mais recentes primeiro.
 export const CAFES: Cafe[] = [
+  { slug: "acaia-descascado-chapada-de-minas", name: "Acaiá Descascado", regiao: "Chapada de Minas", q: "acaia descascado cereja descascada chapada de minas 250g cafe especial", edicao: "039" },
   { slug: "catuai-maceracao-carbonica-alta-mogiana", name: "Catuaí Maceração Carbônica", regiao: "Alta Mogiana", q: "catuai vermelho maceracao carbonica alta mogiana 250g cafe especial", edicao: "038" },
   { slug: "laurina-bourbon-pointu", name: "Laurina (Bourbon Pointu)", q: "cafe laurina bourbon pointu especial 250g", edicao: "037" },
   { slug: "maragogipe-norte-pioneiro-do-parana", name: "Maragogipe", regiao: "Norte Pioneiro do Paraná", q: "cafe maragogipe norte pioneiro parana 250g cafe especial", edicao: "036" },
@@ -43,6 +49,7 @@ export const CAFES: Cafe[] = [
   { slug: "bourbon-amarelo-cerrado", name: "Bourbon Amarelo", regiao: "Cerrado", q: "bourbon amarelo cerrado 250g cafe especial", edicao: "024" },
   { slug: "catucai-vermelho-natural", name: "Catucaí Vermelho Natural", q: "catucai vermelho natural 250g cafe especial", edicao: "023" },
   { slug: "topazio-anaerobico-cerrado-mineiro", name: "Topázio Anaeróbico", regiao: "Cerrado Mineiro", q: "topazio fermentado anaerobico 250g cafe especial cerrado mineiro", edicao: "022" },
+  { slug: "acaia-cereja-descascado-mantiqueira", name: "Acaiá Cereja Descascado", regiao: "Mantiqueira", q: "acaia mantiqueira cereja descascado 250g cafe especial", edicao: "021" },
   { slug: "icatu-amarelo-natural", name: "Icatu Amarelo Natural", q: "icatu amarelo natural 250g cafe especial", edicao: "020" },
   { slug: "bourbon-sul-de-minas", name: "Bourbon", regiao: "Sul de Minas", q: "bourbon sul de minas 250g cafe especial", edicao: "019" },
   { slug: "mundo-novo-natural-sul-de-minas", name: "Mundo Novo Natural", regiao: "Sul de Minas", q: "mundo novo natural 250g cafe especial sul de minas", edicao: "018" },
@@ -50,6 +57,7 @@ export const CAFES: Cafe[] = [
   { slug: "geisha-lavado-cerrado-mineiro", name: "Geisha Lavado", regiao: "Cerrado Mineiro", q: "geisha lavado cerrado mineiro 250g cafe especial", edicao: "015" },
   { slug: "catuai-vermelho-natural", name: "Catuaí Vermelho Natural", q: "catuai vermelho natural 250g cafe especial", edicao: "014" },
   { slug: "bourbon-amarelo-carmo-de-minas", name: "Bourbon Amarelo", regiao: "Carmo de Minas", q: "bourbon amarelo carmo de minas grao", edicao: "013" },
+  { slug: "bourbon-amarelo-santa-ines", name: "Bourbon Amarelo", regiao: "Santa Inês", q: "bourbon amarelo santa ines 250g cafe especial", edicao: "013" },
   { slug: "kit-degustacao", name: "Kit Degustação", q: "cafe especial kit degustacao", edicao: "012" },
   { slug: "robusta-conilon", name: "Robusta Conilon", q: "cafe robusta conilon especial", edicao: "011" },
   { slug: "honey-process", name: "Honey Process", q: "cafe honey process especial", edicao: "010" },

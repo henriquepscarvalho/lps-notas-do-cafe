@@ -50,4 +50,7 @@ export const PRODUTOS: Produto[] = [
   { slug: "nel-drip", name: "Nel Drip", q: "nel drip flanela café", section: EQUIP, edicao: "010" },
   { slug: "tigelas-cupping", name: "Tigelas de Cupping", q: "tigela cupping café", section: EQUIP, edicao: "009" },
   { slug: "estojo-viagem", name: "Estojo de Viagem", q: "kit café viagem portátil", section: EQUIP, edicao: "012" },
+  { slug: "origami", name: "Coador Origami", q: "coador Origami dripper café", section: EQUIP, edicao: "027" },
+  { slug: "hario-switch", name: "Hario Switch", q: "Hario Switch coador imersão", section: EQUIP, edicao: "036" },
+  { slug: "pote", name: "Pote Hermético Opaco", q: "pote hermético café opaco vedado", section: EQUIP, edicao: "033" },
 ];
