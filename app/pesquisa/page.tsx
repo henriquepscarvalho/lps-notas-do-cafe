@@ -164,7 +164,7 @@ function Dropdown({
   required?: boolean;
 }) {
   const [open, setOpen] = useState(false);
-  const [pos, setPos] = useState<{ top: number; left: number; width: number; maxHeight: number; placement: "below" | "above" } | null>(null);
+  const [pos, setPos] = useState<{ top?: number; bottom?: number; left: number; width: number; maxHeight: number; placement: "below" | "above" } | null>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
@@ -189,19 +189,28 @@ function Dropdown({
       maxHeight = spaceAbove;
     }
     maxHeight = Math.max(140, Math.min(maxHeight, 360));
-    const top = placement === "below" ? r.bottom + GAP : r.top - GAP - maxHeight;
-    setPos({ top, left: r.left, width: r.width, maxHeight, placement });
+    if (placement === "below") {
+      setPos({ top: r.bottom + GAP, left: r.left, width: r.width, maxHeight, placement });
+    } else {
+      // Ancora pelo BOTTOM: o menu cresce pra cima colado no gatilho, em vez de
+      // ficar "pinado" no topo do espaço (longe de onde a pessoa tocou = mis-tap).
+      setPos({ bottom: vh - r.top + GAP, left: r.left, width: r.width, maxHeight, placement });
+    }
   };
 
   useEffect(() => {
     if (!open) return;
     updatePos();
-    const onScrollOrResize = () => updatePos();
-    window.addEventListener("scroll", onScrollOrResize, true);
-    window.addEventListener("resize", onScrollOrResize);
+    // Trava o scroll do body enquanto o menu está aberto: sem isso o menu
+    // position:fixed "pula" a cada scroll no mobile e o toque erra a opção
+    // (vira dead click). Travado, o menu fica parado e o alvo é estável.
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onResize = () => updatePos();
+    window.addEventListener("resize", onResize);
     return () => {
-      window.removeEventListener("scroll", onScrollOrResize, true);
-      window.removeEventListener("resize", onScrollOrResize);
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener("resize", onResize);
     };
   }, [open]);
 
@@ -220,7 +229,7 @@ function Dropdown({
 
   return (
     <div className="survey-field">
-      <label className="survey-label">
+      <label className="survey-label" onClick={() => setOpen(true)} style={{ cursor: "pointer" }}>
         <span className="survey-number">{questionNumber}.</span>
         {label}
         {required && <span className="survey-required">*</span>}
@@ -245,11 +254,18 @@ function Dropdown({
           </svg>
         </button>
         {open && pos && typeof document !== "undefined" && createPortal(
+          <>
+          {/* Backdrop: captura o toque de "fechar clicando fora" num handler real.
+              Sem ele o toque cai no body sem resposta = dead click no Clarity. */}
+          <div
+            onClick={() => setOpen(false)}
+            style={{ position: "fixed", inset: 0, zIndex: 9998, background: "transparent" }}
+          />
           <div
             className="dropdown-menu dropdown-portal-menu"
             style={{
               position: "fixed",
-              top: pos.top,
+              ...(pos.placement === "above" ? { top: "auto", bottom: pos.bottom } : { top: pos.top, bottom: "auto" }),
               left: pos.left,
               width: pos.width,
               maxHeight: pos.maxHeight,
@@ -272,7 +288,8 @@ function Dropdown({
                 <span>{opt.label}</span>
               </button>
             ))}
-          </div>,
+          </div>
+          </>,
           document.body
         )}
       </div>
