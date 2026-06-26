@@ -42,10 +42,10 @@ export function getExp014Variant(): Variant {
 }
 
 const B_CSS =
-  "html.exp014-b .lpc-input,html.exp014-b .nmk .input{background:#ffffff!important;color:#1a1a1a!important;border-color:rgba(0,0,0,.18)!important}" +
-  "html.exp014-b .lpc-input::placeholder,html.exp014-b .nmk .input::placeholder{color:#8a8a8a!important;opacity:1}" +
-  "html.exp014-b .lpc-input:focus,html.exp014-b .nmk .input:focus{border-color:#1a1a1a!important}" +
-  "html.exp014-b .lpc-field svg,html.exp014-b .nmk .field svg{color:#3a322a!important}";
+  "html.exp014-b .lpc-input,html.exp014-b .nmk .input,html.exp014-b .ebk .ebk-form input{background:#ffffff!important;color:#1a1a1a!important;border-color:rgba(0,0,0,.18)!important}" +
+  "html.exp014-b .lpc-input::placeholder,html.exp014-b .nmk .input::placeholder,html.exp014-b .ebk .ebk-form input::placeholder{color:#8a8a8a!important;opacity:1}" +
+  "html.exp014-b .lpc-input:focus,html.exp014-b .nmk .input:focus,html.exp014-b .ebk .ebk-form input:focus{border-color:#1a1a1a!important}" +
+  "html.exp014-b .lpc-field svg,html.exp014-b .nmk .field svg,html.exp014-b .ebk .ebk-mail{color:#3a322a!important}";
 
 /**
  * Aplica a variante (idempotente). Só a B muda algo: injeta o CSS e marca <html>.

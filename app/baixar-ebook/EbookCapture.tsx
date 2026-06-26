@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { captureUtm, getUtm } from "../lib/utm";
+import { applyExp014 } from "../lib/exp014";
 
 const AUTOMATION_ID = "aut_e7997773-c01a-46ec-b616-a3a08ea4e3cf";
 
@@ -55,6 +56,7 @@ export default function EbookCapture() {
 
   useEffect(() => {
     captureUtm();
+    applyExp014();
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const groups: [string, number][] = [
       [".ebk-hero > div:first-child > *", 90],
