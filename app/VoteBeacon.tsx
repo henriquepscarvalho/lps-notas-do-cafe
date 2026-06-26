@@ -22,6 +22,12 @@ async function sha256Hex(s: string): Promise<string> {
     .join("");
 }
 
+function maskEmail(email: string): string | null {
+  const at = email.indexOf("@");
+  if (at < 1) return null;
+  return email[0] + "****@" + email.slice(at + 1);
+}
+
 function parseVoteParams() {
   const p = new URLSearchParams(window.location.search);
   const nota = parseInt(p.get("nota") || "", 10);
@@ -50,7 +56,9 @@ export default function VoteBeacon({ slug }: { slug: string }) {
 
     (async () => {
       let subHash: string | null = null;
+      let emailMask: string | null = null;
       if (v.email.includes("@")) {
+        emailMask = maskEmail(v.email);
         try {
           subHash = await sha256Hex(v.email);
         } catch {
@@ -77,6 +85,7 @@ export default function VoteBeacon({ slug }: { slug: string }) {
           edition: v.ed,
           rating: v.nota,
           sub_hash: subHash,
+          email_mask: emailMask,
           path: window.location.pathname,
           referrer: document.referrer || null,
           user_agent: navigator.userAgent,
