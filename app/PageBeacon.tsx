@@ -12,6 +12,20 @@ function getVariant(): string | null {
   }
 }
 
+/** Acesso interno (HC/QA): ?internal=1 grava flag permanente no device (vdn_internal);
+ *  ?internal=0 remove. Beacon manda is_internal=true e o report sempre ignora. */
+export function isInternalAccess(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    const p = new URLSearchParams(window.location.search).get("internal");
+    if (p === "1") localStorage.setItem("vdn_internal", "1");
+    if (p === "0") localStorage.removeItem("vdn_internal");
+    return localStorage.getItem("vdn_internal") === "1";
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Pageview/funil beacon → Supabase (tabela public.lp_page_views).
  * anon key é pública; RLS na tabela só permite INSERT (sem leitura pública).
@@ -48,6 +62,7 @@ function genId(): string {
 export function captureSource(defaultSource?: string): void {
   if (typeof window === "undefined") return;
   try {
+    isInternalAccess(); // grava o flag interno cedo, se ?internal= estiver na URL
     const param = new URLSearchParams(window.location.search).get("src");
     const src = (param || "").trim().slice(0, 60);
     if (src && !sessionStorage.getItem("vdn_source")) {
@@ -127,6 +142,7 @@ export function sendBeacon(slug: string, step: string, opts: BeaconOpts = {}): v
       referrer: document.referrer || null,
       user_agent: navigator.userAgent,
       variant: getVariant(),
+      is_internal: isInternalAccess(),
     }),
   }).catch(() => {
     /* beacon best-effort, nunca quebra a página */
