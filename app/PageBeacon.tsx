@@ -1,7 +1,16 @@
 "use client";
 
 import { useEffect } from "react";
-import { getExp014Variant } from "./lib/exp014";
+
+// variant lido inline do localStorage (sem acoplar no lib/exp014, que nem toda LP tem)
+function getVariant(): string | null {
+  try {
+    const v = localStorage.getItem("vdn_exp014");
+    return v === "A" || v === "B" ? v : null;
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Pageview/funil beacon → Supabase (tabela public.lp_page_views).
@@ -117,7 +126,7 @@ export function sendBeacon(slug: string, step: string, opts: BeaconOpts = {}): v
       path: window.location.pathname,
       referrer: document.referrer || null,
       user_agent: navigator.userAgent,
-      variant: getExp014Variant(),
+      variant: getVariant(),
     }),
   }).catch(() => {
     /* beacon best-effort, nunca quebra a página */
