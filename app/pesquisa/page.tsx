@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
-import PageBeacon from "../PageBeacon";
+import PageBeacon, { sendBeacon } from "../PageBeacon";
 
 const OPCOES_GENERO = ["👨 Masculino", "👩 Feminino", "🌈 Outro", "🙊 Prefiro não informar"];
 
@@ -505,7 +505,7 @@ export default function Pesquisa() {
   }
 
   useEffect(() => {
-    if (status === "success") { try { sessionStorage.setItem("vdn_pesquisa", "filled"); } catch {} window.location.href = "/cadastro-confirmado"; }
+    if (status === "success") { try { sessionStorage.setItem("vdn_pesquisa", "filled"); } catch {} sendBeacon("notas-do-cafe", "pesquisa", { eventType: "converteu" }); window.location.href = "/cadastro-confirmado"; }
   }, [status]);
   if (status === "success") return null;
 

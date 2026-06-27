@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function BaixarEbook() {
   return (
     <>
-      <PageBeacon slug="notas-do-cafe" step="ebook-topo" />
+      <PageBeacon slug="notas-do-cafe" step="topo" source="ebook" />
       <EbookCapture />
     </>
   );

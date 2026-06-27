@@ -4,91 +4,141 @@ import { useEffect } from "react";
 import { getExp014Variant } from "./lib/exp014";
 
 /**
- * Pageview beacon → Supabase (tabela public.lp_page_views).
- * Dispara 1x por load (idempotente por sessionStorage chave slug+step).
+ * Pageview/funil beacon → Supabase (tabela public.lp_page_views).
  * anon key é pública; RLS na tabela só permite INSERT (sem leitura pública).
  *
- * Funil de cadastro: o /cadastro e o form embutido gravam um token de jornada
- * (`vdn_funnel`) no sessionStorage ANTES de redirecionar pra /pesquisa. Os steps
- * `pesquisa` e `confirmado` só contam como in-funnel se esse token estiver
- * presente e recente. Sem ele (entrada pelo ebook, email, PDF ou link direto) o
- * evento vira `${step}-direct`, mantendo a conversão visita→lead honesta (valores
- * únicos: cada etapa do funil vira subconjunto da anterior).
+ * Modelo multi-entrada (jun/2026):
+ *   - source     → de qual porta a pessoa veio (cadastro/ebook/quiz/video/direct).
+ *                  A 1ª página captura `?src=` (ou um default por porta) em
+ *                  sessionStorage `vdn_source`; TODO beacon ecoa.
+ *   - journey_id → id aleatório por pessoa (sessionStorage `vdn_journey`), pra
+ *                  contar jornadas únicas e seguir o caminho real.
+ *   - event_type → "apareceu" (a etapa entrou na tela) vs "converteu" (clicou o
+ *                  CTA). A razão converteu/apareceu por etapa aponta onde trava.
  *
- * Phase 2 — preencheu vs pulou: a /pesquisa grava `vdn_pesquisa` no momento da
- * escolha (`filled` no submit, `skip` no link "Preencher depois"). O confirmado
- * in-funnel lê esse token: `skip` → `confirmado-skip` (pulou a pesquisa), senão
- * → `confirmado` (respondeu). O total de leads não muda; só desmembra o
- * confirmado pra revelar a taxa real de preenchimento da pesquisa.
+ * Uso declarativo (pageview de uma rota):
+ *   <PageBeacon slug="brasa-certa" step="topo" source="cadastro" />
  *
- * Uso:
- *   <PageBeacon slug="techshot" step="topo" />            // app/page.tsx
- *   <PageBeacon slug="techshot" step="confirmado" />      // app/cadastro-confirmado/page.tsx
+ * Uso imperativo (passo de wizard, no clique do CTA):
+ *   sendBeacon("brasa-certa", "email", { eventType: "converteu" });
  *
  * Requer NEXT_PUBLIC_SUPABASE_URL + NEXT_PUBLIC_SUPABASE_ANON_KEY no .env.local
  * e nas env vars da Vercel (Production + Preview).
  */
-const FUNNEL_TTL_MS = 30 * 60 * 1000; // janela da jornada cadastro → pesquisa → confirmado
 
-export default function PageBeacon({ slug, step }: { slug: string; step: string }) {
-  useEffect(() => {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    if (!url || !key) return;
+function genId(): string {
+  try {
+    if (typeof crypto !== "undefined" && crypto.randomUUID) return crypto.randomUUID();
+  } catch {
+    /* crypto indisponível — cai no fallback abaixo */
+  }
+  return "j_" + Math.random().toString(36).slice(2) + Date.now().toString(36);
+}
 
-    // Steps do funil de cadastro: separa in-funnel de entrada lateral (ebook/email/direto).
-    let effectiveStep = step;
-    if (step === "pesquisa" || step === "confirmado") {
-      let inFunnel = false;
-      try {
-        const t = Number(sessionStorage.getItem("vdn_funnel") || 0);
-        inFunnel = t > 0 && Date.now() - t < FUNNEL_TTL_MS;
-      } catch {
-        /* sessionStorage indisponível — trata como entrada direta */
-      }
-      if (!inFunnel) {
-        effectiveStep = `${step}-direct`;
-      } else if (step === "confirmado") {
-        // Phase 2: confirmado in-funnel — pulou a pesquisa ou respondeu?
-        try {
-          if (sessionStorage.getItem("vdn_pesquisa") === "skip") {
-            effectiveStep = "confirmado-skip";
-          }
-        } catch {
-          /* sessionStorage indisponível — trata como preenchido (confirmado) */
-        }
-      }
+/** Captura a porta de entrada (1x por jornada) e garante o journey_id. */
+export function captureSource(defaultSource?: string): void {
+  if (typeof window === "undefined") return;
+  try {
+    const param = new URLSearchParams(window.location.search).get("src");
+    const src = (param || "").trim().slice(0, 60);
+    if (src && !sessionStorage.getItem("vdn_source")) {
+      sessionStorage.setItem("vdn_source", src);
+    } else if (defaultSource && !sessionStorage.getItem("vdn_source")) {
+      sessionStorage.setItem("vdn_source", defaultSource);
     }
+    if (!sessionStorage.getItem("vdn_journey")) {
+      sessionStorage.setItem("vdn_journey", genId());
+    }
+  } catch {
+    /* storage bloqueado — beacon ainda manda source=direct */
+  }
+}
 
-    const k = `lpv_${slug}_${effectiveStep}`;
+function getSource(): string {
+  try {
+    return sessionStorage.getItem("vdn_source") || "direct";
+  } catch {
+    return "direct";
+  }
+}
+
+function getJourney(): string | null {
+  try {
+    let j = sessionStorage.getItem("vdn_journey");
+    if (!j) {
+      j = genId();
+      sessionStorage.setItem("vdn_journey", j);
+    }
+    return j;
+  } catch {
+    return null;
+  }
+}
+
+type BeaconOpts = { eventType?: "apareceu" | "converteu"; dedupe?: boolean };
+
+/**
+ * Dispara um evento de funil. Idempotente por (slug, step, eventType) na sessão
+ * (passe `dedupe:false` pra forçar). Best-effort: nunca quebra a página.
+ */
+export function sendBeacon(slug: string, step: string, opts: BeaconOpts = {}): void {
+  if (typeof window === "undefined") return;
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) return;
+
+  const eventType = opts.eventType || "apareceu";
+  const dedupe = opts.dedupe !== false;
+  const k = `lpv_${slug}_${step}_${eventType}`;
+  if (dedupe) {
     try {
       if (sessionStorage.getItem(k)) return;
       sessionStorage.setItem(k, "1");
     } catch {
-      /* sessionStorage indisponível (modo privado etc.) — segue e grava */
+      /* sessionStorage indisponível (modo privado) — segue e grava */
     }
+  }
 
-    fetch(`${url}/rest/v1/lp_page_views`, {
-      method: "POST",
-      keepalive: true,
-      headers: {
-        apikey: key,
-        Authorization: `Bearer ${key}`,
-        "Content-Type": "application/json",
-        Prefer: "return=minimal",
-      },
-      body: JSON.stringify({
-        slug,
-        funnel_step: effectiveStep,
-        path: window.location.pathname,
-        referrer: document.referrer || null,
-        user_agent: navigator.userAgent,
-        variant: getExp014Variant(),
-      }),
-    }).catch(() => {
-      /* beacon best-effort, nunca quebra a página */
-    });
-  }, [slug, step]);
+  fetch(`${url}/rest/v1/lp_page_views`, {
+    method: "POST",
+    keepalive: true,
+    headers: {
+      apikey: key,
+      Authorization: `Bearer ${key}`,
+      "Content-Type": "application/json",
+      Prefer: "return=minimal",
+    },
+    body: JSON.stringify({
+      slug,
+      funnel_step: step,
+      event_type: eventType,
+      source: getSource(),
+      journey_id: getJourney(),
+      path: window.location.pathname,
+      referrer: document.referrer || null,
+      user_agent: navigator.userAgent,
+      variant: getExp014Variant(),
+    }),
+  }).catch(() => {
+    /* beacon best-effort, nunca quebra a página */
+  });
+}
+
+export default function PageBeacon({
+  slug,
+  step,
+  source,
+  eventType,
+}: {
+  slug: string;
+  step: string;
+  source?: string;
+  eventType?: "apareceu" | "converteu";
+}) {
+  useEffect(() => {
+    captureSource(source);
+    sendBeacon(slug, step, { eventType: eventType || "apareceu" });
+  }, [slug, step, source, eventType]);
 
   return null;
 }

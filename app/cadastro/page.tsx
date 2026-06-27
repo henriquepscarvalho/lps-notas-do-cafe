@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function Cadastro() {
   return (
     <>
-      <PageBeacon slug="notas-do-cafe" step="topo" />
+      <PageBeacon slug="notas-do-cafe" step="topo" source="cadastro" />
       <CadastroLP />
     </>
   );
