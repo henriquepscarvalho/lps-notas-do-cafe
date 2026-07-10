@@ -1,16 +1,13 @@
 "use client";
 
 /**
- * EXP-014 — A/B fundo do campo de email (Probatorium).
- * Controle (A): campo translúcido atual. Variante B: campo branco sólido,
- * texto e ícone escuros (maior contraste / affordance de "digite aqui").
+ * EXP-014/EXP-012 — campo de email branco sólido (Probatorium), ADOTADO.
  *
- * Split 50/50 client-side, persistente por visitante (localStorage `vdn_exp014`),
- * cacheado em módulo pra (a) sobreviver a localStorage indisponível (modo privado)
- * e (b) garantir que PageBeacon (carimbo) e CadastroLP (render) leiam o MESMO
- * valor no mesmo load — carimbo = variante realmente renderizada (gate de integridade).
- *
- * Decisão client-side de propósito: nunca no SSG cacheado, senão serve 1 variante só.
+ * Decisão HC 10/07/26: variante B (branco sólido) adotada sem significância
+ * (aposta bayesiana: P(B>A)=85%, +2,2pp por jornada em 23 dias; detectar +1pp
+ * levaria ~2 anos no volume real). Sorteio removido: todo visitante vê B.
+ * O carimbo `variant: "B"` no PageBeacon fica: documenta a adoção na série
+ * do lp_page_views (antes de 10/07 = A/B misto, depois = só B).
  *
  * ARQUIVO GERADO — fonte canônica em _shared/experiments/exp014/exp014.ts.
  * Não editar por LP; editar a fonte e rodar rollout.py.
@@ -18,27 +15,9 @@
 
 type Variant = "A" | "B";
 const KEY = "vdn_exp014";
-let cached: Variant | null = null;
 
 export function getExp014Variant(): Variant {
-  if (cached) return cached;
-  let v: Variant | null = null;
-  try {
-    const s = localStorage.getItem(KEY);
-    if (s === "A" || s === "B") v = s;
-  } catch {
-    /* localStorage indisponível — sorteia em memória, cacheado abaixo */
-  }
-  if (!v) {
-    v = Math.random() < 0.5 ? "A" : "B";
-    try {
-      localStorage.setItem(KEY, v);
-    } catch {
-      /* sem persistência — o cache de módulo mantém consistência neste load */
-    }
-  }
-  cached = v;
-  return v;
+  return "B";
 }
 
 const B_CSS =
@@ -48,21 +27,23 @@ const B_CSS =
   "html.exp014-b .lpc-field svg,html.exp014-b .nmk .field svg,html.exp014-b .ebk .ebk-mail{color:#3a322a!important}";
 
 /**
- * Aplica a variante (idempotente). Só a B muda algo: injeta o CSS e marca <html>.
- * Retorna a variante REALMENTE renderizada.
+ * Aplica o campo branco (idempotente): injeta o CSS e marca <html>.
+ * Mantém a assinatura antiga (retorna a variante renderizada, sempre "B").
  */
 export function applyExp014(): Variant {
-  const v = getExp014Variant();
-  if (
-    v === "B" &&
-    typeof document !== "undefined" &&
-    !document.getElementById("exp014-style")
-  ) {
+  try {
+    // sobrescreve sorteio antigo: PageBeacon le esta chave inline e carimba
+    // a variante REALMENTE vista (todo mundo ve B desde 10/07)
+    localStorage.setItem(KEY, "B");
+  } catch {
+    /* sem persistência, sem problema: visual não depende da chave */
+  }
+  if (typeof document !== "undefined" && !document.getElementById("exp014-style")) {
     const st = document.createElement("style");
     st.id = "exp014-style";
     st.textContent = B_CSS;
     document.head.appendChild(st);
     document.documentElement.classList.add("exp014-b");
   }
-  return v;
+  return "B";
 }
