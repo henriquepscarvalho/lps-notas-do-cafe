@@ -38,7 +38,7 @@ const CC_CSS = `
 .cc-col{width:100%;max-width:432px}
 .cc-head{margin-bottom:20px}
 .cc-prog{display:flex;align-items:center;gap:10px;margin:6px 0 12px}
-.cc-chip{display:inline-flex;align-items:center;gap:6px;margin:0 0 20px;padding:7px 13px;border-radius:99px;background:rgba(87,199,132,0.12);color:#57C784;font-family:var(--cc-fb);font-size:12px;font-weight:700;line-height:1.2}
+.cc-chip{display:block;margin:0 0 20px;color:#57C784;font-family:var(--cc-fb);font-size:12.5px;font-weight:700;line-height:1.2;letter-spacing:.01em}
 .cc-bars{display:flex;gap:5px;flex:1}
 .cc-bar{flex:1;height:4px;border-radius:99px;background:var(--cc-card);overflow:hidden;position:relative}
 .cc-bar i{position:absolute;inset:0;background:var(--cc-accent);transform:scaleX(0);transform-origin:left;transition:transform .5s cubic-bezier(.16,1,.3,1)}
@@ -300,7 +300,7 @@ export default function OnboardingWizard({
                 </div>
                 <span className="cc-ptxt">Passo <b>{stepNo}</b> de {TOTAL}</span>
               </div>
-              <div className="cc-chip">✓ Cadastro feito, você já começou</div>
+              <div className="cc-chip">✓ Cadastro feito, você está dentro!</div>
               <div className="cc-stage">
                 {idx === 0 && (
                   <div className="cc-step" key="rec">
