@@ -27,7 +27,8 @@ const CC_CSS = `
 .cc-main{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:26px 20px 56px;text-align:center;background:var(--cc-bg);color:var(--cc-text);font-family:var(--cc-fb)}
 .cc-col{width:100%;max-width:432px}
 .cc-head{margin-bottom:20px}
-.cc-prog{display:flex;align-items:center;gap:10px;margin:6px 0 22px}
+.cc-prog{display:flex;align-items:center;gap:10px;margin:6px 0 12px}
+.cc-chip{display:inline-flex;align-items:center;gap:6px;margin:0 0 20px;padding:7px 13px;border-radius:99px;background:rgba(87,199,132,0.12);color:#57C784;font-family:var(--cc-fb);font-size:12px;font-weight:700;line-height:1.2}
 .cc-bars{display:flex;gap:5px;flex:1}
 .cc-bar{flex:1;height:4px;border-radius:99px;background:var(--cc-card);overflow:hidden;position:relative}
 .cc-bar i{position:absolute;inset:0;background:var(--cc-accent);transform:scaleX(0);transform-origin:left;transition:transform .5s cubic-bezier(.16,1,.3,1)}
@@ -74,6 +75,7 @@ const CC_CSS = `
 
 type StepKey = "email" | "whatsapp" | "pesquisa" | "edicoes";
 const ORDER: StepKey[] = ["email", "whatsapp", "pesquisa", "edicoes"];
+const TOTAL = ORDER.length + 1; // cadastro conta como passo 1 concluído (goal gradient)
 const SS = (k: string): string | null => { try { return sessionStorage.getItem(k); } catch { return null; } };
 const SET = (k: string, v: string) => { try { sessionStorage.setItem(k, v); } catch {} };
 
@@ -204,7 +206,8 @@ export default function OnboardingWizard({
     "--cc-border": C.border, "--cc-fh": FH, "--cc-fb": FB,
   } as CSSProperties;
 
-  const stepNo = Math.min(idx + 1, ORDER.length);
+  const stepNo = Math.min(idx + 2, TOTAL); // cadastro = passo 1, já vencido
+  const pct = Math.round((Math.min(idx + 1, TOTAL) / TOTAL) * 100);
 
   return (
     <>
@@ -224,16 +227,17 @@ export default function OnboardingWizard({
             <>
               <div className="cc-prog">
                 <div className="cc-bars">
-                  {ORDER.map((_, i) => (
-                    <span key={i} className={"cc-bar" + (i < idx ? " done" : i === idx ? " cur" : "")}><i /></span>
+                  {Array.from({ length: TOTAL }, (_, i) => (
+                    <span key={i} className={"cc-bar" + (i <= idx ? " done" : i === idx + 1 ? " cur" : "")}><i /></span>
                   ))}
                 </div>
-                <span className="cc-ptxt">Passo <b>{stepNo}</b> de {ORDER.length}</span>
+                <span className="cc-ptxt">Passo <b>{stepNo}</b> de {TOTAL} · <b>{pct}%</b> feito</span>
               </div>
+              <div className="cc-chip">✓ Cadastro feito, você já começou</div>
               <div className="cc-stage">
                 {idx === 0 && (
                   <div className="cc-step" key="email">
-                    <div className="cc-n">Passo 1 de 4 · essencial</div>
+                    <div className="cc-n">Passo 2 de 5 · essencial</div>
                     <h2>Confirme seu email</h2>
                     <p>{STEP1_P[context]}</p>
                     {!emailOpen ? (
@@ -252,7 +256,7 @@ export default function OnboardingWizard({
                 )}
                 {idx === 1 && (
                   <div className="cc-step" key="whatsapp">
-                    <div className="cc-n">Passo 2 de 4 · recomendado</div>
+                    <div className="cc-n">Passo 3 de 5 · recomendado</div>
                     <h2>Receba no seu WhatsApp</h2>
                     <p>Um toque pessoal antes de cada edição, direto no seu WhatsApp. Sem grupo, sem barulho. Leva 10 segundos.</p>
                     <a className="cc-btnP" href={WHATS} target="_blank" rel="noopener noreferrer"
@@ -263,7 +267,7 @@ export default function OnboardingWizard({
                 )}
                 {idx === 2 && (
                   <div className="cc-step" key="pesquisa">
-                    <div className="cc-n">Passo 3 de 4 · 1 minuto</div>
+                    <div className="cc-n">Passo 4 de 5 · 1 minuto</div>
                     <h2>Deixe no ponto pra você</h2>
                     <p>Conta rápido quem é você. Cada edição passa a chegar mais no ponto pro seu interesse.</p>
                     <a className="cc-btnP" href="/pesquisa">Responder (1 min) →</a>
@@ -272,7 +276,7 @@ export default function OnboardingWizard({
                 )}
                 {idx === 3 && (
                   <div className="cc-step" key="edicoes">
-                    <div className="cc-n">Passo 4 de 4 · enquanto espera</div>
+                    <div className="cc-n">Passo 5 de 5 · enquanto espera</div>
                     <h2>Leia enquanto espera</h2>
                     <p>A próxima edição chega às {HORA}. Até lá, comece pelas anteriores e já saia na frente.</p>
                     <a className="cc-btnP" href={ARQUIVO} target="_blank" rel="noopener noreferrer"
@@ -286,6 +290,14 @@ export default function OnboardingWizard({
           )}
           {done && (
             <>
+              <div className="cc-prog">
+                <div className="cc-bars">
+                  {Array.from({ length: TOTAL }, (_, i) => (
+                    <span key={i} className="cc-bar done"><i /></span>
+                  ))}
+                </div>
+                <span className="cc-ptxt"><b>100%</b> feito</span>
+              </div>
               <p className="cc-kicker" style={{ marginTop: 2 }}>Tudo pronto</p>
               <div className="cc-pair">
                 <div className="cc-stat">
