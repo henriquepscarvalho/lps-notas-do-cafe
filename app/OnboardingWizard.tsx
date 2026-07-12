@@ -23,6 +23,16 @@ const NAME = "Notas do Café";
 const ARQUIVO = "https://notasdocafe.com.br";
 const SHARE_URL = "https://api.whatsapp.com/send/?text=A%20Notas%20do%20Caf%C3%A9%20traz%20o%20gr%C3%A3o%2C%20o%20m%C3%A9todo%20e%20a%20curadoria%20pra%20sua%20x%C3%ADcara%20render%20mais.%20https%3A%2F%2Flp.notasdocafe.com.br%2Fcadastro";
 
+/* vdn-rec-step: passo REC (combo cross-rede), baked pelo rollout_rec_step.py.
+   SOT = _combo/lib/newsletters.json (pool sanguíneo TOP4 da Notas do Café). Não editar à mão. */
+const COMBO_API = "https://scriptorium-combo.vercel.app/api/combo";
+const REC_POOL = [
+  { slug: "brasa-certa", name: "Brasa Certa", card: "O churrasco perfeito sem mistério: o corte certo, o ponto, o tempo da brasa.", hora: "14:14", leitores: "2.706", emoji: "🔥", logo: "/images/rec/brasa-certa.png" },
+  { slug: "jogos-de-valor", name: "Jogos de Valor", card: "Os jogos de tabuleiro que valem a mesa, com curadoria honesta.", hora: "14:14", leitores: "1.748", emoji: "👑", logo: "/images/rec/jogos-de-valor.png" },
+  { slug: "setup-memoravel", name: "Setup Memorável", card: "Produtividade digital sem culto a app: o que de fato move o ponteiro.", hora: "08:08", leitores: "2.639", emoji: "🖥️", logo: "/images/rec/setup-memoravel.png" },
+  { slug: "turno-do-pai", name: "Turno do Pai", card: "O manual prático da paternidade nos primeiros anos, sem julgamento.", hora: "06:06", leitores: "1.693", emoji: "👶", logo: "/images/rec/turno-do-pai.png" },
+];
+
 const CC_CSS = `
 .cc-main{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:26px 20px 56px;text-align:center;background:var(--cc-bg);color:var(--cc-text);font-family:var(--cc-fb)}
 .cc-col{width:100%;max-width:432px}
@@ -68,13 +78,30 @@ const CC_CSS = `
 @keyframes ccIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 @keyframes ccSpin{to{transform:rotate(360deg)}}
 @keyframes ccPop{from{opacity:0;transform:scale(.82)}to{opacity:1;transform:scale(1)}}
+/* vdn-rec-css */
+.cc-recgrid{display:flex;flex-direction:column;gap:9px;margin:2px 0 16px}
+.cc-reccard{display:flex;gap:11px;align-items:flex-start;background:rgba(255,255,255,0.045);border:1px solid var(--cc-border);border-radius:13px;padding:11px 12px;cursor:pointer;position:relative;transition:box-shadow .12s,opacity .15s}
+.cc-rectile{flex:0 0 44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;overflow:hidden;background:rgba(0,0,0,0.35);position:relative}
+.cc-rectile img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.cc-recbody{min-width:0;flex:1;padding-right:26px}
+.cc-recname{font-family:var(--cc-fb);font-weight:700;font-size:13.5px;line-height:1.25;color:var(--cc-text)}
+.cc-reccard p.cc-recpr{font-size:11.6px;line-height:1.4;color:var(--cc-muted);margin:2px 0 0}
+.cc-recchip{display:inline-block;color:var(--cc-muted);opacity:.85;font-size:9.5px;font-weight:600;letter-spacing:.05em;margin-top:5px;margin-right:5px;background:rgba(0,0,0,0.35);border-radius:5px;padding:1px 7px}
+.cc-recpk{position:absolute;top:11px;right:11px;width:20px;height:20px;border-radius:50%;border:2px solid var(--cc-muted);opacity:.9;display:flex;align-items:center;justify-content:center;background:transparent;transition:all .12s}
+.cc-recpk svg{display:none;width:11px;height:11px}
+.cc-reccard.sel{box-shadow:0 0 0 2px var(--cc-accent)}
+.cc-reccard.sel .cc-recpk{background:var(--cc-accent);border-color:var(--cc-accent);color:var(--cc-accentText);opacity:1}
+.cc-reccard.sel .cc-recpk svg{display:block}
+.cc-reccard:not(.sel){opacity:.5}
+.cc-btnP:disabled{opacity:.4;cursor:default}
+.cc-recerr{font-size:12px;color:var(--cc-muted);text-align:center;margin:10px 0 0}
 @media (prefers-reduced-motion: reduce){
   .cc-orb,.cc-seal img,.cc-step,.cc-reveal{animation:none}
   .cc-bar i{transition:none}
 }`;
 
-type StepKey = "email" | "whatsapp" | "pesquisa" | "edicoes";
-const ORDER: StepKey[] = ["email", "whatsapp", "pesquisa", "edicoes"];
+type StepKey = "rec" | "email" | "whatsapp" | "pesquisa" | "edicoes";
+const ORDER: StepKey[] = ["rec", "email", "whatsapp", "pesquisa", "edicoes"];
 const TOTAL = ORDER.length + 1; // cadastro conta como passo 1 concluído (goal gradient)
 const SS = (k: string): string | null => { try { return sessionStorage.getItem(k); } catch { return null; } };
 const SET = (k: string, v: string) => { try { sessionStorage.setItem(k, v); } catch {} };
@@ -104,6 +131,9 @@ export default function OnboardingWizard({
   const [sec, setSec] = useState("");
   const [secWord, setSecWord] = useState(false);
   const [reduce, setReduce] = useState(false);
+  const [recSel, setRecSel] = useState<Set<string>>(() => new Set(REC_POOL.map((n) => n.slug)));
+  const [recBusy, setRecBusy] = useState(false);
+  const [recErr, setRecErr] = useState(false);
 
   const isHandled = useCallback((k: StepKey): boolean => {
     if (k === "pesquisa") return !!SS("vdn_pesquisa");
@@ -116,6 +146,8 @@ export default function OnboardingWizard({
     if (context === "ebook") sendBeacon(SLUG, "lead", { eventType: "converteu" }); // ebook: chegar aqui = lead
     const rm = typeof window !== "undefined" && !!window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     setReduce(rm);
+    // rec: sem email salvo nao ha POST possivel; passo se marca handled (nunca re-pedir email)
+    try { if (!localStorage.getItem("vdn_lead_email")) SET("vdn_ob_rec", "skip"); } catch { SET("vdn_ob_rec", "skip"); }
     const start = ORDER.findIndex((k) => !isHandled(k));
     if (start === -1) { setDone(true); setIdx(ORDER.length); return; }
     setIdx(start);
@@ -141,6 +173,37 @@ export default function OnboardingWizard({
   }, [isHandled]);
 
   const skip = (k: StepKey) => { SET(`vdn_ob_${k}`, "skip"); advance(); };
+
+  const toggleRec = (s: string) =>
+    setRecSel((cur) => { const n = new Set(cur); if (n.has(s)) n.delete(s); else n.add(s); return n; });
+
+  const confirmRec = async () => {
+    if (recBusy || recSel.size === 0) return;
+    let email: string | null = null;
+    try { email = localStorage.getItem("vdn_lead_email"); } catch {}
+    if (!email) { skip("rec"); return; }
+    let internal = false;
+    try { internal = localStorage.getItem("vdn_internal") === "1"; } catch {}
+    setRecBusy(true); setRecErr(false);
+    try {
+      const r = await fetch(COMBO_API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email, from_slug: SLUG, slugs: Array.from(recSel),
+          journey_id: SS("vdn_journey"), internal, website: "",
+        }),
+      });
+      const j = await r.json().catch(() => null);
+      if (r.ok && j && j.ok) {
+        SET("vdn_ob_rec", "done");
+        sendBeacon(SLUG, "rec", { eventType: "converteu" });
+        advance();
+        return;
+      }
+      setRecErr(true); setRecBusy(false);
+    } catch { setRecErr(true); setRecBusy(false); }
+  };
 
   useEffect(() => {
     if (!done) return;
@@ -207,7 +270,6 @@ export default function OnboardingWizard({
   } as CSSProperties;
 
   const stepNo = Math.min(idx + 2, TOTAL); // cadastro = passo 1, já vencido
-  const pct = Math.round((Math.min(idx + 1, TOTAL) / TOTAL) * 100);
 
   return (
     <>
@@ -231,13 +293,47 @@ export default function OnboardingWizard({
                     <span key={i} className={"cc-bar" + (i <= idx ? " done" : i === idx + 1 ? " cur" : "")}><i /></span>
                   ))}
                 </div>
-                <span className="cc-ptxt">Passo <b>{stepNo}</b> de {TOTAL} · <b>{pct}%</b> feito</span>
+                <span className="cc-ptxt">Passo <b>{stepNo}</b> de {TOTAL}</span>
               </div>
               <div className="cc-chip">✓ Cadastro feito, você já começou</div>
               <div className="cc-stage">
                 {idx === 0 && (
+                  <div className="cc-step" key="rec">
+                    <div className="cc-n">Você foi convidado</div>
+                    <h2>Quem lê a {NAME} também lê <em>estas 4</em></h2>
+                    <p>Escolhemos outras 4 news que mais combinam com a {NAME}. Todas já prontas no seu combo de leitura. Escolha como quiser e confirme.</p>
+                    <div className="cc-recgrid">
+                      {REC_POOL.map((n) => {
+                        const sel = recSel.has(n.slug);
+                        return (
+                          <div key={n.slug} className={"cc-reccard" + (sel ? " sel" : "")} role="checkbox" aria-checked={sel} tabIndex={0}
+                            onClick={() => toggleRec(n.slug)}
+                            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleRec(n.slug); } }}>
+                            <div className="cc-rectile"><span>{n.emoji}</span>
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img src={n.logo} alt="" onError={(e) => { e.currentTarget.style.display = "none"; }} />
+                            </div>
+                            <div className="cc-recbody">
+                              <div className="cc-recname">{n.name}</div>
+                              <p className="cc-recpr">{n.card}</p>
+                              <span className="cc-recchip">chega {n.hora}</span>
+                              {n.leitores ? <span className="cc-recchip">+{n.leitores} leitores</span> : null}
+                            </div>
+                            <div className="cc-recpk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12l5 5L20 7" /></svg></div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <button className="cc-btnP" disabled={recSel.size === 0 || recBusy} onClick={confirmRec}>
+                      {recBusy ? "Enviando..." : recSel.size === 0 ? "Selecione pelo menos uma" : recSel.size === 1 ? "Receber esta também" : `Receber estas ${recSel.size} também`}
+                    </button>
+                    {recErr && <p className="cc-recerr">Não deu certo. Tente de novo ou toque em Agora não.</p>}
+                    <button className="cc-btnG" onClick={() => skip("rec")}>Agora não</button>
+                  </div>
+                )}
+                {idx === 1 && (
                   <div className="cc-step" key="email">
-                    <div className="cc-n">Passo 2 de 5 · essencial</div>
+                    <div className="cc-n">{`Passo ${stepNo} de ${TOTAL} · essencial`}</div>
                     <h2>Confirme seu email</h2>
                     <p>{STEP1_P[context]}</p>
                     {!emailOpen ? (
@@ -254,9 +350,9 @@ export default function OnboardingWizard({
                     )}
                   </div>
                 )}
-                {idx === 1 && (
+                {idx === 2 && (
                   <div className="cc-step" key="whatsapp">
-                    <div className="cc-n">Passo 3 de 5 · recomendado</div>
+                    <div className="cc-n">{`Passo ${stepNo} de ${TOTAL} · recomendado`}</div>
                     <h2>Receba no seu WhatsApp</h2>
                     <p>Um toque pessoal antes de cada edição, direto no seu WhatsApp. Sem grupo, sem barulho. Leva 10 segundos.</p>
                     <a className="cc-btnP" href={WHATS} target="_blank" rel="noopener noreferrer"
@@ -265,18 +361,18 @@ export default function OnboardingWizard({
                     <button className="cc-btnG" onClick={() => skip("whatsapp")}>Agora não</button>
                   </div>
                 )}
-                {idx === 2 && (
+                {idx === 3 && (
                   <div className="cc-step" key="pesquisa">
-                    <div className="cc-n">Passo 4 de 5 · 1 minuto</div>
+                    <div className="cc-n">{`Passo ${stepNo} de ${TOTAL} · 1 minuto`}</div>
                     <h2>Deixe no ponto pra você</h2>
                     <p>Conta rápido quem é você. Cada edição passa a chegar mais no ponto pro seu interesse.</p>
                     <a className="cc-btnP" href="/pesquisa">Responder (1 min) →</a>
                     <button className="cc-btnG" onClick={() => skip("pesquisa")}>Agora não</button>
                   </div>
                 )}
-                {idx === 3 && (
+                {idx === 4 && (
                   <div className="cc-step" key="edicoes">
-                    <div className="cc-n">Passo 5 de 5 · enquanto espera</div>
+                    <div className="cc-n">{`Passo ${stepNo} de ${TOTAL} · enquanto espera`}</div>
                     <h2>Leia enquanto espera</h2>
                     <p>A próxima edição chega às {HORA}. Até lá, comece pelas anteriores e já saia na frente.</p>
                     <a className="cc-btnP" href={ARQUIVO} target="_blank" rel="noopener noreferrer"
@@ -296,7 +392,7 @@ export default function OnboardingWizard({
                     <span key={i} className="cc-bar done"><i /></span>
                   ))}
                 </div>
-                <span className="cc-ptxt"><b>100%</b> feito</span>
+                <span className="cc-ptxt"><b>{TOTAL}</b> de {TOTAL}</span>
               </div>
               <p className="cc-kicker" style={{ marginTop: 2 }}>Tudo pronto</p>
               <div className="cc-pair">
