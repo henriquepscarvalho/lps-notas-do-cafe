@@ -136,6 +136,13 @@ export default function OnboardingWizard({
   const [recErr, setRecErr] = useState(false);
 
   const isHandled = useCallback((k: StepKey): boolean => {
+    if (k === "rec") {
+      // sem email salvo nao ha POST possivel: nao renderiza NESTA visita, sem gravar skip
+      // (gravar skip queimava o passo na sessao se o lead abria a rota antes do cadastro)
+      let em: string | null = null;
+      try { em = localStorage.getItem("vdn_lead_email"); } catch {}
+      if (!em) return true;
+    }
     if (k === "pesquisa") return !!SS("vdn_pesquisa");
     return !!SS(`vdn_ob_${k}`);
   }, []);
@@ -146,8 +153,6 @@ export default function OnboardingWizard({
     if (context === "ebook") sendBeacon(SLUG, "lead", { eventType: "converteu" }); // ebook: chegar aqui = lead
     const rm = typeof window !== "undefined" && !!window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     setReduce(rm);
-    // rec: sem email salvo nao ha POST possivel; passo se marca handled (nunca re-pedir email)
-    try { if (!localStorage.getItem("vdn_lead_email")) SET("vdn_ob_rec", "skip"); } catch { SET("vdn_ob_rec", "skip"); }
     const start = ORDER.findIndex((k) => !isHandled(k));
     if (start === -1) { setDone(true); setIdx(ORDER.length); return; }
     setIdx(start);
