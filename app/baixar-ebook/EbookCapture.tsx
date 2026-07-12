@@ -100,6 +100,7 @@ export default function EbookCapture() {
       });
       if (!res.ok) throw new Error();
       setStatus("success");
+      try { localStorage.setItem("vdn_lead_email", email); } catch {}
       setTimeout(() => {
         window.location.href = "/baixar-ebook-confirmado";
       }, 1500);
