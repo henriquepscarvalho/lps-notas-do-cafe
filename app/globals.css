@@ -349,7 +349,7 @@ body {
 /* Progress */
 .progress-wrapper {
   position: sticky;
-  top: 60px;
+  top: 0; /* /pesquisa não tem nav fixo; 60px deixava faixa vazada acima da barra */
   z-index: 50;
   background: rgba(44, 24, 16, 0.95);
   backdrop-filter: blur(12px);
@@ -414,8 +414,121 @@ body {
   font-style: italic;
 }
 
+/* Stepper: the 4-step journey map, replaces the "Falta 1 Passo" kicker */
+.survey-stepper {
+  display: flex;
+  justify-content: center;
+  gap: 0.25rem;
+  margin-bottom: 1.1rem;
+}
+
+.survey-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  background: none;
+  border: none;
+  padding: 0.5rem 0.55rem;
+  min-width: 44px;
+  min-height: 44px;
+  cursor: default;
+}
+
+.survey-step.done { cursor: pointer; }
+
+.survey-step-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  border: 1.5px solid rgba(var(--s-accent-rgb), 0.25);
+  color: var(--s-text-3);
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.survey-step.done .survey-step-dot,
+.survey-step.active .survey-step-dot {
+  background: var(--s-accent);
+  border-color: var(--s-accent);
+  color: var(--s-text-btn);
+}
+
+.survey-step-label {
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--s-text-3);
+}
+
+.survey-step.active .survey-step-label { color: var(--s-accent); }
+.survey-step.done .survey-step-label { color: var(--s-text-2); }
+
+/* Trust micro-line right above a sensitive question */
+.survey-trust {
+  font-size: 0.78rem;
+  color: var(--s-text-3);
+  font-style: italic;
+  margin-bottom: 0.5rem;
+}
+
+/* Recap: answers already given, carried across wizard steps */
+.survey-recap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.survey-recap-item {
+  font-size: 0.75rem;
+  color: var(--s-text-3);
+  background: rgba(var(--s-accent-rgb), 0.06);
+  padding: 0.3rem 0.6rem;
+  border-radius: 3px;
+}
+
+/* Confirmed-write badge: only rendered after the partial save succeeded */
+.survey-recap-saved {
+  color: var(--s-accent);
+  background: rgba(var(--s-accent-rgb), 0.1);
+}
+
+.survey-back {
+  display: block;
+  width: 100%;
+  margin-top: 1rem;
+  padding: 0;
+  text-align: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: var(--s-text-3);
+}
+
+.survey-back:hover { color: var(--s-accent); }
+
 /* Fields */
 .survey-field { display: flex; flex-direction: column; margin-bottom: 1.5rem; }
+
+/* Icon inside input for faster visual recognition */
+.survey-input-wrap { position: relative; margin-top: auto; }
+.survey-field-icon {
+  position: absolute;
+  left: 0.9rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  color: var(--s-accent);
+  opacity: 0.55;
+  pointer-events: none;
+}
+.survey-input-wrap.has-icon .survey-input { padding-left: 2.6rem; }
 .survey-field .survey-input,
 .survey-field .dropdown-wrapper,
 .survey-field .survey-textarea { margin-top: auto; }
