@@ -1,0 +1,26 @@
+{
+  "artigos_dir": "/Users/henriquecarvalho_1/Developer/Scriptorium/3c-lifestyle/15-notas-do-cafe/1-configuracao/paginas/app/lib/artigos-data",
+  "base_url": "https://lp.notasdocafe.com.br/artigos",
+  "conta": "scriptorium",
+  "kw_field": "termo",
+  "kw_prefix": "",
+  "kw_overrides": {
+    "cafe-descafeinado": ["café descafeinado", "descafeinado"],
+    "cafe-especial": ["café especial", "cafés especiais"],
+    "cafe-conilon": ["café conilon", "café conilon preço"],
+    "cafe-jacu": ["café jacu", "café do jacu"],
+    "cafe-em-graos": ["café em grãos", "café em grãos 1kg"],
+    "cafe-arabica": ["café arábica", "café 100 arábica"],
+    "cafe-robusta": ["café robusta"],
+    "cafe-torrado-em-graos": ["café torrado em grãos", "café torrado"],
+    "cafe-bourbon-amarelo": ["café bourbon amarelo"],
+    "cafe-geisha": ["café geisha"]
+  },
+  "headline_suffix": ": o guia",
+  "headlines_extra": [
+    "Origem, processo e preparo",
+    "Da fazenda à xícara",
+    "Sem frescura, com origem"
+  ],
+  "description_2": "Curadoria de café especial: origem, processo e preparo, sem frescura."
+}
