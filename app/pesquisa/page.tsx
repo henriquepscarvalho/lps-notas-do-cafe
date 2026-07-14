@@ -593,7 +593,8 @@ export default function Pesquisa() {
             />
           </a>
           <div className="survey-stepper" aria-label={`Etapa ${step} de 4`}>
-            {["Apreciador", "Gole", "Xícara", "Nota"].map((label, i) => {
+            {/* Nomes unificados da rede (decisão HC 13/07) */}
+            {["Você", "Conexão", "Momento", "Destino"].map((label, i) => {
               const n = i + 1;
               const state = n < step ? "done" : n === step ? "active" : "todo";
               return (
