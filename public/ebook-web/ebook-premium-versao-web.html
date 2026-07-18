@@ -1,0 +1,1125 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Café de Balcão no Coador de Casa · Notas do Café</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#14170F;--body:#2C3128;--soft:#6A7060;--line:#E2E0D4;--line2:#EDEBE0;
+  --paper:#FBFAF4;--paper2:#F3F1E6;--card:#F1EFE3;
+  --em:#8B4513;--em2:#824112;--emlite:#F1EAE0;--emline:#DCC7B5;
+  --dark:#14110C;--dark2:#19170F;--darkink:#E9EAE3;--darksoft:#96917E;--em-glow:#E2782C;
+  --gold:#856B1A;--warn:#7A3B52;--warnlite:#F5E9ED;--warnline:#E3CBD4;
+
+  --graf:#A8AEA0;}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:#8C8F84;color:var(--body);font-family:Newsreader,Georgia,serif;font-size:17.5px;line-height:1.54;-webkit-font-smoothing:antialiased;counter-reset:pg}
+.page{max-width:760px;margin:26px auto;background:var(--paper);padding:60px 70px 74px;box-shadow:0 18px 50px rgba(0,0,0,.22);position:relative;counter-increment:pg}
+.page.cover{padding:0;background:var(--dark);overflow:hidden}
+.page.cover img{display:block;width:100%;height:auto}
+/* interior type */
+.kick{font-family:Inter,sans-serif;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--em);font-weight:700;margin:0 0 14px}
+h2{font-family:Fraunces,serif;font-weight:600;font-size:32px;line-height:1.1;color:var(--ink);margin:0 0 10px;letter-spacing:-.01em}
+h3{font-family:Fraunces,serif;font-weight:600;font-size:20px;color:var(--ink);margin:26px 0 8px}
+p{margin:0 0 13px}
+.lead{font-size:20px;line-height:1.48;color:var(--ink)}
+strong,b{color:var(--ink);font-weight:600}
+em{color:var(--em2);font-style:italic}
+a{color:var(--em2)}
+.rule{height:1px;background:var(--line);border:0;margin:30px 0}
+.small{font-family:Inter,sans-serif;font-size:13px;color:var(--soft);line-height:1.5}
+.eyebrow{font-family:Inter,sans-serif;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--soft);font-weight:600;margin:0 0 6px}
+/* item header */
+.item{display:flex;align-items:baseline;gap:16px;margin:0 0 6px}
+.item .n{font-family:Fraunces,serif;font-weight:700;font-size:38px;line-height:1;color:var(--em);font-variant-numeric:tabular-nums;min-width:60px}
+.item h2{margin:0}
+.cont{font-family:Inter,sans-serif;font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--soft);font-weight:700;margin:0 0 16px}
+/* rows */
+.field{margin:14px 0}
+.field .lab{font-family:Inter,sans-serif;font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--soft);font-weight:700;margin-bottom:3px}
+.field .val{color:var(--body)}
+/* bolso callout */
+.bolso{background:var(--emlite);border:1px solid var(--emline);border-radius:14px;padding:14px 20px;margin:15px 0}
+.bolso .t{font-family:Inter,sans-serif;font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--em2);font-weight:700;margin-bottom:4px}
+.bolso p{margin:0;color:var(--ink);font-size:17px}
+.bolso b{color:var(--em2)}
+/* erro callout */
+.erro{background:var(--warnlite);border:1px solid var(--warnline);border-radius:14px;padding:14px 20px;margin:15px 0}
+.erro .t{font-family:Inter,sans-serif;font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--warn);font-weight:700;margin-bottom:4px}
+.erro p{margin:0;color:var(--ink);font-size:17px}
+/* dark data chip */
+.figure{background:var(--dark);border-radius:14px;padding:17px 22px;margin:15px 0;display:flex;align-items:center;gap:22px}
+.figure .big{font-family:Fraunces,serif;font-weight:600;font-size:36px;color:var(--em-glow);line-height:1;font-variant-numeric:tabular-nums;white-space:nowrap}
+.figure .cap{font-family:Inter,sans-serif;font-size:13.5px;color:var(--darksoft);line-height:1.45}
+.figure .cap b{color:var(--darkink)}
+/* tables */
+table{width:100%;border-collapse:collapse;margin:15px 0;font-family:Inter,sans-serif;font-size:14px}
+th{text-align:left;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--soft);font-weight:700;padding:10px 12px;border-bottom:2px solid var(--line)}
+td{padding:10px 12px;border-bottom:1px solid var(--line2);color:var(--body);vertical-align:top}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+tr:last-child td{border-bottom:none}
+.tot td{border-top:2px solid var(--ink);font-weight:700;color:var(--ink);font-size:15px}
+.tot td .em{color:var(--em2)}
+/* gerente: o que ele diz x o que voce responde */
+table.gerente td:first-child{color:var(--soft);font-style:italic;width:44%}
+table.gerente td:last-child{color:var(--ink);font-weight:500}
+/* steps */
+ol.steps{list-style:none;counter-reset:st;padding:0;margin:16px 0}
+ol.steps li{counter-increment:st;position:relative;padding:0 0 11px 42px;font-size:17px}
+ol.steps li::before{content:counter(st);position:absolute;left:0;top:1px;font-family:Inter,sans-serif;font-weight:700;font-size:13px;color:var(--em2);background:var(--emlite);border:1px solid var(--emline);border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center}
+/* script box */
+.script{background:var(--paper2);border:1px solid var(--line);border-radius:14px;padding:17px 24px;margin:15px 0;font-family:Newsreader,serif;font-size:17px;color:var(--ink);line-height:1.55}
+.script .q{color:var(--em2);font-family:Inter,sans-serif;font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;margin-bottom:8px}
+.script p{margin:0 0 12px}.script p:last-child{margin:0}
+/* caso narrado */
+.caso{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:15px 22px;margin:15px 0}
+.caso .t{font-family:Inter,sans-serif;font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--soft);font-weight:700;margin-bottom:6px}
+.caso p{margin:0 0 10px;font-size:16.5px}.caso p:last-child{margin:0}
+.caso .linha{font-family:Inter,sans-serif;font-size:14px;color:var(--ink);border-top:1px solid var(--line);padding-top:10px;margin-top:12px;display:flex;justify-content:space-between;gap:14px}
+.caso .linha b{color:var(--em2);font-variant-numeric:tabular-nums}
+/* checklist */
+.check{list-style:none;padding:0;margin:14px 0}
+.check li{position:relative;padding:8px 0 8px 34px;border-bottom:1px solid var(--line2);font-size:16.5px}
+.check li:last-child{border-bottom:none}
+.check li::before{content:"[  ]";position:absolute;left:0;top:9px;font-family:Inter,sans-serif;font-weight:700;color:var(--em);letter-spacing:-.02em}
+/* sumario */
+.toc{list-style:none;padding:0;margin:20px 0 0}
+.toc li{display:flex;align-items:baseline;gap:12px;padding:6.5px 0;border-bottom:1px solid var(--line2);font-family:Inter,sans-serif;font-size:15px;color:var(--ink)}
+.toc li .n{color:var(--em);font-weight:700;font-variant-numeric:tabular-nums;min-width:26px}
+.toc li .d{flex:1;border-bottom:1px dotted var(--line);height:1px;margin:0 4px}
+.toc li .p{color:var(--soft);font-variant-numeric:tabular-nums;font-size:13px}
+.toc .sec{margin-top:18px;border-bottom:none;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--soft);font-weight:700;padding-bottom:2px}
+/* glossario */
+.gloss{margin:16px 0}
+.gloss .g{padding:12px 0;border-bottom:1px solid var(--line2)}
+.gloss .g:last-child{border-bottom:none}
+.gloss .g .termo{font-family:Inter,sans-serif;font-weight:700;font-size:14.5px;color:var(--ink);margin-bottom:2px}
+.gloss .g .trad{font-size:16.5px;color:var(--body)}
+/* ═══ componentes do miolo (ticket 03, sample selado) ═══ */
+.opener{position:relative;margin:-60px -70px 30px;height:300px;background:var(--dark);overflow:hidden}
+.opener img{width:100%;height:100%;object-fit:cover;display:block}
+.opener .veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(12,15,13,.15) 0%,rgba(12,15,13,.86) 78%)}
+.opener .txt{position:absolute;left:70px;right:70px;bottom:26px}
+.opener .sec{font-family:Inter,sans-serif;font-size:11.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--em-glow);font-weight:700;margin-bottom:8px}
+.opener h2{font-size:34px;line-height:1.06;color:var(--darkink);margin:0;letter-spacing:-.015em}
+.infog{background:var(--paper2);border:1px solid var(--line);border-radius:14px;padding:22px 26px;margin:18px 0}
+.infog .ttl{font-family:Inter,sans-serif;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--soft);font-weight:700;margin-bottom:4px}
+.infog .sub{font-family:Fraunces,serif;font-size:22px;color:var(--ink);font-weight:600;margin:0 0 16px;line-height:1.15}
+.bar{display:grid;grid-template-columns:200px 1fr 92px;align-items:center;gap:12px;margin:0 0 8px;font-family:Inter,sans-serif;font-size:13px}
+.bar .lb{color:var(--body);line-height:1.25}
+.bar .tk{display:block;height:14px;background:#E6E3D6;border-radius:3px;overflow:hidden}
+.bar .fl{display:block;height:100%;background:var(--graf);border-radius:3px}
+.bar .vl{text-align:right;font-variant-numeric:tabular-nums;color:var(--body);font-weight:600}
+.bar.hot .fl{background:var(--em)}
+.bar.hot .lb,.bar.hot .vl{color:var(--em2);font-weight:700}
+.infog .tot{display:flex;align-items:baseline;justify-content:space-between;margin-top:14px;padding-top:12px;border-top:2px solid var(--ink)}
+.infog .tot .l{font-family:Inter,sans-serif;font-size:13px;color:var(--body);font-weight:600}
+.infog .tot .v{font-family:Fraunces,serif;font-size:30px;color:var(--em2);font-weight:700;font-variant-numeric:tabular-nums;line-height:1}
+.flow{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}
+.flow .st{background:var(--paper2);border:1px solid var(--line);border-radius:14px;padding:16px 16px 18px}
+.flow .st .n{font-family:Fraunces,serif;font-size:14px;font-weight:700;color:var(--em);letter-spacing:.04em;margin-bottom:8px}
+.flow .st .h{font-family:Inter,sans-serif;font-size:14px;font-weight:700;color:var(--ink);line-height:1.3;margin-bottom:6px}
+.flow .st .d{font-family:Inter,sans-serif;font-size:12.5px;color:var(--body);line-height:1.45}
+.flow .st.end{background:var(--emlite);border-color:var(--emline)}
+.flow .st.end .h{color:var(--em2)}
+.art{background:var(--dark);border-radius:14px;padding:20px 22px 18px;margin:16px 0}
+.art .hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;font-family:Inter,sans-serif}
+.art .hd .t{font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--darksoft);font-weight:700}
+.art .hd .m{font-size:11.5px;color:var(--darksoft)}
+.art .ln{display:grid;grid-template-columns:64px 1fr 108px;gap:10px;padding:8px 12px;border-radius:6px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;color:#AAA598;line-height:1.35}
+.art .ln .v{text-align:right;font-variant-numeric:tabular-nums}
+.art .ln.hit{background:rgba(226,120,44,.15);color:var(--darkink)}
+.art .ln.hit .v{color:var(--em-glow);font-weight:700}
+.art .ln.hit .d{color:var(--darkink);font-weight:500}
+.art .note{display:grid;grid-template-columns:22px 1fr;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid rgba(143,163,150,.24)}
+.art .note .k{font-family:Inter,sans-serif;font-size:12px;font-weight:700;color:var(--em-glow);letter-spacing:.02em}
+.art .note .x{font-family:Inter,sans-serif;font-size:13px;color:#C5C3B9;line-height:1.5}
+.art .note .x b{color:var(--darkink);font-weight:600}
+/* ═══ features web do kit Auditoria (F4 calculadora, F5 copiar) · só na tela ═══ */
+@media print{.webonly{display:none !important}}
+.printonly{display:none}
+@media print{.printonly{display:block}}
+.calc{background:var(--emlite);border:1px solid var(--emline);border-radius:14px;padding:18px 22px;margin:16px 0;font-family:Inter,sans-serif}
+.calc .t{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--em2);font-weight:700;margin-bottom:10px}
+.calc .row{display:grid;grid-template-columns:1fr 130px;gap:10px;align-items:center;padding:5px 0}
+.calc .row label{font-size:14px;color:var(--body)}
+.calc input{font-family:Inter,sans-serif;font-size:15px;padding:7px 10px;border:1px solid var(--emline);border-radius:8px;background:#fff;color:var(--ink);text-align:right;width:100%}
+.calc .tot{display:flex;justify-content:space-between;align-items:baseline;border-top:2px solid var(--ink);margin-top:10px;padding-top:10px}
+.calc .tot .l{font-size:13px;font-weight:700;color:var(--ink)}
+.calc .tot .v{font-family:Fraunces,serif;font-size:30px;font-weight:700;color:var(--em2);font-variant-numeric:tabular-nums}
+.copybtn{font-family:Inter,sans-serif;font-size:12px;font-weight:700;color:var(--em2);background:var(--emlite);border:1px solid var(--emline);border-radius:8px;padding:6px 12px;cursor:pointer;margin:2px 0 10px}
+.copybtn:active{background:var(--emline)}
+/* signoff */
+.signoff{margin-top:36px;padding-top:24px;border-top:1px solid var(--line)}
+.signoff .fim{font-family:Fraunces,serif;font-size:26px;color:var(--ink);font-weight:600}
+.signoff .bm{font-family:Inter,sans-serif;font-size:14px;color:var(--soft);margin-top:8px;letter-spacing:.02em}
+.signoff .bm b{color:var(--em2)}
+.pgnum{position:absolute;bottom:28px;right:34px;font-family:Inter,sans-serif;font-size:11px;color:var(--soft);letter-spacing:.1em}
+.pgnum::after{content:"Notas do Café · " counter(pg)}
+@page{size:A4;margin:0}
+@media print{
+  body{background:#fff}
+  /* min-height, não height: seção que transborda vira 2 páginas no PDF e o check_pages.sh acusa.
+     Com height fixo o excesso era cortado em silêncio e a contagem dava falso positivo. */
+  .page{margin:0;box-shadow:none;max-width:none;width:100%;min-height:297mm;page-break-after:always;padding:52px 60px 58px}
+  .page.cover{padding:0}
+  .opener{margin:-52px -60px 28px}
+  .opener .txt{left:60px;right:60px}
+}
+@media(max-width:680px){
+  .page{padding:38px 24px 60px;margin:0}
+  h2{font-size:25px}.lead{font-size:18.5px}.item .n{font-size:30px;min-width:44px}
+  .figure{flex-direction:column;align-items:flex-start;gap:10px}
+  .caso .linha{flex-direction:column;gap:4px}
+  .opener{margin:-38px -24px 24px;height:240px}
+  .opener .txt{left:24px;right:24px}
+  .opener h2{font-size:26px}
+  .flow{grid-template-columns:1fr}
+  .bar{grid-template-columns:118px 1fr 78px;font-size:12px}
+  .art .ln{grid-template-columns:52px 1fr 88px;font-size:11.5px}
+  .calc .row{grid-template-columns:1fr 110px}
+}
+/* glossário denso: 13 termos */
+.gloss .g{padding:7px 0}
+.gloss .g .trad{font-size:15.5px}
+</style>
+</head>
+<body>
+<!-- ===================== CAPA (selada no ticket 01) ===================== -->
+<section class="page cover">
+  <img src="/ebook-web/capa-notas-do-cafe.webp" alt="Café de Balcão no Coador de Casa · Notas do Café">
+</section>
+<!-- ===================== SUMÁRIO ===================== -->
+<section class="page">
+  <p class="kick">O que tem aqui</p>
+  <h2>Sumário</h2>
+  <p class="small">As oito variáveis estão na ordem em que a água encontra o café: leia na sequência, mude uma variável por coada e prove a xícara antes de passar para a próxima.</p>
+  <ul class="toc">
+    <li class="sec">Antes de começar</li>
+    <li><span class="n">·</span><span>O coador que já está na sua cozinha</span><span class="d"></span><span class="p">3</span></li>
+    <li><span class="n">·</span><span>Como ler a sua xícara em 3 minutos</span><span class="d"></span><span class="p">4</span></li>
+    <li><span class="n">·</span><span>As quatro famílias da coada</span><span class="d"></span><span class="p">5</span></li>
+    <li><span class="n">·</span><span>A xícara do Rafael, antes</span><span class="d"></span><span class="p">6</span></li>
+    <li class="sec">As oito variáveis</li>
+    <li><span class="n">01</span><span>O grão e a torra</span><span class="d"></span><span class="p">7</span></li>
+    <li><span class="n">02</span><span>A moagem</span><span class="d"></span><span class="p">11</span></li>
+    <li><span class="n">03</span><span>A proporção</span><span class="d"></span><span class="p">15</span></li>
+    <li><span class="n">04</span><span>A água e a temperatura</span><span class="d"></span><span class="p">18</span></li>
+    <li><span class="n">05</span><span>O pré-molho</span><span class="d"></span><span class="p">21</span></li>
+    <li><span class="n">06</span><span>A técnica de despejo</span><span class="d"></span><span class="p">24</span></li>
+    <li><span class="n">07</span><span>O tempo total</span><span class="d"></span><span class="p">28</span></li>
+    <li><span class="n">08</span><span>A limpeza e o armazenamento</span><span class="d"></span><span class="p">31</span></li>
+    <li class="sec">O fecho</li>
+    <li><span class="n">·</span><span>A ficha da coada</span><span class="d"></span><span class="p">34</span></li>
+    <li><span class="n">·</span><span>O caso, depois</span><span class="d"></span><span class="p">35</span></li>
+    <li><span class="n">·</span><span>As falas prontas</span><span class="d"></span><span class="p">36</span></li>
+    <li><span class="n">·</span><span>Quando a xícara não colabora</span><span class="d"></span><span class="p">37</span></li>
+    <li><span class="n">·</span><span>A manutenção</span><span class="d"></span><span class="p">38</span></li>
+    <li><span class="n">·</span><span>Glossário</span><span class="d"></span><span class="p">39</span></li>
+    <li><span class="n">·</span><span>O fecho</span><span class="d"></span><span class="p">40</span></li>
+  </ul>
+</section>
+
+<!-- ===================== ABERTURA · PÁGINA 1: A PREMISSA ===================== -->
+<section class="page" data-toc="O coador que já está na sua cozinha" data-toc-sec="Antes de começar">
+  <p class="kick">A premissa</p>
+  <h2>A xícara boa nunca esteve na máquina</h2>
+  <p class="lead">O coador de papel que já está na sua cozinha extrai café tão bom quanto o balcão. O que separa a xícara amarga da xícara boa não é o equipamento: são oito variáveis que ninguém ensinou você a medir. Quem troca de máquina sem controlar as oito troca de erro, não de café.</p>
+  <p>A máquina de espresso na faixa de R$ 2 mil automatiza pressão e temperatura, e cobra pelo serviço. O coador entrega as mesmas duas coisas pela sua mão. A diferença entre a xícara do balcão e a sua não está na bancada, está em oito decisões entre o pacote e o copo.</p>
+  <p>As oito vêm na ordem em que a água encontra o café: a matéria, a superfície do pó, o contato, e no fim a guarda que faz a coada de amanhã repetir a de hoje. Cada uma tem um preço por ano, porque cada erro empurra você de volta para o balcão.</p>
+  <div class="infog">
+    <div class="ttl">O mapa · as oito variáveis em reais por ano</div>
+    <div class="bar hot"><span class="lb">01 · Grão e torra</span><span class="tk"><span class="fl" style="width:100%"></span></span><span class="vl">590,00</span></div>
+    <div class="bar"><span class="lb">02 · Moagem</span><span class="tk"><span class="fl" style="width:81%"></span></span><span class="vl">475,80</span></div>
+    <div class="bar"><span class="lb">03 · Proporção</span><span class="tk"><span class="fl" style="width:62%"></span></span><span class="vl">366,00</span></div>
+    <div class="bar"><span class="lb">06 · Despejo</span><span class="tk"><span class="fl" style="width:56%"></span></span><span class="vl">329,40</span></div>
+    <div class="bar"><span class="lb">04 · Água e temperatura</span><span class="tk"><span class="fl" style="width:50%"></span></span><span class="vl">292,80</span></div>
+    <div class="bar"><span class="lb">05 · Pré-molho</span><span class="tk"><span class="fl" style="width:37%"></span></span><span class="vl">219,60</span></div>
+    <div class="bar"><span class="lb">08 · Limpeza e guarda</span><span class="tk"><span class="fl" style="width:35%"></span></span><span class="vl">208,00</span></div>
+    <div class="bar"><span class="lb">07 · Tempo total</span><span class="tk"><span class="fl" style="width:31%"></span></span><span class="vl">183,00</span></div>
+    <div class="tot"><span class="l">Soma das oito variáveis, primeiro ano</span><span class="v">R$ 2.664,60</span></div>
+  </div>
+  <h3>Como usar</h3>
+  <p>Leia uma variável, coe uma vez mudando só aquela, prove a xícara e anote o que mudou. <strong>Uma variável por coada</strong>, na ordem do livro. A leitura inteira cabe numa semana de manhãs, e a primeira diferença na boca costuma aparecer já na segunda coada.</p>
+  <p class="small">Os valores saem do caso do Rafael, que abre e fecha o livro, que tomava as duas xícaras do dia no balcão, dentro da faixa de R$ 7,00 a R$ 12,00. A máquina de R$ 2 mil é faixa de varejo, nunca um modelo nomeado. O seu número sai da sua conta: preço do pacote dividido pelas xícaras que ele rende.</p>
+  <span class="pgnum"></span>
+</section>
+
+<!-- ===================== ABERTURA · PÁGINA 2: O MÉTODO ===================== -->
+<section class="page" data-toc="Como ler a sua xícara em 3 minutos">
+  <p class="kick">O método</p>
+  <h2>Como ler a sua xícara em 3 minutos</h2>
+  <p>A xícara que acabou de sair do coador já carrega o diagnóstico inteiro. Amargor seco na garganta, azedume de fruta verde, ausência de cheiro: cada defeito aponta uma variável, e nenhum precisa de paladar treinado para ser notado.</p>
+  <p>Falta ler na ordem certa e olhar o rótulo junto, porque metade do defeito foi decidida na prateleira, semanas antes da coada. Três minutos bastam: um para provar, um para o rótulo, um para o relógio. Faça uma vez antes de começar e já sabe por qual variável entrar.</p>
+  <ol class="steps">
+    <li>Prove a xícara <strong>quente e depois morna</strong>. O amargor aparece no primeiro gole; a doçura e a acidez só se mostram quando o café esfria um pouco.</li>
+    <li>Vire o pacote e leia os dois campos que decidem a coada: <strong>data de torra</strong> e grau de torra. O resto do rótulo é apresentação e não muda a xícara.</li>
+    <li>Esfregue o pó entre os dedos e compare com <strong>areia grossa</strong>. Mais fino que areia entope o filtro; mais grosso deixa a água passar direto.</li>
+    <li>Cronometre da primeira gota à última e compare com a faixa de <strong>2min30 a 3min30</strong>. Fora da faixa, a moagem é a primeira suspeita.</li>
+    <li>Anote o resultado e mude <strong>uma variável por coada</strong>. Duas mudanças juntas apagam a prova de qual delas funcionou.</li>
+  </ol>
+  <div class="art">
+    <div class="hd"><span class="t">Rótulo do pacote · os dois campos que decidem</span><span class="m">250 g</span></div>
+    <div class="ln"><span>TORRA</span><span class="d">Grau declarado pelo torrador</span><span class="v">Média</span></div>
+    <div class="ln hit"><span>DATA DE TORRA</span><span class="d">Dia em que o grão saiu do torrador</span><span class="v">12/03</span></div>
+    <div class="ln"><span>MOAGEM</span><span class="d">Grão inteiro ou já moído na loja</span><span class="v">Inteiro</span></div>
+    <div class="ln"><span>PESO</span><span class="d">Conteúdo do pacote fechado</span><span class="v">250 g</span></div>
+    <div class="ln"><span>VALIDADE</span><span class="d">Prazo do fabricante, não do aroma</span><span class="v">12 meses</span></div>
+    <div class="ln"><span>PREÇO</span><span class="d">O que você pagou no pacote</span><span class="v">R$ ______</span></div>
+    <div class="note"><span class="k">01</span><span class="x">A validade é do fabricante e costuma passar de um ano. A <b>data de torra</b> é o único campo que diz se o grão ainda tem aroma. Feche a conta: preço do pacote dividido pelas xícaras que rende. Um pacote de 250 gramas, a 15 por xícara, rende perto de 16.</span></div>
+  </div>
+  <span class="pgnum"></span>
+</section>
+
+<!-- ===================== ABERTURA · PÁGINA 3: A TAXONOMIA ===================== -->
+<section class="page" data-toc="As quatro famílias da coada">
+  <p class="kick">A taxonomia</p>
+  <h2>As quatro famílias da coada</h2>
+  <p>As oito variáveis cabem em quatro famílias. A família importa mais que o nome do gesto: o gesto muda de coador para coador, a família não muda. Cada uma estraga a xícara de um jeito próprio e pede uma correção própria.</p>
+  <h3>Matéria</h3>
+  <p>O grão, o ponto de torra e a água. É o que já está decidido antes de você encostar na chaleira, e abre a fila porque nenhuma das outras três conserta matéria vencida. Grão moído há meses entrega xícara sem cheiro. Água com gosto próprio entrega o gosto dela junto.</p>
+  <h3>Superfície</h3>
+  <p>Quanta área do café a água consegue tocar, e em que proporção. Moagem e dose mandam na força e na velocidade da extração. É a família que mais muda a xícara com o menor gasto, porque depende do tamanho do pó e de uma balança, nunca de equipamento novo na bancada.</p>
+  <h3>Contato</h3>
+  <p>Quanto tempo a água fica com o café e por onde ela chega até o pó. Pré-molho, despejo e tempo total. Aqui mora a distância entre tirar o doce do grão e arrancar o amargo que vem logo atrás, e é a família que você sente primeiro na boca.</p>
+  <h3>Constância</h3>
+  <p>O que faz a xícara de amanhã sair igual à de hoje: o coador enxaguado na hora e o grão guardado longe de ar, luz e calor. É a única família que não melhora a xícara de agora. Abandone por uma semana e ela devolve o defeito das outras três.</p>
+  <p class="small">A ordem das oito variáveis é a ordem em que a água encontra o café: matéria, superfície, contato, constância. Ler na sequência ajuda porque cada variável assume que a anterior já está no lugar. Se você já sabe onde erra, pule direto para a variável e volte ao começo depois.</p>
+  <span class="pgnum"></span>
+</section>
+
+<!-- ===================== ABERTURA · PÁGINA 4: O CASO ===================== -->
+<section class="page" data-toc="A xícara do Rafael, antes">
+  <p class="kick">O caso</p>
+  <h2>A xícara do Rafael, antes</h2>
+  <p>Rafael tem 34 anos e toma duas xícaras por dia, sempre. Em dia útil, comprava as duas no balcão perto do trabalho: uma na chegada, outra depois do almoço. No fim de semana fazia em casa, com café já moído de supermercado, e descartava boa parte da jarra porque saía com gosto de queimado.</p>
+  <p>Ele não se achava desligado de café. A conclusão era simples: a xícara de casa saía ruim porque faltava equipamento. Tinha uma máquina de espresso na faixa de R$ 2 mil no carrinho de compras, esperando o salário cair para fechar a compra. A conta que ele nunca tinha feito era a do balcão.</p>
+  <p>Antes de fechar, resolveu testar o coador de papel parado no armário. Coou, provou, achou amargo de novo, e em vez de culpar o coador começou a anotar o que tinha feito. Levou oito variáveis para chegar na xícara que comprava no balcão, e a máquina saiu do carrinho no caminho. A tabela abaixo é a conta do primeiro ano.</p>
+  <table>
+    <thead><tr><th>O que ele corrigiu</th><th class="num">Valor por ano</th></tr></thead>
+    <tbody>
+      <tr><td>01 · Grão e torra</td><td class="num">R$ 590,00</td></tr>
+      <tr><td>02 · Moagem</td><td class="num">R$ 475,80</td></tr>
+      <tr><td>03 · Proporção</td><td class="num">R$ 366,00</td></tr>
+      <tr><td>04 · Água e temperatura</td><td class="num">R$ 292,80</td></tr>
+      <tr><td>05 · Pré-molho</td><td class="num">R$ 219,60</td></tr>
+      <tr><td>06 · Despejo</td><td class="num">R$ 329,40</td></tr>
+      <tr><td>07 · Tempo total</td><td class="num">R$ 183,00</td></tr>
+      <tr><td>08 · Limpeza e guarda</td><td class="num">R$ 208,00</td></tr>
+      <tr class="tot"><td>Total por ano</td><td class="num"><span class="em">R$ 2.664,60</span></td></tr>
+    </tbody>
+  </table>
+  <p class="small">Cada variável fecha com o beat do Rafael: a linha do que ele mudou e o valor anual correspondente. A xícara depois, com a conta refeita, aparece no fechamento do livro. Rafael é caso composto, montado a partir de padrões típicos de quem compra café no balcão, e não corresponde a uma pessoa específica. O beat da variável 08 é o único que não aparece na primeira semana: a guarda certa só paga quando o pacote seguinte chega ao fim ainda com aroma.</p>
+  <span class="pgnum"></span>
+</section>
+
+<!-- ===================== VARIÁVEL 01 · PÁGINA 1: A MECÂNICA ===================== -->
+<section class="page" data-frente="01" data-toc="O grão e a torra" data-toc-sec="As oito variáveis">
+  <div class="opener">
+    <img src="/ebook-web/mio-abre-01.webp" alt="">
+    <div class="veil"></div>
+    <div class="txt">
+      <div class="sec">Variável 01 · Matéria</div>
+      <h2>O grão e a torra<br>decidem antes do coador</h2>
+    </div>
+  </div>
+  <p class="lead">Nenhuma técnica das outras sete variáveis corrige matéria errada. O grão que você comprou e o ponto de torra dele já definiram o teto da sua xícara, semanas antes de a água encostar no pó.</p>
+  <p>Café perde aroma pelo contato com o ar. Em grão inteiro a perda é lenta, porque só a superfície externa fica exposta. Moído, a área exposta multiplica, e o aroma vai embora poucos dias depois de o pacote ser aberto. O pó da semana passada não estragou: emudeceu.</p>
+  <p>A torra escura carrega outro defeito, e ele não sai com técnica. Passado o ponto, o açúcar do grão queima e vira amargor seco. A água na temperatura certa apenas extrai o que já existe ali dentro. <strong>Torra média</strong> é a faixa que mais perdoa erro de execução no coador.</p>
+  <h3>Por que a prateleira empurra o moído</h3>
+  <p>Não é maldade do mercado, é logística. O pó em pacote selado tem validade longa impressa na embalagem, gira rápido e dispensa moedor na casa de quem compra. A torra escura aguenta mais tempo de gôndola e agrada o paladar acostumado ao café de bar. O supermercado otimiza giro e prazo. A sua xícara não entra na conta.</p>
+  <p>A saída é ler o pacote pelos dois campos que decidem a coada, a <strong>data de torra</strong> e o <strong>grau de torra</strong>, e comprar em grão inteiro.</p>
+  <span class="pgnum"></span>
+</section>
+
+<!-- ===================== VARIÁVEL 01 · PÁGINA 2: ONDE SE ESCONDE ===================== -->
+<section class="page" data-frente="01">
+  <p class="kick">Variável 01</p>
+  <h2>Onde o defeito se esconde</h2>
+  <p>O defeito da variável 01 não nasce no coador. Nasce na gôndola, semanas antes, e o rótulo entrega tudo em dois campos que quase ninguém procura.</p>
+  <p>Vire o pacote antes de pôr no carrinho e leia de trás para a frente.</p>
+  <ol class="steps">
+    <li>Procure a <strong>data de torra</strong>. Validade fala de segurança do alimento; data de torra fala de aroma. Grão com mais de dois meses fora do torrador não responde a técnica nenhuma.</li>
+    <li>Confira o <strong>grau de torra</strong> e mire na <strong>torra média</strong>: já perdeu a acidez verde, ainda não ganhou gosto de queima.</li>
+    <li>Cheque se é <strong>grão inteiro ou moído</strong>. O moído perde aroma poucos dias depois de aberto, e despejo nenhum devolve o que evaporou.</li>
+    <li>Calcule o pacote pelo consumo. A <strong>15 gramas por xícara</strong>, 250 gramas rendem perto de 16. Leve o que acaba em até um mês.</li>
+  </ol>
+  <div class="art">
+    <div class="hd"><span class="t">Prateleira · quatro pacotes, mesma gôndola</span><span class="m">Rótulos</span></div>
+    <div class="ln"><span>500 g moído</span><span class="d">TORRA EXTRAFORTE · VALIDADE 09/27 · SEM DATA DE TORRA</span><span class="v">R$ ______</span></div>
+    <div class="ln"><span>250 g moído</span><span class="d">TORRA ESCURA · MOIDO NA LOJA · SEM DATA DE TORRA</span><span class="v">R$ ______</span></div>
+    <div class="ln hit"><span>250 g em grão</span><span class="d">TORRA MEDIA · TORRADO EM 02/06 · GRAO INTEIRO</span><span class="v">R$ ______</span></div>
+    <div class="ln"><span>1 kg em grão</span><span class="d">TORRA MEDIA · TORRADO EM 11/03 · GRAO INTEIRO</span><span class="v">R$ ______</span></div>
+    <div class="note"><span class="k">01</span><span class="x">A linha destacada é a única com os três campos certos: <b>grão inteiro, torra média e data de torra recente</b>. A conta do custo por xícara: preço do pacote dividido pelas xícaras que ele rende. A 15 gramas por xícara, 250 gramas rendem perto de 16, e a de casa fica perto de <b>R$ 2,90</b>, contra a faixa de <b>R$ 7,00 a R$ 12,00</b> do balcão.</span></div>
+  </div>
+  <span class="pgnum"></span>
+</section>
+
+<!-- ===================== VARIÁVEL 01 · PÁGINA 3: O MOVIMENTO ===================== -->
+<section class="page" data-frente="01">
+  <p class="kick">Variável 01</p>
+  <h2>O movimento</h2>
+  <ol class="steps">
+    <li>Escolha onde comprar pelo rótulo, não pela marca: serve qualquer torrefação ou mercado que <strong>imprima a data de torra</strong> no pacote.</li>
+    <li data-acao="Compre grão inteiro de torra média com data de torra impressa no pacote">Na gôndola, <strong>compre grão inteiro de torra média com data de torra impressa no pacote</strong>. Os três campos juntos, nunca dois de três.</li>
+    <li>Dimensione o pacote pelo consumo: duas xícaras por dia a 15 gramas pedem perto de 250 gramas a cada oito ou nove dias.</li>
+    <li>Anote no pacote o dia em que abriu. Passou do mês, o aroma caiu, e a próxima compra vem menor.</li>
+  </ol>
+  <p>A troca leva uma compra para acontecer e não custa equipamento nenhum na bancada. O que muda é o campo que você lê no rótulo e o tamanho do pacote que você leva para casa. A xícara responde já na primeira coada do pacote novo.</p>
+  <div class="caso">
+    <div class="t">A xícara do Rafael</div>
+    <p>Rafael comprava café já moído, em pacote de supermercado sem data de torra. Fazia a jarra no fim de semana e descartava quase um terço dela, porque saía com gosto de queimado e ninguém terminava.</p>
+    <p>Passou a comprar grão inteiro de torra média, com a data impressa no rótulo e em pacote que acaba dentro do mês. Parou de jogar café fora e trocou 72 cafés de balcão por xícaras de casa no primeiro ano.</p>
+    <div class="linha"><span>72 cafés de balcão trocados no primeiro ano</span><b data-spine="590.00">R$ 590,00 por ano</b></div>
+  </div>
+  <div class="bolso"><div class="t">No seu bolso</div><p>Cada xícara que sai do coador em vez do balcão devolve a diferença entre a faixa de <b>R$ 7,00 a R$ 12,00</b> e o custo do seu pacote dividido pelas xícaras que ele rende, perto de <b>R$ 2,90</b>. Some o café que você para de descartar.</p></div>
+  <span class="pgnum"></span>
+</section>
+
+<!-- ===================== VARIÁVEL 01 · PÁGINA 4: A RESPOSTA PRONTA ===================== -->
+<section class="page" data-frente="01">
+  <p class="kick">Variável 01 · variável pesada</p>
+  <h2>A resposta pronta</h2>
+  <p>Cinco respostas para as objeções que a variável 01 encontra.</p>
+  <table class="gerente">
+    <thead><tr><th>O que você ouve</th><th>O que você responde</th></tr></thead>
+    <tbody>
+      <tr><td>"Café bom precisa de máquina cara."</td><td>"O coador extrai o mesmo café. Quem decide a xícara é o grão e o ponto de torra, e nenhum dos dois vem na máquina."</td></tr>
+      <tr><td>"Grão inteiro é frescura sem moedor."</td><td>"O grão guarda aroma por semanas, o moído perde em dias. Sem moedor, peça para moer na hora da compra."</td></tr>
+      <tr><td>"Torra escura é café mais forte."</td><td>"Torra escura é café mais queimado. Força vem da proporção, de 1 para 15 até 1 para 17."</td></tr>
+      <tr><td>"Pacote pequeno sai mais caro."</td><td>"Por quilo, sim. O pacote grande que envelhece na metade custa o dobro: metade vai para o lixo."</td></tr>
+      <tr><td>"O balcão é melhor porque quem faz é profissional."</td><td>"No balcão, alguém controla as mesmas oito variáveis deste livro. Nenhuma exige crachá."</td></tr>
+    </tbody>
+  </table>
+  <div class="infog">
+    <div class="ttl">O custo de uma xícara · por unidade</div>
+    <p class="sub">A diferença por xícara é a conta do livro inteiro. A de casa sai do pacote dividido pelas xícaras que rende.</p>
+    <div class="bar hot"><span class="lb">Balcão urbano</span><span class="tk"><span class="fl" style="width:100%"></span></span><span class="vl">7,00 a 12,00</span></div>
+    <div class="bar"><span class="lb">Coada em casa</span><span class="tk"><span class="fl" style="width:28%"></span></span><span class="vl">≈ 2,90</span></div>
+    <div class="tot"><span class="l">Margem por xícara convertida</span><span class="v">R$ 6,10</span></div>
+  </div>
+  <span class="pgnum"></span>
+</section>
+
+<!-- ===================== VARIÁVEL 02 · PÁGINA 1: A MECÂNICA ===================== -->
+<section class="page" data-frente="02" data-toc="A moagem">
+  <div class="opener">
+    <img src="/ebook-web/mio-abre-02.webp" alt="">
+    <div class="veil"></div>
+    <div class="txt">
+      <div class="sec">Variável 02 · Superfície</div>
+      <h2>O pó fino que<br>segura a água no filtro</h2>
+    </div>
+  </div>
+  <p class="lead">A moagem é a variável que mais muda a xícara sem trocar nada de equipamento na bancada. Nenhuma máquina nova, nenhum coador diferente: só o tamanho do pó que a água vai encontrar pela frente.</p>
+  <p>Granulometria é o tamanho do pó depois de moído, e ela decide quanta área do café a água encontra no caminho. Pó grosso oferece pouca superfície: a água passa rápido e sai levando quase nada. Pó fino oferece superfície demais, entope o filtro e segura a água parada em cima da cama de café.</p>
+  <p>A extração tem ordem de sabor. Primeiro sai o ácido, depois vem o doce, e só no fim aparece o amargo. Quando a água fica presa no pó fino além da conta, ela passa do doce e vai buscar o amargo que estava logo atrás.</p>
+  <h3>Por que o moído da loja quase sempre sai fino</h3>
+  <p>O café já moído da prateleira foi calibrado para máquina de espresso, onde a água atravessa sob pressão em menos de trinta segundos. No coador de papel, a mesma granulometria vira barreira: a água leva quatro, cinco minutos para passar, e o amargor que chega na xícara não sai com técnica nenhuma depois.</p>
+  <p>A conta desta variável é de <strong>R$ 475,80 por ano</strong>, e ela sai do tamanho do pó, não da bancada.</p>
+  <span class="pgnum"></span>
+</section>
+
+<!-- ===================== VARIÁVEL 02 · PÁGINA 2: ONDE SE ESCONDE ===================== -->
+<section class="page" data-frente="02">
+  <p class="kick">Variável 02</p>
+  <h2>Onde o defeito se esconde</h2>
+  <p>O defeito não aparece no pó parado dentro do pote. Ele aparece no relógio: a moagem só se revela pelo tempo que a água leva para atravessar a cama de café. A busca, então, começa no tato e termina no cronômetro.</p>
+  <p>A referência que funciona no coador de papel é areia grossa. Sal grosso passa, farinha não passa.</p>
+  <ol class="steps">
+    <li>Esfregue uma pitada de pó entre o polegar e o indicador. A textura tem que lembrar <strong>areia grossa de praia</strong>, com grão que você sente separado, nunca pó de talco.</li>
+    <li>Olhe as partículas contra a luz. Moagem parelha tem grãos de tamanho parecido; farelo fino misturado a pedaços graúdos entrega moedor desregulado.</li>
+    <li>Cronometre da <strong>primeira gota até a última</strong>, com o celular ao lado da jarra. O número vale mais que qualquer palpite sobre a aparência do pó.</li>
+    <li>Leia a xícara pelo sintoma: rala e azeda indica extração curta; seca e amarga na garganta indica extração longa.</li>
+  </ol>
+  <div class="art">
+    <div class="hd"><span class="t">Caderno de coadas · o mesmo grão, quatro moagens</span><span class="m">Semana 1</span></div>
+    <div class="ln"><span>04/03</span><span class="d">MOIDO DA LOJA, PO FINO, AGUA PARADA EM CIMA</span><span class="v">5min10</span></div>
+    <div class="ln"><span>05/03</span><span class="d">UM CLIQUE MAIS GROSSO, AINDA AMARGA</span><span class="v">4min15</span></div>
+    <div class="ln hit"><span>06/03</span><span class="d">MOIDO NA HORA, TEXTURA DE AREIA GROSSA</span><span class="v">2min55</span></div>
+    <div class="ln"><span>07/03</span><span class="d">DOIS CLIQUES MAIS GROSSO, XICARA RALA</span><span class="v">1min48</span></div>
+    <div class="note"><span class="k">01</span><span class="x">A linha destacada é a única dentro da faixa de <b>2min30 a 3min30</b>. Acima de quatro minutos o pó está fino e segura a água; abaixo de dois, está grosso e a água escapa. O escoamento é o termômetro da moagem, e o ajuste é <b>um clique por coada</b>, nunca três de uma vez.</span></div>
+  </div>
+  <span class="pgnum"></span>
+</section>
+
+<!-- ===================== VARIÁVEL 02 · PÁGINA 3: O MOVIMENTO ===================== -->
+<section class="page" data-frente="02">
+  <p class="kick">Variável 02</p>
+  <h2>O movimento</h2>
+  <div class="flow">
+    <div class="st">
+      <div class="n">PASSO 1</div>
+      <div class="h">Comece na areia grossa</div>
+      <div class="d">Moa na hora e confira a textura entre os dedos antes de despejar: grão separado, nunca talco. Pese a dose dentro da faixa de 1 para 15 até 1 para 17.</div>
+    </div>
+    <div class="st" data-acao="Moa na hora na textura de areia grossa e ajuste pelo tempo de escoamento">
+      <div class="n">PASSO 2</div>
+      <div class="h">Cronometre a coada</div>
+      <div class="d">Marque da primeira gota até a última, com o celular ao lado da jarra. A faixa alvo do coador de papel é de 2min30 a 3min30, com a água entre 92 e 96 graus.</div>
+    </div>
+    <div class="st end">
+      <div class="n">PASSO 3</div>
+      <div class="h">Abra ou feche um clique</div>
+      <div class="d">Passou de 3min30, abra um clique para engrossar o pó. Ficou abaixo de 2min30, feche um clique. Uma mudança por coada, e prove antes da próxima.</div>
+    </div>
+  </div>
+  <p>Um clique por vez, sempre na direção do sintoma. Mexer em moagem, proporção e temperatura na mesma manhã transforma a coada em palpite, e você perde o dia sem saber o que funcionou.</p>
+  <div class="caso">
+    <div class="t">A xícara do Rafael</div>
+    <p>O pó do Rafael vinha moído fino da loja, em pacote aberto havia semanas. A água encharcava a cama de café e levava mais de cinco minutos para passar pelo coador, e ele culpava o grão pelo gosto de queimado.</p>
+    <p>Passou a moer na hora, na faixa de areia grossa, e cronometrou a coada seguinte. O escoamento voltou para perto de três minutos e o amargor sumiu da xícara, sem trocar coador, chaleira ou pacote.</p>
+    <div class="linha"><span>78 cafés de balcão a menos no ano</span><b data-spine="475.80">R$ 475,80 por ano</b></div>
+  </div>
+  <div class="bolso"><div class="t">No seu bolso</div><p>Cada xícara que sai do balcão para o coador de casa devolve perto de <b>R$ 6,10</b>: R$ 9,00 na esquina, dentro da faixa típica de R$ 7,00 a R$ 12,00, contra cerca de R$ 2,90 coada em casa. Multiplique pelas xícaras que você trouxer para casa no ano. No caso do Rafael, 78 xícaras, <b>R$ 475,80</b>.</p></div>
+  <span class="pgnum"></span>
+</section>
+
+<!-- ===================== VARIÁVEL 02 · PÁGINA 4: A RESPOSTA PRONTA ===================== -->
+<section class="page" data-frente="02">
+  <p class="kick">Variável 02 · variável pesada</p>
+  <h2>A resposta pronta</h2>
+  <p>As respostas cobrem o que costuma vir da mesa ao lado.</p>
+  <table class="gerente">
+    <thead><tr><th>O que dizem</th><th>O que você responde</th></tr></thead>
+    <tbody>
+      <tr><td>"Moer na hora é frescura."</td><td>"Prove lado a lado: moída na hora contra a do pote aberto. A xícara decide."</td></tr>
+      <tr><td>"O moído da loja serve."</td><td>"Mesmo grão, outra granulometria, calibrada para espresso. No coador de papel, entope."</td></tr>
+      <tr><td>"Moedor é gasto que não se paga."</td><td>"Divida o preço do moedor pelas xícaras que você coa no ano e compare com a margem por xícara."</td></tr>
+      <tr><td>"O número gravado no moedor já resolve."</td><td>"O número muda por moedor e por grão. Quem manda é o escoamento da sua coada."</td></tr>
+      <tr><td>"Café fino rende mais."</td><td>"Fino segura a água e extrai o amargo depois do doce. Mesma dose, xícara pior."</td></tr>
+    </tbody>
+  </table>
+  <div class="infog">
+    <div class="ttl">O escoamento entrega a moagem · minutos até a última gota</div>
+    <p class="sub">A faixa do meio é o alvo; as outras duas são sintoma</p>
+    <div class="bar hot"><span class="lb">Pó fino demais</span><span class="tk"><span class="fl" style="width:100%"></span></span><span class="vl">acima de 4min</span></div>
+    <div class="bar"><span class="lb">Areia grossa</span><span class="tk"><span class="fl" style="width:70%"></span></span><span class="vl">2min30 a 3min30</span></div>
+    <div class="bar"><span class="lb">Pó grosso demais</span><span class="tk"><span class="fl" style="width:42%"></span></span><span class="vl">abaixo de 2min</span></div>
+    <div class="tot"><span class="l">Faixa alvo</span><span class="v">2min30 a 3min30</span></div>
+  </div>
+  <span class="pgnum"></span>
+</section>
+
+<!-- ===================== VARIÁVEL 03 · PÁGINA 1: A MECÂNICA ===================== -->
+<section class="page" data-frente="03" data-toc="A proporção">
+  <div class="opener">
+    <img src="/ebook-web/mio-abre-03.webp" alt="">
+    <div class="veil"></div>
+    <div class="txt">
+      <div class="sec">Variável 03 · Superfície</div>
+      <h2>A dose que repete<br>a xícara todo dia</h2>
+    </div>
+  </div>
+  <p class="lead">A proporção é a razão entre o peso do café e o volume de água. É ela que decide se a xícara sai rala ou pesada, e é a variável que a colher de sopa estraga sem ninguém perceber.</p>
+  <p>A colher carrega peso diferente a cada dia. Café mais úmido, moagem mais fina ou a mão com pressa mudam a quantidade sem mudar a colher, e a xícara vem forte numa manhã e aguada na outra. O grão é o mesmo, a conta é que oscila.</p>
+  <p>A faixa que funciona no coador de papel vai de 1 para 15 até 1 para 17: um grama de café para quinze a dezessete gramas de água. Quem gosta de xícara encorpada fica perto do 15, quem prefere leve vai para o 17.</p>
+  <h3>Por que a colher engana</h3>
+  <p>Uma colher de sopa de café moído pesa entre sete e doze gramas dependendo da moagem e da umidade. A diferença entre uma dose e outra chega a cinquenta por cento, e é ela que faz a mesma receita render sabores diferentes de um dia para o outro, sem culpa do grão.</p>
+  <p>A conta desta variável é de <strong>R$ 366,00 por ano</strong>, e ela sai da balança, não de uma máquina nova.</p>
+  <span class="pgnum"></span>
+</section>
+
+<!-- ===================== VARIÁVEL 03 · PÁGINA 2: ONDE SE ESCONDE ===================== -->
+<section class="page" data-frente="03">
+  <p class="kick">Variável 03</p>
+  <h2>Onde o defeito se esconde</h2>
+  <p>O defeito não está no café, está no instrumento. A colher mede volume, e o que a xícara pede é peso. Duas colheres cheias podem ser dez gramas numa manhã e quinze na outra, e a proporção muda sem você tocar em nada.</p>
+  <p>A balança de cozinha resolve de uma vez, e a mais barata serve. Basta que ela mostre gramas de um em um.</p>
+  <ol class="steps">
+    <li>Pese a água também, não só o café. Um mililitro de água pesa um grama, então 240 mililitros são <strong>240 gramas</strong> na balança.</li>
+    <li>Comece em <strong>15 gramas de café para 240 de água</strong>, a proporção do meio da faixa, e prove antes de mudar qualquer coisa.</li>
+    <li>Se a xícara vier pesada, suba a água para 255. Se vier rala, desça para 225. Um ajuste por coada, nunca dois.</li>
+    <li>Anote a dose que funcionou para aquele pacote. Grão novo pode pedir meio grama a mais ou a menos.</li>
+  </ol>
+  <div class="art">
+    <div class="hd"><span class="t">Caderno de coadas · a colher contra a balança</span><span class="m">Semana 1</span></div>
+    <div class="ln"><span>04/03</span><span class="d">DUAS COLHERES CHEIAS, XICARA PESADA E SECA</span><span class="v">~18g</span></div>
+    <div class="ln"><span>05/03</span><span class="d">DUAS COLHERES RASAS, XICARA RALA E AZEDA</span><span class="v">~11g</span></div>
+    <div class="ln hit"><span>06/03</span><span class="d">PESADO NA BALANCA, 15G PARA 240ML</span><span class="v">15g</span></div>
+    <div class="ln"><span>07/03</span><span class="d">MESMOS 15G, AGUA EM 255ML, XICARA MAIS LEVE</span><span class="v">15g</span></div>
+    <div class="note"><span class="k">01</span><span class="x">As duas primeiras linhas são a mesma colher, e a dose oscilou <b>sete gramas</b> de um dia para o outro. A linha destacada fixa o peso e a xícara passa a repetir: com a balança, a variável some, e o ajuste fino vira só a <b>água</b>, não o café.</span></div>
+  </div>
+  <span class="pgnum"></span>
+</section>
+
+<!-- ===================== VARIÁVEL 03 · PÁGINA 3: O MOVIMENTO ===================== -->
+<section class="page" data-frente="03">
+  <p class="kick">Variável 03</p>
+  <h2>O movimento</h2>
+  <ol class="steps">
+    <li><strong>Passo 1.</strong> Ponha a jarra na balança e zere. Despeje o café até <strong>15 gramas</strong>, direto no coador, sem colher no meio do caminho.</li>
+    <li data-acao="Pese 15 gramas de café para cada 240 mililitros de água e repita a dose"><strong>Passo 2.</strong> Zere de novo com a água na chaleira e confira que ela vai marcar <strong>240 gramas</strong> na hora do despejo. Peso do café e peso da água, os dois na balança.</li>
+    <li><strong>Passo 3.</strong> Prove e ajuste só a água na próxima coada, quinze para mais ou para menos. A dose de café fica travada, e a xícara para de mudar sozinha.</li>
+  </ol>
+  <p>Um ajuste por coada, sempre na água. Mexer no café e na água na mesma manhã transforma a xícara em palpite, e você perde o dia sem saber o que resolveu.</p>
+  <div class="caso">
+    <div class="t">A xícara do Rafael</div>
+    <p>Rafael media o café com colher de sopa, e cada manhã saía diferente: uma rala, a outra pesada. Ele trocava de pacote achando que era o grão, sem nunca ter pesado a dose.</p>
+    <p>Fixou 15 gramas de café para 240 mililitros de água, na balança, e a xícara passou a repetir todo dia. Sem trocar coador, chaleira ou marca, o café de casa virou confiável, e o de balcão foi ficando só para a tarde com a equipe.</p>
+    <div class="linha"><span>60 cafés de balcão a menos no ano</span><b data-spine="366.00">R$ 366,00 por ano</b></div>
+  </div>
+  <div class="bolso"><div class="t">No seu bolso</div><p>Cada xícara que sai do balcão para o coador devolve perto de <b>R$ 6,10</b>: R$ 9,00 na esquina, dentro da faixa típica de R$ 7,00 a R$ 12,00, contra cerca de R$ 2,90 em casa. No caso do Rafael, 60 xícaras no ano, <b>R$ 366,00</b>.</p></div>
+  <span class="pgnum"></span>
+</section>
+
+<!-- ===================== VARIÁVEL 04 · PÁGINA 1: A MECÂNICA ===================== -->
+<section class="page" data-frente="04" data-toc="A água e a temperatura">
+  <div class="opener">
+    <img src="/ebook-web/mio-abre-04.webp" alt="">
+    <div class="veil"></div>
+    <div class="txt">
+      <div class="sec">Variável 04 · Matéria</div>
+      <h2>A água quente demais<br>queima o café no filtro</h2>
+    </div>
+  </div>
+  <p class="lead">A água é mais de noventa por cento da xícara. Ela é o maior ingrediente da coada, e a temperatura dela decide quanto do café consegue dissolver e o que traz junto.</p>
+  <p>Água fervendo, a cem graus, arranca os compostos amargos do grão antes da hora. Água morna, abaixo de noventa, deixa a doçura presa dentro do pó e entrega uma xícara azeda e rala. O ponto que funciona fica no meio, entre noventa e dois e noventa e seis graus.</p>
+  <p>Ninguém precisa de termômetro. A chaleira ferve a cem, e a água perde os graus que sobram em menos de um minuto fora do fogo, com a tampa aberta.</p>
+  <h3>Por que o gosto de queimado não é do grão</h3>
+  <p>O sabor de queimado que muita gente atribui ao café barato costuma vir da água fervente despejada direto no pó. A mesma dose, com a água esperada por quarenta segundos, sai doce sem trocar nada mais. O erro não estava no grão, estava no momento em que a água encostou.</p>
+  <p>A conta desta variável é de <strong>R$ 292,80 por ano</strong>, e ela não custa nada: só muda a hora do despejo.</p>
+  <span class="pgnum"></span>
+</section>
+
+<!-- ===================== VARIÁVEL 04 · PÁGINA 2: ONDE SE ESCONDE ===================== -->
+<section class="page" data-frente="04">
+  <p class="kick">Variável 04</p>
+  <h2>Onde o defeito se esconde</h2>
+  <p>O defeito não está na chaleira, está na pressa. A água apita e vai direto no café, no reflexo de quem quer o café pronto logo. Esses poucos segundos de espera são a variável inteira.</p>
+  <p>A referência é o tempo, não o número no visor. Quarenta segundos de tampa aberta tiram a água da fervura e a deixam na faixa certa.</p>
+  <ol class="steps">
+    <li>Ferva a água por completo e <strong>desligue o fogo</strong>. Deixe a chaleira destampada, para o vapor sair e a temperatura cair.</li>
+    <li>Conte de <strong>trinta a sessenta segundos</strong> antes de encostar a água no café. Nesse tempo ela sai de cem graus e chega perto de noventa e quatro.</li>
+    <li>Se a água da torneira tem gosto próprio no copo, use <strong>água filtrada</strong>. A xícara é feita quase toda dela.</li>
+    <li>Prove: xícara amarga e seca pede mais espera; xícara azeda e rala pede menos. O ajuste é o relógio, não o fogo.</li>
+  </ol>
+  <div class="art">
+    <div class="hd"><span class="t">Caderno de coadas · a mesma dose, quatro esperas</span><span class="m">Semana 2</span></div>
+    <div class="ln"><span>11/03</span><span class="d">AGUA DIRETO DA FERVURA, GOSTO DE QUEIMADO</span><span class="v">0s</span></div>
+    <div class="ln"><span>12/03</span><span class="d">ESPEROU 15S, AINDA AMARGA NO FIM</span><span class="v">15s</span></div>
+    <div class="ln hit"><span>13/03</span><span class="d">ESPEROU 40S, TAMPA ABERTA, XICARA DOCE</span><span class="v">40s</span></div>
+    <div class="ln"><span>14/03</span><span class="d">ESPEROU 90S, AGUA FRIA, XICARA RALA E AZEDA</span><span class="v">90s</span></div>
+    <div class="note"><span class="k">01</span><span class="x">A linha destacada é a única na faixa de <b>92 a 96 graus</b>. Sem espera, a água a cem graus arranca o amargo; esperada demais, a água fria não dissolve a doçura. Quarenta segundos de tampa aberta é o ajuste, e ele <b>não custa nada</b>.</span></div>
+  </div>
+  <span class="pgnum"></span>
+</section>
+
+<!-- ===================== VARIÁVEL 04 · PÁGINA 3: O MOVIMENTO ===================== -->
+<section class="page" data-frente="04">
+  <p class="kick">Variável 04</p>
+  <h2>O movimento</h2>
+  <div class="flow">
+    <div class="st">
+      <div class="n">PASSO 1</div>
+      <div class="h">Ferva e desligue</div>
+      <div class="d">Leve a água à fervura completa e desligue o fogo. Deixe a chaleira destampada, para o vapor escapar e a temperatura começar a cair sozinha.</div>
+    </div>
+    <div class="st" data-acao="Espere de 30 a 60 segundos depois da fervura antes de molhar o café">
+      <div class="n">PASSO 2</div>
+      <div class="h">Conte quarenta segundos</div>
+      <div class="d">Espere de trinta a sessenta segundos com a tampa aberta. A água sai de cem graus e chega na faixa de 92 a 96, sem termômetro nenhum.</div>
+    </div>
+    <div class="st end">
+      <div class="n">PASSO 3</div>
+      <div class="h">Molhe e prove</div>
+      <div class="d">Despeje e prove a xícara. Amarga e seca pede mais espera na próxima; azeda e rala pede menos. Ajuste o relógio, nunca o fogo, uma coada por vez.</div>
+    </div>
+  </div>
+  <p>Uma variável por coada, sempre. Mudar a espera e a dose na mesma manhã transforma a xícara em palpite, e você perde o dia sem saber o que resolveu.</p>
+  <div class="caso">
+    <div class="t">A xícara do Rafael</div>
+    <p>Rafael despejava a água assim que a chaleira apitava, e culpava o grão pelo gosto de queimado. Trocou de marca duas vezes atrás de um café que não amargasse, sem sucesso.</p>
+    <p>Passou a esperar quarenta segundos com a tampa aberta antes de despejar, e a xícara ficou doce sem mudar mais nada. O café de casa deixou de ter defeito, e ele parou de comprar o do balcão de manhã.</p>
+    <div class="linha"><span>48 cafés de balcão a menos no ano</span><b data-spine="292.80">R$ 292,80 por ano</b></div>
+  </div>
+  <div class="bolso"><div class="t">No seu bolso</div><p>Cada xícara que sai do balcão para o coador devolve perto de <b>R$ 6,10</b>: R$ 9,00 na esquina contra cerca de R$ 2,90 em casa. No caso do Rafael, 48 xícaras no ano, <b>R$ 292,80</b>, e a correção que mais paga é a que não custa nada.</p></div>
+  <span class="pgnum"></span>
+</section>
+
+<!-- ===================== VARIÁVEL 05 · PÁGINA 1: A MECÂNICA ===================== -->
+<section class="page" data-frente="05" data-toc="O pré-molho">
+  <div class="opener">
+    <img src="/ebook-web/mio-abre-05.webp" alt="">
+    <div class="veil"></div>
+    <div class="txt">
+      <div class="sec">Variável 05 · Contato</div>
+      <h2>Os quarenta segundos<br>que a pressa engole</h2>
+    </div>
+  </div>
+  <p class="lead">O pré-molho é a primeira água da coada, só o suficiente para molhar todo o pó, com uma pausa antes do resto. É o passo mais curto do livro e o mais pulado na correria da manhã.</p>
+  <p>Café fresco tem gás carbônico preso dentro do grão. Quando a água encosta, o gás sobe numa espuma que empurra a água para fora do pó, e parte da dose fica seca até o fim da coada. O pré-molho deixa o gás escapar antes, para a água entrar no café em vez de deslizar por cima.</p>
+  <p>A conta é simples: o dobro do peso do café em água. Quinze gramas de pó pedem cerca de trinta gramas de água para molhar tudo, e uma espera de trinta a quarenta e cinco segundos.</p>
+  <h3>Por que a espuma não é sinal de qualidade</h3>
+  <p>Muita gente vê a espuma subir e acha que o café está bom. Ela é gás saindo, não sabor entrando. Deixar o gás borbulhar antes do despejo principal é o que faz a água encontrar o café por inteiro depois, e a xícara ganha corpo sem mudar a dose.</p>
+  <p>A conta desta variável é de <strong>R$ 219,60 por ano</strong>, e ela cabe nos quarenta segundos que a pressa engole.</p>
+  <span class="pgnum"></span>
+</section>
+
+<!-- ===================== VARIÁVEL 05 · PÁGINA 2: ONDE SE ESCONDE ===================== -->
+<section class="page" data-frente="05">
+  <p class="kick">Variável 05</p>
+  <h2>Onde o defeito se esconde</h2>
+  <p>O defeito não está no café, está na primeira água. Quem despeja tudo de uma vez nunca vê o café inchar, e metade do pó atravessa a coada sem molhar direito. A perda acontece nos primeiros dez segundos e some no meio da pressa.</p>
+  <p>A referência é visual. O pó bem molhado incha como uma esponja e depois assenta; o mal molhado fica seco nas bordas.</p>
+  <ol class="steps">
+    <li>Despeje só <strong>o dobro do peso do café</strong> em água: cerca de 30 gramas sobre 15 de pó, o bastante para molhar tudo.</li>
+    <li>Olhe o café <strong>inchar</strong>. Se algum ponto continuar seco, gire o bico do bule para molhá-lo, sem afogar.</li>
+    <li>Conte de <strong>trinta a quarenta e cinco segundos</strong>. A espuma sobe, borbulha e começa a baixar. Esse é o gás saindo.</li>
+    <li>Só então siga para o despejo principal. Café fresco incha mais; café velho quase não faz espuma, e a espera pode ser menor.</li>
+  </ol>
+  <div class="art">
+    <div class="hd"><span class="t">Caderno de coadas · com pré-molho e sem</span><span class="m">Semana 2</span></div>
+    <div class="ln"><span>18/03</span><span class="d">AGUA TODA DE UMA VEZ, PO SECO NAS BORDAS</span><span class="v">sem</span></div>
+    <div class="ln"><span>19/03</span><span class="d">MOLHOU E ESPEROU 10S, ESPUMA AINDA SUBINDO</span><span class="v">10s</span></div>
+    <div class="ln hit"><span>20/03</span><span class="d">MOLHOU E ESPEROU 40S, ESPUMA JA BAIXANDO</span><span class="v">40s</span></div>
+    <div class="ln"><span>21/03</span><span class="d">PACOTE VELHO, QUASE SEM ESPUMA, ESPERA CURTA</span><span class="v">20s</span></div>
+    <div class="note"><span class="k">01</span><span class="x">A linha destacada esperou o gás baixar antes de seguir, e a xícara ganhou corpo com a mesma dose. A última linha mostra o sinal do <b>café velho</b>: pouca espuma quer dizer pouco gás, e a espera pode encurtar. A espuma é gás saindo, <b>não sabor entrando</b>.</span></div>
+  </div>
+  <span class="pgnum"></span>
+</section>
+
+<!-- ===================== VARIÁVEL 05 · PÁGINA 3: O MOVIMENTO ===================== -->
+<section class="page" data-frente="05">
+  <p class="kick">Variável 05</p>
+  <h2>O movimento</h2>
+  <ol class="steps">
+    <li><strong>Passo 1.</strong> Zere a balança com o café no coador. Despeje água até marcar <strong>o dobro do peso do pó</strong>, cerca de 30 gramas sobre 15 de café.</li>
+    <li data-acao="Molhe todo o pó com o dobro do peso dele em água antes do despejo principal"><strong>Passo 2.</strong> Molhe tudo, sem afogar, e conte de <strong>trinta a quarenta e cinco segundos</strong>. Deixe a espuma subir e começar a baixar antes de continuar.</li>
+    <li><strong>Passo 3.</strong> Siga para o despejo principal só depois da espera. A água entra num café que já soltou o gás, e a dose rende por inteiro.</li>
+  </ol>
+  <p>Uma variável por coada, sempre. O pré-molho entra sozinho nesta semana, sem mexer na dose nem na moagem que você já travou antes.</p>
+  <div class="caso">
+    <div class="t">A xícara do Rafael</div>
+    <p>Rafael despejava a água toda de uma vez e via o pó subir numa espuma que achava normal. A xícara vinha fina, e ele aumentava a dose atrás de corpo, gastando mais café sem resolver.</p>
+    <p>Passou a molhar tudo com o dobro do peso em água e a contar quarenta segundos antes de seguir. A mesma dose ganhou corpo, e o café de casa deixou de parecer aguado ao lado do balcão.</p>
+    <div class="linha"><span>36 cafés de balcão a menos no ano</span><b data-spine="219.60">R$ 219,60 por ano</b></div>
+  </div>
+  <div class="bolso"><div class="t">No seu bolso</div><p>Cada xícara que sai do balcão para o coador devolve perto de <b>R$ 6,10</b>: R$ 9,00 na esquina contra cerca de R$ 2,90 em casa. No caso do Rafael, 36 xícaras no ano, <b>R$ 219,60</b>, ganhas nos quarenta segundos que a pressa engolia.</p></div>
+  <span class="pgnum"></span>
+</section>
+
+<!-- ===================== VARIÁVEL 06 · PÁGINA 1: A MECÂNICA ===================== -->
+<section class="page" data-frente="06" data-toc="A técnica de despejo">
+  <div class="opener">
+    <img src="/ebook-web/mio-abre-06.webp" alt="">
+    <div class="veil"></div>
+    <div class="txt">
+      <div class="sec">Variável 06 · Contato</div>
+      <h2>O fio fino que molha<br>o café por inteiro</h2>
+    </div>
+  </div>
+  <p class="lead">A técnica de despejo é como a água entra na cama de pó. Ela decide quanto do café a água toca no caminho, e é o gesto que parece frescura até a primeira xícara sair diferente.</p>
+  <p>O jato grosso, despejado de uma vez no meio do coador, abre um canal na cama de café. A água encontra o caminho mais fácil e atravessa por ele sem tocar a maior parte do pó, que fica encostado na parede do filtro, seco. A dose inteira está lá, mas metade nunca foi usada.</p>
+  <p>O fio fino em espiral resolve. A água cai devagar, do centro para a borda, e cobre o pó por igual em vez de furar um buraco no meio dele.</p>
+  <h3>Por que o gesto parece exagero</h3>
+  <p>Girar o bule em espiral parece capricho de quem tem tempo sobrando, e é o maior atrito de execução do livro. Mas a mesma dose, despejada em fio fino, rende uma xícara mais doce e mais cheia, porque a água finalmente encontra o café que antes ficava de fora.</p>
+  <p>A conta desta variável é de <strong>R$ 329,40 por ano</strong>, e ela sai do gesto, não do grão.</p>
+  <span class="pgnum"></span>
+</section>
+
+<!-- ===================== VARIÁVEL 06 · PÁGINA 2: ONDE SE ESCONDE ===================== -->
+<section class="page" data-frente="06">
+  <p class="kick">Variável 06</p>
+  <h2>Onde o defeito se esconde</h2>
+  <p>O defeito não está na dose, está no jato. Quem despeja tudo de uma vez nunca vê o pó seco na parede do filtro, escondido embaixo da água que passou rápido. A perda mora no canal aberto no meio da cama.</p>
+  <p>A referência é a borra depois da coada. Cama plana e uniforme quer dizer despejo parelho; cratera no meio com pó alto nas bordas entrega o jato grosso.</p>
+  <ol class="steps">
+    <li>Despeje em <strong>fio fino</strong>, com o bule perto do café, não a um palmo de altura. Água que cai de longe fura a cama.</li>
+    <li>Gire <strong>do centro para a borda</strong> em espiral, e volte ao centro antes que a superfície comece a secar.</li>
+    <li>Divida o despejo principal em <strong>duas ou três levas</strong>, esperando a água baixar entre uma e outra, sem deixar o pó secar.</li>
+    <li>Olhe a borra no fim: <strong>plana</strong> é despejo bom; <strong>cratera</strong> no meio pede fio mais fino na próxima.</li>
+  </ol>
+  <div class="art">
+    <div class="hd"><span class="t">Caderno de coadas · o jato contra o fio</span><span class="m">Semana 3</span></div>
+    <div class="ln"><span>25/03</span><span class="d">JATO UNICO NO MEIO, BORRA COM CRATERA</span><span class="v">canal</span></div>
+    <div class="ln"><span>26/03</span><span class="d">FIO FINO SO NO CENTRO, BORDA AINDA SECA</span><span class="v">parcial</span></div>
+    <div class="ln hit"><span>27/03</span><span class="d">ESPIRAL EM DUAS LEVAS, BORRA PLANA</span><span class="v">parelho</span></div>
+    <div class="ln"><span>28/03</span><span class="d">ESPIRAL RAPIDA DEMAIS, PO ALTO NA PAREDE</span><span class="v">seco</span></div>
+    <div class="note"><span class="k">01</span><span class="x">A linha destacada deixou a borra <b>plana</b>, sinal de que a água tocou o pó por inteiro. Cratera no meio quer dizer canal aberto pelo jato; pó alto na parede quer dizer espiral rápida demais. A borra no fim da coada é o <b>retrato do despejo</b>.</span></div>
+  </div>
+  <span class="pgnum"></span>
+</section>
+
+<!-- ===================== VARIÁVEL 06 · PÁGINA 3: O MOVIMENTO ===================== -->
+<section class="page" data-frente="06">
+  <p class="kick">Variável 06</p>
+  <h2>O movimento</h2>
+  <div class="flow">
+    <div class="st">
+      <div class="n">PASSO 1</div>
+      <div class="h">Comece pelo pré-molho</div>
+      <div class="d">Molhe todo o pó com o dobro do peso em água e espere o gás baixar. A cama já parte plana e uniforme para o despejo principal.</div>
+    </div>
+    <div class="st" data-acao="Despeje em fio fino e em espiral, do centro para a borda, em duas levas">
+      <div class="n">PASSO 2</div>
+      <div class="h">Fio fino em espiral</div>
+      <div class="d">Despeje em fio fino, do centro para a borda e de volta ao centro, com o bule perto do café. Divida em duas ou três levas, sem deixar o pó secar entre elas.</div>
+    </div>
+    <div class="st end">
+      <div class="n">PASSO 3</div>
+      <div class="h">Leia a borra</div>
+      <div class="d">No fim, olhe a cama de pó. Plana quer dizer despejo parelho; cratera no meio pede fio mais fino na próxima coada. Um ajuste por vez, e prove.</div>
+    </div>
+  </div>
+  <p>Uma variável por coada, sempre. O despejo entra depois de dose, temperatura e pré-molho já travados, e é o gesto que fecha o contato entre a água e o café.</p>
+  <div class="caso">
+    <div class="t">A xícara do Rafael</div>
+    <p>O despejo do Rafael era um jato só, direto no meio do coador, e metade do pó ficava encostada na parede do filtro sem molhar. Ele achava o gesto em espiral coisa de cafeteria, e resistiu até a primeira prova.</p>
+    <p>Trocou por duas levas em espiral, do centro para a borda, e a mesma dose passou a render uma xícara mais doce e mais cheia. A borra saiu plana, e ele viu que o pó antes ficava de fora.</p>
+    <div class="linha"><span>54 cafés de balcão a menos no ano</span><b data-spine="329.40">R$ 329,40 por ano</b></div>
+  </div>
+  <div class="bolso"><div class="t">No seu bolso</div><p>Cada xícara que sai do balcão para o coador devolve perto de <b>R$ 6,10</b>: R$ 9,00 na esquina contra cerca de R$ 2,90 em casa. No caso do Rafael, 54 xícaras no ano, <b>R$ 329,40</b>, ganhas num gesto que parecia frescura.</p></div>
+  <span class="pgnum"></span>
+</section>
+
+<!-- ===================== VARIÁVEL 06 · PÁGINA 4: A RESPOSTA PRONTA ===================== -->
+<section class="page" data-frente="06">
+  <p class="kick">Variável 06 · variável pesada</p>
+  <h2>A resposta pronta</h2>
+  <p>As respostas cobrem o que costuma vir de quem vê o gesto pela primeira vez.</p>
+  <table class="gerente">
+    <thead><tr><th>O que dizem</th><th>O que você responde</th></tr></thead>
+    <tbody>
+      <tr><td>"Girar o bule é frescura de cafeteria."</td><td>"Prove lado a lado: jato único contra fio em espiral, mesma dose. A xícara decide."</td></tr>
+      <tr><td>"Despejar tudo de uma vez é mais rápido."</td><td>"E deixa metade do pó seco na parede. Você paga o café inteiro e usa metade."</td></tr>
+      <tr><td>"Não tenho bule de bico fino."</td><td>"Serve qualquer bule despejado perto do café, devagar. O que fura a cama é a altura e a pressa."</td></tr>
+      <tr><td>"A borra plana não muda nada."</td><td>"Muda o que a água tocou. Cratera no meio é dose desperdiçada, plana é dose usada."</td></tr>
+      <tr><td>"Café é café, técnica não pesa."</td><td>"Mesma dose, dois despejos, R$ 329,40 no ano. A técnica é a parte que não custa nada."</td></tr>
+    </tbody>
+  </table>
+  <div class="infog">
+    <div class="ttl">A borra entrega o despejo · o retrato no fim da coada</div>
+    <div class="bar hot"><span class="lb">Espiral parelha · borra plana</span><span class="tk"><span class="fl" style="width:100%"></span></span><span class="vl">dose usada</span></div>
+    <div class="bar"><span class="lb">Fio só no centro · borda seca</span><span class="tk"><span class="fl" style="width:60%"></span></span><span class="vl">parcial</span></div>
+    <div class="bar"><span class="lb">Jato único · cratera no meio</span><span class="tk"><span class="fl" style="width:35%"></span></span><span class="vl">canal aberto</span></div>
+    <div class="tot"><span class="l">O alvo é a cama plana</span><span class="v">borra uniforme</span></div>
+  </div>
+  <span class="pgnum"></span>
+</section>
+
+<!-- ===================== VARIÁVEL 07 · PÁGINA 1: A MECÂNICA ===================== -->
+<section class="page" data-frente="07" data-toc="O tempo total">
+  <div class="opener">
+    <img src="/ebook-web/mio-abre-07.webp" alt="">
+    <div class="veil"></div>
+    <div class="txt">
+      <div class="sec">Variável 07 · Contato</div>
+      <h2>O relógio que lê<br>as seis variáveis juntas</h2>
+    </div>
+  </div>
+  <p class="lead">O tempo total é o que a coada leva da primeira gota até a última. Ele não é uma regra a cumprir, é o sintoma que transforma as seis variáveis anteriores em diagnóstico no lugar de palpite.</p>
+  <p>Escoamento abaixo de dois minutos entrega café ralo: a água passou rápido demais e saiu sem contato com o pó. Acima de quatro minutos entrega amargor: a água ficou presa e foi buscar o amargo que vem depois do doce. A faixa que funciona no coador de papel fica entre dois minutos e meio e três minutos e meio.</p>
+  <p>O relógio não conserta sozinho. Ele aponta para trás, para a moagem, a dose ou o despejo, e diz qual variável mexer na próxima coada.</p>
+  <h3>Por que mudar tudo de uma vez cega o diagnóstico</h3>
+  <p>Quem muda moagem, dose e temperatura na mesma manhã pode até acertar a xícara, mas nunca sabe qual mudança resolveu. O tempo total dá a ordem: corrija uma variável por coada, a moagem antes das outras, e leia o número de novo. Assim cada manhã ensina algo em vez de virar tentativa no escuro.</p>
+  <p>A conta desta variável é de <strong>R$ 183,00 por ano</strong>, e ela vem do cronômetro, não de uma máquina.</p>
+  <span class="pgnum"></span>
+</section>
+
+<!-- ===================== VARIÁVEL 07 · PÁGINA 2: ONDE SE ESCONDE ===================== -->
+<section class="page" data-frente="07">
+  <p class="kick">Variável 07</p>
+  <h2>Onde o defeito se esconde</h2>
+  <p>O defeito não está numa variável só, está na falta de medida. Sem cronômetro, cada xícara ruim vira palpite, e o palpite manda mexer em três coisas ao mesmo tempo. O relógio é o que separa o que funcionou do que só pareceu.</p>
+  <p>A referência é o número, lido sempre do mesmo jeito: da primeira gota que cai na jarra até a última.</p>
+  <ol class="steps">
+    <li>Marque o tempo <strong>da primeira gota à última</strong>, com o celular ao lado da jarra. Sempre o mesmo ponto de início e de fim.</li>
+    <li>Compare com a faixa de <strong>dois minutos e meio a três minutos e meio</strong>. Fora dela, o número aponta a variável a corrigir.</li>
+    <li>Acima de 3min30, o pó está fino ou o despejo afogou a cama: <strong>engrosse um clique</strong> a moagem primeiro.</li>
+    <li>Abaixo de 2min30, o pó está grosso ou a dose baixa: <strong>feche um clique</strong> ou suba meio grama de café.</li>
+  </ol>
+  <div class="art">
+    <div class="hd"><span class="t">Caderno de coadas · o tempo como sintoma</span><span class="m">Semana 3</span></div>
+    <div class="ln"><span>25/03</span><span class="d">4min40, PO FINO, XICARA SECA E AMARGA</span><span class="v">longo</span></div>
+    <div class="ln"><span>26/03</span><span class="d">ENGROSSOU UM CLIQUE, 3min20, DOCE</span><span class="v">alvo</span></div>
+    <div class="ln"><span>27/03</span><span class="d">1min50, PO GROSSO, XICARA RALA E AZEDA</span><span class="v">curto</span></div>
+    <div class="ln hit"><span>28/03</span><span class="d">FECHOU UM CLIQUE, 2min55, EQUILIBRADA</span><span class="v">alvo</span></div>
+    <div class="note"><span class="k">01</span><span class="x">As duas linhas de alvo mostram o mesmo destino por caminhos opostos: uma engrossou, a outra fechou a moagem. O tempo <b>não é regra</b>, é sintoma que aponta a variável a mexer. Uma correção por coada, sempre a <b>moagem antes das outras</b>.</span></div>
+  </div>
+  <span class="pgnum"></span>
+</section>
+
+<!-- ===================== VARIÁVEL 07 · PÁGINA 3: O MOVIMENTO ===================== -->
+<section class="page" data-frente="07">
+  <p class="kick">Variável 07</p>
+  <h2>O movimento</h2>
+  <ol class="steps">
+    <li><strong>Passo 1.</strong> Deixe o celular ao lado da jarra e comece a contar na <strong>primeira gota</strong>. Pare na última. O número é o tempo total da coada.</li>
+    <li data-acao="Cronometre da primeira gota à última e mire na faixa de 2min30 a 3min30"><strong>Passo 2.</strong> Compare com a faixa de <strong>2min30 a 3min30</strong>. Fora dela, escolha uma variável para corrigir, a moagem primeiro.</li>
+    <li><strong>Passo 3.</strong> Mude só essa variável na próxima coada e cronometre de novo. Uma correção por manhã, e a xícara converge sem palpite.</li>
+  </ol>
+  <p>Uma variável por coada, sempre. O cronômetro é o que impede a manhã de virar três mudanças ao mesmo tempo, e é ele que fecha o diagnóstico das seis variáveis anteriores.</p>
+  <div class="caso">
+    <div class="t">A xícara do Rafael</div>
+    <p>Rafael não cronometrava nada e mudava três coisas de uma vez quando o café saía ruim. Perdia manhã atrás de manhã testando no escuro, sem saber qual ajuste tinha funcionado.</p>
+    <p>Passou a marcar o tempo total e a corrigir uma variável por coada, a moagem antes das outras. A xícara convergiu em poucos dias, e ele parou de gastar café e paciência em tentativa cega.</p>
+    <div class="linha"><span>30 cafés de balcão a menos no ano</span><b data-spine="183.00">R$ 183,00 por ano</b></div>
+  </div>
+  <div class="bolso"><div class="t">No seu bolso</div><p>Cada xícara que sai do balcão para o coador devolve perto de <b>R$ 6,10</b>: R$ 9,00 na esquina contra cerca de R$ 2,90 em casa. No caso do Rafael, 30 xícaras no ano, <b>R$ 183,00</b>, ganhas ao parar de testar no escuro.</p></div>
+  <span class="pgnum"></span>
+</section>
+
+<!-- ===================== VARIÁVEL 08 · PÁGINA 1: A MECÂNICA ===================== -->
+<section class="page" data-frente="08" data-toc="A limpeza e o armazenamento">
+  <div class="opener">
+    <img src="/ebook-web/mio-abre-08.webp" alt="">
+    <div class="veil"></div>
+    <div class="txt">
+      <div class="sec">Variável 08 · Constância</div>
+      <h2>A variável que paga<br>na xícara de amanhã</h2>
+    </div>
+  </div>
+  <p class="lead">A limpeza e o armazenamento são a única variável que não muda a xícara de hoje. Ela protege a de amanhã e a do fim do pacote, e por não dar sinal na hora é a que mais some da rotina.</p>
+  <p>A gordura do café gruda na parede do porta-filtro e da jarra. Deixada ali até a noite, ela oxida e deixa um gosto rançoso que aparece na coada seguinte, por baixo de todo o resto. Enxaguar na hora, ainda morno, tira a gordura antes que ela azede.</p>
+  <p>O grão perde aroma pelo ar, pela luz e pelo calor. Pacote aberto dobrado ao lado do fogão perde o cheiro em poucos dias, e a última xícara do pacote sai sem graça mesmo com a técnica certa.</p>
+  <h3>Por que a geladeira não é o lugar</h3>
+  <p>Muita gente guarda o café na geladeira achando que conserva. O grão absorve a umidade e o cheiro de tudo que está ao lado, e ainda condensa água quando sai para o ambiente. O lugar certo é um pote opaco, fechado, longe de calor e de luz, na temperatura da cozinha.</p>
+  <p>A conta desta variável é de <strong>R$ 208,00 por ano</strong>, e ela vem do pacote que passa a render até o fim.</p>
+  <span class="pgnum"></span>
+</section>
+
+<!-- ===================== VARIÁVEL 08 · PÁGINA 2: ONDE SE ESCONDE ===================== -->
+<section class="page" data-frente="08">
+  <p class="kick">Variável 08</p>
+  <h2>Onde o defeito se esconde</h2>
+  <p>O defeito não está na xícara de hoje, está na de amanhã. Coador na pia até a noite e pacote dobrado ao lado do fogão não estragam a coada que acabou de sair, estragam a próxima e as do fim do pacote. A perda é lenta e passa despercebida.</p>
+  <p>A referência é o cheiro. Coador limpo não tem odor; pacote bem guardado ainda perfuma na abertura duas semanas depois.</p>
+  <ol class="steps">
+    <li>Enxágue o coador e a jarra <strong>ainda mornos</strong>, logo depois de coar, com água corrente e sem detergente perfumado.</li>
+    <li>Seque de <strong>boca para baixo</strong> antes de guardar, para não fechar a gordura e a umidade dentro.</li>
+    <li>Transfira o grão para um <strong>pote opaco com tampa de rosca</strong>, longe do fogão e da luz. Nunca a geladeira.</li>
+    <li>Compre em quantidade que você use em <strong>duas a três semanas</strong>. Pacote grande economiza no preço e perde no aroma.</li>
+  </ol>
+  <div class="art">
+    <div class="hd"><span class="t">Caderno de coadas · o fim do pacote</span><span class="m">Semana 4</span></div>
+    <div class="ln"><span>01/04</span><span class="d">PACOTE DOBRADO NO ARMARIO, ULTIMA XICARA SEM GRACA</span><span class="v">chapado</span></div>
+    <div class="ln"><span>02/04</span><span class="d">COADOR DA NOITE ANTERIOR, GOSTO RANCOSO</span><span class="v">rancoso</span></div>
+    <div class="ln hit"><span>03/04</span><span class="d">POTE OPACO E COADOR ENXAGUADO NA HORA</span><span class="v">limpo</span></div>
+    <div class="ln"><span>04/04</span><span class="d">MESMO POTE, XICARA DO FIM AINDA COM AROMA</span><span class="v">limpo</span></div>
+    <div class="note"><span class="k">01</span><span class="x">As duas primeiras linhas são perdas invisíveis: o pacote mal guardado e o coador sujo estragam a xícara <b>seguinte</b>, não a que acabou de sair. A linha destacada mostra o pacote rendendo <b>até a última xícara</b>. Esta variável paga em atraso, na coada de amanhã.</span></div>
+  </div>
+  <span class="pgnum"></span>
+</section>
+
+<!-- ===================== VARIÁVEL 08 · PÁGINA 3: O MOVIMENTO ===================== -->
+<section class="page" data-frente="08">
+  <p class="kick">Variável 08</p>
+  <h2>O movimento</h2>
+  <div class="flow">
+    <div class="st">
+      <div class="n">PASSO 1</div>
+      <div class="h">Enxágue ainda morno</div>
+      <div class="d">Logo depois de coar, lave o coador e a jarra com água corrente, sem detergente perfumado, antes que a gordura esfrie e grude na parede.</div>
+    </div>
+    <div class="st" data-acao="Enxágue o coador logo depois de coar e guarde o grão em pote opaco fechado">
+      <div class="n">PASSO 2</div>
+      <div class="h">Seque de boca para baixo</div>
+      <div class="d">Deixe secar virado, para não fechar umidade dentro. E guarde o grão num pote opaco com tampa de rosca, longe do fogão e da luz, nunca na geladeira.</div>
+    </div>
+    <div class="st end">
+      <div class="n">PASSO 3</div>
+      <div class="h">Compre na medida</div>
+      <div class="d">Leve a quantidade que você usa em duas a três semanas. Pacote grande economiza no preço e perde no aroma antes de acabar.</div>
+    </div>
+  </div>
+  <p>Esta variável entra por último e não muda a xícara de hoje. Ela é a que segura o ganho das outras sete, protegendo o pacote e o coador para a coada seguinte.</p>
+  <div class="caso">
+    <div class="t">A xícara do Rafael</div>
+    <p>O coador do Rafael ficava na pia até a noite, e o pacote aberto vivia dobrado ao lado do fogão. A última xícara de cada pacote saía sem graça, e ele achava que o café tinha piorado no fim.</p>
+    <p>Passou a enxaguar na hora e a guardar o grão em pote opaco longe do calor. O pacote inteiro passou a render até a última xícara, e a coada da manhã seguinte perdeu o gosto rançoso que ele nem sabia de onde vinha.</p>
+    <div class="linha"><span>18 cafés a menos mais o grão que parou no lixo</span><b data-spine="208.00">R$ 208,00 por ano</b></div>
+  </div>
+  <div class="bolso"><div class="t">No seu bolso</div><p>Aqui a conta soma duas fontes: <b>18 xícaras</b> de balcão a menos, a R$ 6,10 cada, mais o grão que deixou de ir para o lixo no fim de cada pacote. No caso do Rafael, <b>R$ 208,00</b> no ano, a única variável que paga em atraso.</p></div>
+  <span class="pgnum"></span>
+</section>
+
+<!-- ===================== FECHO · PÁGINA 1: A SOMA ===================== -->
+<section class="page" data-toc="A ficha da coada" data-toc-sec="O fecho">
+  <p class="kick">A soma</p>
+  <h2>A ficha da coada</h2>
+  <p>O livro inteiro cabe nesta folha. Cada linha é uma variável, na ordem em que a água encontra o café, e a economia de cada uma é a diferença entre a xícara de balcão e a de casa, multiplicada pelas xícaras que você traz para o coador.</p>
+  <p>A coluna do meio é sua. Conte quantas xícaras de balcão você troca por mês e multiplique pela margem de cerca de <strong>R$ 6,10</strong> por xícara: R$ 9,00 na esquina contra cerca de R$ 2,90 em casa. A coluna da direita é a faixa típica, do converte pouco ao converte quase tudo.</p>
+  <table>
+    <thead><tr><th>Variável</th><th class="num">Sua economia / mês</th><th class="num">Faixa típica · R$/mês</th></tr></thead>
+    <tbody>
+      <tr data-campo="grao" data-label="01 · O grão e a torra" data-min="20" data-max="55"><td>01 · O grão e a torra</td><td class="num">R$ ______</td><td class="num">20 a 55</td></tr>
+      <tr data-campo="moagem" data-label="02 · A moagem" data-min="15" data-max="45"><td>02 · A moagem</td><td class="num">R$ ______</td><td class="num">15 a 45</td></tr>
+      <tr data-campo="proporcao" data-label="03 · A proporção" data-min="12" data-max="35"><td>03 · A proporção</td><td class="num">R$ ______</td><td class="num">12 a 35</td></tr>
+      <tr data-campo="agua" data-label="04 · A água e a temperatura" data-min="10" data-max="28"><td>04 · A água e a temperatura</td><td class="num">R$ ______</td><td class="num">10 a 28</td></tr>
+      <tr data-campo="premolho" data-label="05 · O pré-molho" data-min="8" data-max="22"><td>05 · O pré-molho</td><td class="num">R$ ______</td><td class="num">8 a 22</td></tr>
+      <tr data-campo="despejo" data-label="06 · A técnica de despejo" data-min="12" data-max="32"><td>06 · A técnica de despejo</td><td class="num">R$ ______</td><td class="num">12 a 32</td></tr>
+      <tr data-campo="tempo" data-label="07 · O tempo total" data-min="6" data-max="18"><td>07 · O tempo total</td><td class="num">R$ ______</td><td class="num">6 a 18</td></tr>
+      <tr data-campo="guarda" data-label="08 · A limpeza e o armazenamento" data-min="8" data-max="20"><td>08 · A limpeza e o armazenamento</td><td class="num">R$ ______</td><td class="num">8 a 20</td></tr>
+      <tr class="tot"><td>Economia por mês trocando o balcão pelo coador</td><td class="num"><span class="em">R$ ______</span></td><td class="num">91 a 255</td></tr>
+    </tbody>
+  </table>
+  <div class="calc webonly" id="calc" data-unit="R$" data-total="Economia por mês trocando o balcão pelo coador (R$)"><div class="t">Ficha da coada · preencha e a soma fecha sozinha</div></div>
+  <p>Não persiga as oito de uma vez. Marque uma variável por coada, na ordem, e prove a xícara antes de mudar a próxima. Com as oito no lugar, a economia sobe sozinha para o fim da tabela.</p>
+  <p class="small printonly">Na versão web deste guia, a ficha soma sozinha: <strong>lp.notasdocafe.com.br/ebook-premium-versao-web</strong></p>
+  <span class="pgnum"></span>
+</section>
+
+<!-- ===================== FECHO · PÁGINA 2: O CASO, DEPOIS ===================== -->
+<section class="page" data-toc="O caso, depois">
+  <p class="kick">O caso</p>
+  <h2>A xícara do Rafael, depois</h2>
+  <p>Rafael tomava duas xícaras por dia e comprava as duas no balcão em dia útil, quinhentas por ano a R$ 9,00 cada. No fim de semana fazia café de supermercado em casa, e jogava metade fora porque saía ruim. Nenhuma variável estava anotada, e a máquina cara vivia no carrinho de compras.</p>
+  <p>Ele mexeu numa variável por semana, na ordem do livro, provando a xícara antes de passar para a próxima. A oitava não deu sinal na primeira semana, porque a guarda certa só paga quando o pacote seguinte chega ao fim ainda com aroma.</p>
+  <p>No fim das oito, o café de casa ficou bom o bastante para trocar o balcão da manhã. Rafael passou a coar 626 xícaras em casa por ano e a manter 104 de balcão, o café da tarde com a equipe, que ele faz questão de manter.</p>
+  <div class="bolso"><div class="t">No seu bolso</div><p>A xícara em casa saiu por cerca de <b>R$ 2,90</b> contra R$ 9,00 no balcão, uma margem de <b>R$ 6,10</b>. As 396 xícaras convertidas mais o café que parou de ir para o lixo somaram <b>R$ 2.664,60</b> no primeiro ano, acima da máquina que ele quase comprou, e sem nenhum equipamento novo além de uma balança.</p></div>
+  <span class="pgnum"></span>
+</section>
+
+<!-- ===================== FECHO · PÁGINA 3: AS FALAS PRONTAS ===================== -->
+<section class="page" data-toc="As falas prontas">
+  <p class="kick">A execução</p>
+  <h2>As falas prontas para a copa</h2>
+  <p>A pressão do café de casa não vem do grão. Vem da copa e do grupo da família, onde sempre tem quem ache que café bom só sai de máquina ou de cafeteria.</p>
+  <p>Você não precisa dar aula. Precisa de uma frase curta que encerre o assunto sem criar clima. As quatro abaixo cobrem quase tudo que aparece. Tom firme e leve, de quem já provou a xícara e não está a fim de discutir.</p>
+  <div class="script">
+    <div class="q">Diga assim</div>
+    <p data-script="so-de-maquina">"Café bom é contato certo entre água e pó, não máquina. Prove esta coada ao lado da sua e me diz qual repete melhor."</p>
+    <p data-script="pesar-frescura">"Pesar não é frescura, é parar de errar a dose. A colher muda sete gramas de um dia para o outro, e a xícara muda junto."</p>
+    <p data-script="deixa-eu-ajudar">"Deixa que eu despejo. É fio fino em espiral, se jogar tudo de uma vez a água fura a cama e metade do pó não molha."</p>
+    <p data-script="sai-mais-caro">"Sai mais barato. A xícara em casa custa perto de R$ 2,90 contra R$ 9,00 no balcão, e a conta fecha no primeiro mês."</p>
+  </div>
+  <h3>As três regras da copa</h3>
+  <ol class="steps">
+    <li>Responda com a <strong>xícara na mão</strong>, não com teoria. Quem prova para de discutir; quem só ouve continua achando frescura.</li>
+    <li>Dê o <strong>número</strong>, nunca o "fica melhor". R$ 6,10 por xícara e 2min30 a 3min30 encerram a conversa; elogio vago convida a próxima.</li>
+    <li>Ofereça uma <strong>tarefa</strong>. Quem está curioso aceita cronometrar a coada ou pesar a dose, e vira aliado em vez de plateia.</li>
+  </ol>
+  <span class="pgnum"></span>
+</section>
+
+<!-- ===================== FECHO · PÁGINA 4: A ESCALADA ===================== -->
+<section class="page" data-toc="Quando a xícara não colabora">
+  <p class="kick">A escalada</p>
+  <h2>Quando a xícara não colabora</h2>
+  <p>Xícara ruim não pede começar tudo de novo. Pede uma variável por vez, na ordem, com o sintoma de cada uma à vista. Mudar moagem, dose e temperatura na mesma manhã é o que faz a coada virar palpite: até acerta, mas você não sabe qual mudança resolveu.</p>
+  <ol class="steps">
+    <li><strong>Comece pela moagem.</strong> Sinal: escoamento fora da faixa de 2min30 a 3min30. Ajuste um clique na direção do tempo, e prove antes de tocar em qualquer outra coisa.</li>
+    <li><strong>Confirme a dose.</strong> Sinal: xícara rala mesmo com o tempo certo. Pese 15 gramas para 240 de água e pare de usar a colher.</li>
+    <li><strong>Espere a água.</strong> Sinal: gosto de queimado. Conte quarenta segundos com a tampa aberta antes de despejar, sem mexer no fogo.</li>
+    <li><strong>Cubra o pó.</strong> Sinal: borra com cratera no meio. Fio fino em espiral, do centro à borda, em duas levas.</li>
+    <li><strong>Troque o pacote velho.</strong> Último degrau: se nada resolve, o grão pode estar sem aroma. Confira a data de torra e guarde o próximo em pote opaco.</li>
+  </ol>
+  <div class="erro">
+    <div class="t">O erro que anula a escalada</div>
+    <p>Mudar três variáveis na mesma coada. A xícara até melhora, mas você não sabe qual ajuste funcionou, e na manhã seguinte volta a testar no escuro. Uma variável por coada, prova, e só então a próxima.</p>
+  </div>
+  <span class="pgnum"></span>
+</section>
+
+<!-- ===================== FECHO · PÁGINA 5: A MANUTENÇÃO ===================== -->
+<section class="page" data-toc="A manutenção">
+  <p class="kick">A manutenção</p>
+  <h2>A manutenção: 2 minutos por coada</h2>
+  <p>Coada boa afrouxa se a rotina relaxa. Quem fecha as oito variáveis e volta a despejar no olho recomeça a errar a dose e o tempo aos poucos. O ritual que segura o ganho é curto e cabe em dois minutos por manhã.</p>
+  <ol class="steps">
+    <li><strong>Pese e cronometre</strong> mesmo depois de pegar a mão. A balança e o relógio são o que impede a dose e o tempo de escorregarem de volta.</li>
+    <li><strong>Enxágue na hora</strong> e guarde o grão no pote opaco. Coador limpo e pacote fechado protegem a coada de amanhã.</li>
+    <li data-acao="Confira a data de torra do pacote antes de comprar e ajuste a moagem ao grão novo"><strong>Confira a data de torra</strong> antes de comprar e ajuste a moagem ao grão novo, que pode pedir um clique a mais ou a menos.</li>
+  </ol>
+  <h3>As três perguntas que voltam sempre</h3>
+  <p><strong>Vale comprar moedor?</strong> Vale quando você coa quase todo dia. Divida o preço do moedor pelas xícaras que você faz no ano e compare com a margem de R$ 6,10 por xícara: o moedor mais simples costuma se pagar em poucas semanas, e é ele que trava a variável da moagem.</p>
+  <p><strong>Grão ou moído de pacote?</strong> Grão, sempre que der, porque perde aroma bem mais devagar depois de moído. Se só houver moído, compre o menor pacote, guarde no pote opaco e use em duas semanas. O moído calibrado para espresso entope o coador de papel, então prefira o marcado para filtro.</p>
+  <p><strong>E quando eu viajo ou saio da rotina?</strong> Leve a balança pequena e o coador, que ocupam nada. Sem eles, mire na proporção de olho, uma parte de café para dezesseis de água, e aceite que a xícara vai variar mais. A rotina volta na primeira coada em casa.</p>
+  <span class="pgnum"></span>
+</section>
+
+<!-- ===================== FECHO · PÁGINA 6: GLOSSÁRIO ===================== -->
+<section class="page" data-toc="Glossário">
+  <p class="kick">A tradução</p>
+  <h2>Glossário: treze palavras da bancada</h2>
+  <p>Treze palavras que voltam o tempo todo no livro e quase nunca vêm explicadas na prateleira do mercado. Nomear cada uma tira o muro que faz o café de casa parecer coisa de especialista.</p>
+  <div class="gloss">
+    <div class="g"><div class="termo">Extração</div><div class="trad">O que a água tira do pó. Curta sai rala e azeda; longa sai amarga na garganta.</div></div>
+    <div class="g"><div class="termo">Granulometria</div><div class="trad">O tamanho do pó. No coador, a referência é areia grossa.</div></div>
+    <div class="g"><div class="termo">Pré-molho</div><div class="trad">Os primeiros segundos, quando o pó solta o gás da torra. Também chamado bloom.</div></div>
+    <div class="g"><div class="termo">Cama de pó</div><div class="trad">O café espalhado no filtro. Plana extrai parelho; com buraco, deixa a água escapar.</div></div>
+    <div class="g"><div class="termo">Canal</div><div class="trad">O caminho que a água abre no pó e usa para passar sem tocar o resto.</div></div>
+    <div class="g"><div class="termo">Proporção</div><div class="trad">Gramas de café por mililitro de água. A faixa vai de 1 para 15 até 1 para 17.</div></div>
+    <div class="g"><div class="termo">Torra média</div><div class="trad">O ponto sem acidez verde e sem gosto de queima, o mais tolerante a erro.</div></div>
+    <div class="g"><div class="termo">Data de torra</div><div class="trad">O dia em que o grão saiu do torrador. Diz se ainda há aroma para entregar.</div></div>
+    <div class="g"><div class="termo">Escoamento</div><div class="trad">O tempo da primeira gota à última. Curto indica pó grosso; longo, pó fino.</div></div>
+    <div class="g"><div class="termo">Corpo</div><div class="trad">O peso do café na boca. Vem de óleos e partículas em suspensão.</div></div>
+    <div class="g"><div class="termo">Terreiro</div><div class="trad">O piso onde o café seca ao sol. Secagem lenta preserva a doçura.</div></div>
+    <div class="g"><div class="termo">Natural e lavado</div><div class="trad">Dois processos de secagem: natural, mais doce; lavado, mais limpo e ácido.</div></div>
+    <div class="g"><div class="termo">Blend e single origin</div><div class="trad">Blend mistura origens buscando equilíbrio; single origin vem de uma fazenda só.</div></div>
+  </div>
+  <span class="pgnum"></span>
+</section>
+
+<!-- ===================== FECHO · PÁGINA 7: O FECHO ===================== -->
+<section class="page" data-toc="O fecho">
+  <p class="kick">O fecho</p>
+  <h2>O café que já estava na bancada</h2>
+  <p>O café de casa nunca foi pior por natureza. Ficava pior em oito pontos que ninguém media: a dose no olho, a água fervendo, o despejo de uma vez só, o pacote mal guardado. Somados, custavam uma xícara de balcão por dia e o gosto que fazia trocar de marca. Recuperar não pediu máquina cara nem curso: pediu oito variáveis na ordem, uma balança e a ficha na mão.</p>
+  <div class="infog">
+    <div class="ttl">O placar do livro · economia por família de variável</div>
+    <div class="bar hot"><span class="lb">Matéria · grão e água</span><span class="tk"><span class="fl" style="width:100%"></span></span><span class="vl">R$ 882,80</span></div>
+    <div class="bar"><span class="lb">Superfície · moagem e proporção</span><span class="tk"><span class="fl" style="width:95%"></span></span><span class="vl">R$ 841,80</span></div>
+    <div class="bar"><span class="lb">Contato · molho, despejo e tempo</span><span class="tk"><span class="fl" style="width:83%"></span></span><span class="vl">R$ 732,00</span></div>
+    <div class="bar"><span class="lb">Constância · limpeza e guarda</span><span class="tk"><span class="fl" style="width:24%"></span></span><span class="vl">R$ 208,00</span></div>
+    <div class="tot"><span class="l">Oito variáveis, do balcão ao coador de casa</span><span class="v">R$ 2.664,60</span></div>
+  </div>
+  <ul class="check">
+    <li>Escolhi grão de torra média e conferi a data no pacote</li>
+    <li>Moí na hora, na textura de areia grossa</li>
+    <li>Pesei 15 gramas de café para 240 de água</li>
+    <li>Esperei quarenta segundos depois da fervura</li>
+    <li>Molhei todo o pó e contei o pré-molho</li>
+    <li>Despejei em fio fino e em espiral, em duas levas</li>
+    <li>Cronometrei a coada e corrigi uma variável por vez</li>
+    <li>Enxaguei o coador na hora e guardei o grão no pote opaco</li>
+  </ul>
+  <div class="signoff">
+    <div class="fim">Sem frescura.</div>
+    <p style="margin:14px 0 0">Oito variáveis, uma balança e um coador. A xícara de casa passa a repetir todo dia, e o balcão vira escolha, não hábito.</p>
+    <div class="bm">Bom café. <b>Notas do Café</b></div>
+  </div>
+  <span class="pgnum"></span>
+</section>
+
+
+<style id="ebook-web-mode">@media screen{.webonly{display:revert!important}.printonly{display:none!important}}</style>
+<script>
+(function(){
+  var calc=document.getElementById('calc');
+  if(calc && !calc.querySelector('input') && document.querySelector('tr[data-campo]')){
+    var unit=calc.dataset.unit||'R$',totLabel=calc.dataset.total||'Total por ano';
+    document.querySelectorAll('tr[data-campo]').forEach(function(tr){
+      var row=document.createElement('div');row.className='row';var id='c_'+tr.dataset.campo;
+      row.innerHTML='<label for="'+id+'">'+tr.dataset.label+' <span style="color:var(--soft)">(faixa '+tr.dataset.min+' a '+tr.dataset.max+')</span></label>'+
+        '<input id="'+id+'" type="number" min="0" step="10" placeholder="0">';
+      calc.appendChild(row);
+    });
+    var tot=document.createElement('div');tot.className='tot';
+    tot.innerHTML='<span class="l">'+totLabel+'</span><span class="v" id="calcTot">'+unit+' 0</span>';
+    calc.appendChild(tot);
+    calc.addEventListener('input',function(){
+      var s=0;calc.querySelectorAll('input').forEach(function(i){s+=Number(i.value)||0});
+      document.getElementById('calcTot').textContent=unit+' '+s.toLocaleString('pt-BR');
+    });
+  }
+  document.querySelectorAll('.script p[data-script]').forEach(function(p){
+    if(p.nextElementSibling && p.nextElementSibling.classList.contains('copybtn'))return;
+    var b=document.createElement('button');b.className='copybtn webonly';b.textContent='Copiar';
+    b.addEventListener('click',function(){
+      navigator.clipboard.writeText(p.textContent.replace(/^"|"$/g,''));
+      b.textContent='Copiado';setTimeout(function(){b.textContent='Copiar'},1500);
+    });
+    p.insertAdjacentElement('afterend',b);
+  });
+})();
+</script>
+
+</body>
+</html>
