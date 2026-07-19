@@ -1,0 +1,81 @@
+import { NextResponse } from "next/server";
+
+/* ============================================================
+   TOKENS DA NEWS (a fábrica troca por news; fonte: stripe-produtos.json
+   do ticket 12 do build-ebooks-premium)
+   ============================================================ */
+const SC = "NC";
+const PRICE_CHEIO = "price_1TukzgLXu3X73K7LaGbdeElv"; // R$ 27 (live)
+const TITULO = "Café de Balcão no Coador de Casa";
+// Bump = ebook irmão da vertical (PROVISÓRIO: pareamento final vem do JSON do HC, ticket 07)
+const BUMP_SC = "BC";
+const BUMP_PRICE = "price_1TukzeLXu3X73K7LdM980r2a"; // bump BC R$ 13,50 (live)
+const BUMP_TITULO = "Brasa Pronta em 20 Minutos";
+
+export async function POST(req: Request) {
+  const apiKey = process.env.STRIPE_API_KEY;
+  if (!apiKey) {
+    return NextResponse.json({ error: "stripe_not_configured" }, { status: 500 });
+  }
+  // Gate de dinheiro vivo (decisão HC 19/07): sem o flip explícito EBOOK_LIVE=1,
+  // só key de teste cria session. Default-deny: live keys vêm como sk_live_ E
+  // rk_live_ (restricted), então o gate é "não é test", não "é live".
+  const isTestKey = apiKey.startsWith("sk_test_") || apiKey.startsWith("rk_test_");
+  if (!isTestKey && process.env.EBOOK_LIVE !== "1") {
+    return NextResponse.json({ error: "live_gated" }, { status: 503 });
+  }
+
+  const body = await req.json().catch(() => ({}) as Record<string, unknown>);
+  const bump = body?.bump === true;
+
+  const origin = new URL(req.url).origin;
+  const params: Record<string, string> = {
+    ui_mode: "embedded",
+    mode: "payment",
+    return_url: `${origin}/ebook-premium/obrigado?session_id={CHECKOUT_SESSION_ID}`,
+    "metadata[sc]": SC, // contrato do webhook central (ticket 11): resolve o ebook pelo sc
+  };
+  if (bump) params["metadata[bump]"] = BUMP_SC;
+
+  // ponytail: price IDs live não existem em test mode; sk_test_ usa price_data
+  // inline com os mesmos valores. Flip pra live = trocar a env key, código intacto.
+  if (isTestKey) {
+    params["line_items[0][price_data][currency]"] = "brl";
+    params["line_items[0][price_data][unit_amount]"] = "2700";
+    params["line_items[0][price_data][product_data][name]"] = `Ebook ${TITULO}`;
+    params["line_items[0][quantity]"] = "1";
+    if (bump) {
+      params["line_items[1][price_data][currency]"] = "brl";
+      params["line_items[1][price_data][unit_amount]"] = "1350";
+      params["line_items[1][price_data][product_data][name]"] = `Ebook ${BUMP_TITULO}`;
+      params["line_items[1][quantity]"] = "1";
+    }
+  } else {
+    params["line_items[0][price]"] = PRICE_CHEIO;
+    params["line_items[0][quantity]"] = "1";
+    if (bump) {
+      params["line_items[1][price]"] = BUMP_PRICE;
+      params["line_items[1][quantity]"] = "1";
+    }
+  }
+
+  try {
+    const r = await fetch("https://api.stripe.com/v1/checkout/sessions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams(params),
+    });
+    const data = await r.json();
+    if (!r.ok) {
+      console.error("[checkout] Stripe:", data.error?.message);
+      return NextResponse.json({ error: data.error?.message }, { status: r.status });
+    }
+    return NextResponse.json({ clientSecret: data.client_secret });
+  } catch (err) {
+    console.error("[checkout] fetch:", (err as Error).message);
+    return NextResponse.json({ error: "stripe_unreachable" }, { status: 500 });
+  }
+}

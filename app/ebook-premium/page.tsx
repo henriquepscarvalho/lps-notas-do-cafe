@@ -1,0 +1,373 @@
+"use client";
+
+import { useEffect } from "react";
+import PageBeacon, { sendBeacon } from "../PageBeacon";
+
+/* ============================================================
+   TOKENS DA NEWS (única parte que a fábrica troca por news)
+   Fora deste bloco, a página é idêntica nas 30.
+   Layout = V2 Objeto-produto (vencedora do burst 18/07, ticket 07.1).
+   ============================================================ */
+const EBOOK = {
+  "slug": "notas-do-cafe",
+  "kicker": "Guia Notas do Café · Café de coador",
+  "titulo": "Café de Balcão no Coador de Casa",
+  "sub": "As oito variáveis que fazem o coador de papel da sua cozinha repetir a xícara do balcão, sem a máquina de R$ 2 mil.",
+  "ctaMicro": "Acesso imediato. Leia numa semana de manhãs, prove a diferença na segunda coada.",
+  "capa": "/ebook-web/capa-notas-do-cafe.webp",
+  "capaAlt": "Capa do guia Café de Balcão no Coador de Casa",
+  "specs": [
+    {
+      "n": "40",
+      "l": "páginas"
+    },
+    {
+      "n": "8",
+      "l": "variáveis da coada"
+    },
+    {
+      "n": "3",
+      "l": "minutos de diagnóstico"
+    },
+    {
+      "n": "web +",
+      "l": "PDF"
+    }
+  ],
+  "spreadsTitulo": "Páginas reais, não promessa",
+  "paginas": [
+    {
+      "src": "/ebook-web/lp-pag-1.webp",
+      "tipo": "Infográfico",
+      "cap": "A premissa: o que separa sua xícara do balcão são oito variáveis, nunca a máquina"
+    },
+    {
+      "src": "/ebook-web/lp-pag-2.webp",
+      "tipo": "O mapa",
+      "cap": "As quatro famílias que decidem a coada: matéria, superfície, contato e constância"
+    },
+    {
+      "src": "/ebook-web/lp-pag-3.webp",
+      "tipo": "O caso",
+      "cap": "A xícara do Rafael, antes: a máquina de R$ 2 mil no carrinho e o balcão duas vezes por dia"
+    },
+    {
+      "src": "/ebook-web/lp-pag-4.webp",
+      "tipo": "Abertura de variável",
+      "cap": "Cada variável abre em cena, com o defeito nomeado"
+    },
+    {
+      "src": "/ebook-web/lp-pag-5.webp",
+      "tipo": "Passo a passo",
+      "cap": "O movimento em três passos: areia grossa, cronômetro e um clique por coada"
+    },
+    {
+      "src": "/ebook-web/lp-pag-6.webp",
+      "tipo": "Calculadora",
+      "cap": "A ficha da coada: preenche a economia de cada variável e a soma fecha sozinha"
+    },
+    {
+      "src": "/ebook-web/lp-pag-7.webp",
+      "tipo": "Falas prontas",
+      "cap": "O que a copa diz do café de casa, e o que você responde"
+    },
+    {
+      "src": "/ebook-web/lp-pag-8.webp",
+      "tipo": "O fecho",
+      "cap": "O placar do livro: R$ 2.664,60 de volta no primeiro ano, sem equipamento novo na bancada"
+    }
+  ],
+  "metodo": {
+    "kicker": "O método",
+    "titulo": "Cada variável em 3 tempos",
+    "passos": [
+      {
+        "nome": "Onde o defeito se esconde",
+        "desc": "O sintoma na xícara e o teste que aponta a variável: o rótulo, o tato entre os dedos ou o cronômetro."
+      },
+      {
+        "nome": "O movimento",
+        "desc": "O passo a passo pra corrigir: o que pesar, o que cronometrar e o clique que abre ou fecha a moagem."
+      },
+      {
+        "nome": "A resposta pronta",
+        "desc": "Quando a copa duvida do café de casa, a fala exata pra responder. Copiável na versão web."
+      }
+    ]
+  },
+  "spine": {
+    "kicker": "O caso que atravessa o guia",
+    "texto": "Você coa junto com o Rafael: duas xícaras por dia, quase todas de balcão, e uma máquina de R$ 2 mil parada no carrinho de compras. Cada variável mostra onde a xícara dele saía errada antes de você procurar na sua, e no fim a ficha soma o que o balcão custava: R$ 2.664,60 no primeiro ano."
+  },
+  "kit": [
+    {
+      "nome": "O guia completo, web + PDF",
+      "desc": "Link permanente pra ler no navegador, com a ficha que soma sozinha e botões de copiar, e o PDF pra guardar e imprimir."
+    },
+    {
+      "nome": "O checklist da coada",
+      "desc": "As oito verificações numa página só, imprimível. Risca uma por uma enquanto a água esquenta."
+    },
+    {
+      "nome": "A ficha da coada",
+      "desc": "Digita a economia que achou em cada variável e vê o total do mês. A faixa típica já vem ao lado de cada linha."
+    },
+    {
+      "nome": "Falas prontas",
+      "desc": "As quatro frases que encerram o assunto na copa, com botão de copiar ao lado de cada uma."
+    }
+  ],
+  "garantia": "Leu o guia e não encontrou nenhuma variável pra corrigir na sua coada? Responda o email da compra em até 7 dias e devolvemos os R$ 27.",
+  "fecho": "Sem frescura.",
+  "despedida": "Bom café. Até sábado."
+};
+
+const PRECO = "R$ 27";
+const CTA_LABEL = `Quero o guia · ${PRECO}`;
+const CHECKOUT = "/ebook-premium/checkout";
+
+function ctaClick() {
+  sendBeacon(EBOOK.slug, "ebook-premium-cta", { eventType: "converteu" });
+}
+
+export default function EbookPremium() {
+  useEffect(() => {
+    const els = document.querySelectorAll(".reveal");
+    const jump = new URLSearchParams(location.search).get("jump");
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // contrato de verificação da fábrica: ?jump aterrissa pré-rolado com tudo visível
+    if (reduce || jump !== null) {
+      els.forEach((el) => el.classList.add("visible"));
+      if (jump !== null) window.scrollTo(0, +jump || 0);
+      (window as unknown as { __ready: boolean }).__ready = true;
+      return;
+    }
+    const obs = new IntersectionObserver(
+      (entries) => entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("visible"); obs.unobserve(e.target); } }),
+      { threshold: 0.12, rootMargin: "0px 0px -40px 0px" }
+    );
+    els.forEach((el) => obs.observe(el));
+    (window as unknown as { __ready: boolean }).__ready = true;
+    return () => obs.disconnect();
+  }, []);
+
+  return (
+    <>
+      <PageBeacon slug={EBOOK.slug} step="ebook-premium" source="ebook-premium" />
+      <div className="grain" aria-hidden="true" />
+
+      <nav>
+        <div className="wrap nav-inner">
+          <a href="/" className="brand" aria-label="Home">
+            <img src="/ebook-web/simbolo.png" alt="" width={32} height={32} />
+            <span className="wm"><span className="t">Notas</span><span className="s">{" do Café"}</span></span>
+          </a>
+          <a href={CHECKOUT} className="btn" onClick={ctaClick}>
+            <span className="nav-cta-full">{CTA_LABEL}</span>
+            <span className="nav-cta-curto">{PRECO}</span>
+          </a>
+        </div>
+      </nav>
+
+      {/* Vitrine: o ebook como objeto central (V2, burst 18/07) */}
+      <section className="vitrine">
+        <div className="spot" aria-hidden="true" />
+        <p className="reveal kicker">{EBOOK.kicker}</p>
+        <h1 className="reveal vt-title"><span className="peso">{EBOOK.titulo}</span></h1>
+        <p className="reveal vt-sub">{EBOOK.sub}</p>
+        <div className="reveal palco">
+          <div className="obj">
+            <div className="lombada" aria-hidden="true" />
+            <img className="frente" src={EBOOK.capa} alt={EBOOK.capaAlt} loading="eager" />
+            <div className="reflexo" aria-hidden="true"><img src={EBOOK.capa} alt="" /></div>
+          </div>
+        </div>
+        <div className="reveal etiqueta"><span className="preco">{PRECO}</span><span className="uni">pagamento único</span></div>
+        <div className="reveal">
+          <a href={CHECKOUT} className="btn" style={{ padding: "15px 32px", fontSize: 17 }} onClick={ctaClick}>{CTA_LABEL}</a>
+          <p className="vt-micro">{EBOOK.ctaMicro}</p>
+        </div>
+        <div className="reveal specs">
+          {EBOOK.specs.map((s) => (
+            <span key={s.l}><b>{s.n}</b> {s.l}</span>
+          ))}
+        </div>
+      </section>
+
+      {/* Spreads: páginas reais do miolo em página dupla */}
+      <section className="spreads">
+        <div className="head">
+          <p className="reveal kicker" style={{ display: "block", marginBottom: ".9rem" }}>Por dentro do guia</p>
+          <h2 className="reveal">{EBOOK.spreadsTitulo}</h2>
+        </div>
+        <div className="sp-grid">
+          {EBOOK.paginas.map((p) => (
+            <figure key={p.src} className="reveal sp">
+              <div className="ph"><img src={p.src} alt={`${p.tipo}: ${p.cap}`} loading="lazy" /></div>
+              <figcaption>
+                <span className="tipo">{p.tipo}</span>
+                <div className="cap">{p.cap}</div>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      </section>
+
+      {/* Método editorial em 3 colunas + pull quote do spine */}
+      <section className="metodo-v2">
+        <div style={{ maxWidth: 1040, margin: "0 auto" }}>
+          <p className="reveal kicker" style={{ display: "block", marginBottom: ".9rem" }}>{EBOOK.metodo.kicker}</p>
+          <h2 className="reveal">{EBOOK.metodo.titulo}</h2>
+        </div>
+        <div className="met-grid">
+          {EBOOK.metodo.passos.map((p, i) => (
+            <div key={p.nome} className="reveal met">
+              <div className="num">{i + 1}</div>
+              <div className="nome">{p.nome}</div>
+              <p>{p.desc}</p>
+            </div>
+          ))}
+        </div>
+        <div className="reveal pull">
+          <span className="kicker">{EBOOK.spine.kicker}</span>
+          <blockquote>{EBOOK.spine.texto}</blockquote>
+        </div>
+      </section>
+
+      {/* A caixa: o que vem com o guia */}
+      <section className="caixa">
+        <div className="inner">
+          <img className="reveal mini" src={EBOOK.capa} alt="" aria-hidden="true" />
+          <div>
+            <p className="reveal kicker" style={{ display: "block", marginBottom: "1.6rem" }}>O que você leva por {PRECO}</p>
+            <div className="kitlist">
+              {EBOOK.kit.map((f) => (
+                <div key={f.nome} className="reveal kitem">
+                  <span className="ck">✓</span>
+                  <div>
+                    <div className="nome">{f.nome}</div>
+                    <p>{f.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Fecho: preço + garantia + CTA final */}
+      <section className="fechosec">
+        <div className="reveal" style={{ maxWidth: 560, margin: "0 auto" }}>
+          <h2 className="fecho">{EBOOK.fecho}</h2>
+          <p className="valor"><b>{PRECO}</b>, pagamento único. Sem assinatura, sem mensalidade.</p>
+          <a href={CHECKOUT} className="btn" style={{ padding: "16px 34px", fontSize: 17 }} onClick={ctaClick}>{CTA_LABEL}</a>
+          <p className="garantia">{EBOOK.garantia}</p>
+        </div>
+      </section>
+
+      <footer style={{ padding: "3rem 1.5rem", textAlign: "center", borderTop: "1px solid var(--hair)", background: "var(--bg-deep)" }}>
+        <p style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: "1rem", color: "var(--sage)" }}>{EBOOK.despedida}</p>
+      </footer>
+
+      <style>{`
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700;1,900&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+:root{--bg:#0F0E0D;--bg-deep:#120B06;--text:#CFCBC8;--text-dim:#8E8986;--sage:#94908E;--hair:rgba(207,203,200,.12);--hair-accent:rgba(225,114,35,.30);--bright:#E17223;--serif:"Playfair Display",Georgia,serif;--sans:"Inter",system-ui,sans-serif;--mono:"IBM Plex Mono",ui-monospace,monospace}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+nav{position:sticky;top:0;z-index:50;background:rgba(15,14,13,.82);backdrop-filter:saturate(140%) blur(8px);-webkit-backdrop-filter:saturate(140%) blur(8px);border-bottom:1px solid var(--hair)}
+a{color:inherit;text-decoration:none}
+.wrap{width:100%;max-width:1140px;margin:0 auto;padding:0 28px}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:66px}
+.brand{display:flex;align-items:center;gap:11px}
+.brand img{width:32px;height:32px}
+.wm{font-weight:700;font-size:20px;letter-spacing:-.02em}
+.wm .t{color:var(--bright)}.wm .s{color:#fff}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:var(--sans);font-weight:600;font-size:15px;padding:12px 22px;border-radius:6px;border:0;cursor:pointer;background:var(--bright);color:#140B04;transition:transform .16s ease,background .16s ease;letter-spacing:-.01em;white-space:nowrap}
+.btn:hover{background:#E5833D;transform:translateY(-1px)}
+.kicker{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:var(--bright)}
+
+        .reveal{opacity:0;transform:translateY(26px);transition:opacity 1s cubic-bezier(.16,1,.3,1),transform 1s cubic-bezier(.16,1,.3,1)}
+        .reveal.visible{opacity:1;transform:none}
+        .nav-cta-curto{display:none}
+        @media(max-width:560px){.nav-cta-full{display:none}.nav-cta-curto{display:inline}}
+        .grain{position:fixed;inset:0;z-index:60;pointer-events:none;opacity:.05;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.6'/%3E%3C/svg%3E")}
+
+        .vitrine{position:relative;padding:5.5rem 1.5rem 6rem;text-align:center;overflow:hidden;background:radial-gradient(ellipse 900px 480px at 50% -8%,rgba(225,114,35,.14),transparent 64%),var(--bg)}
+        .spot{position:absolute;left:50%;top:0;transform:translateX(-50%);width:760px;height:900px;background:radial-gradient(ellipse 300px 640px at 50% 30%,rgba(225,114,35,.13),transparent 70%);pointer-events:none}
+        .vitrine .kicker{display:block;margin-bottom:1.6rem}
+        .vt-title{font-family:var(--serif);font-style:italic;font-weight:900;font-size:clamp(3rem,8.4vw,6.4rem);line-height:.98;color:#fff;letter-spacing:-.025em;margin-bottom:1.1rem}
+        .vt-title .peso{display:inline-block;animation:pesoIn 1.4s cubic-bezier(.16,1,.3,1) both}
+        @keyframes pesoIn{from{opacity:0;letter-spacing:.04em;transform:translateY(10px)}to{opacity:1;letter-spacing:-.025em;transform:none}}
+        .vt-sub{font-family:var(--serif);font-size:clamp(1.05rem,2vw,1.3rem);color:var(--text);line-height:1.65;max-width:560px;margin:0 auto 3.2rem}
+        .palco{position:relative;display:flex;justify-content:center;perspective:1500px;margin-bottom:1rem}
+        .obj{position:relative;transform-style:preserve-3d;animation:orbita 11s ease-in-out infinite;will-change:transform}
+        @keyframes orbita{0%,100%{transform:rotateY(-14deg) rotateX(3deg)}50%{transform:rotateY(14deg) rotateX(1.5deg)}}
+        .obj .frente{width:min(380px,72vw);border-radius:10px;box-shadow:0 42px 90px rgba(0,0,0,.62),0 0 120px rgba(225,114,35,.20)}
+        .obj .lombada{position:absolute;top:1.4%;bottom:1.4%;left:-11px;width:11px;border-radius:4px 0 0 4px;background:linear-gradient(90deg,#100904,#342012);transform:rotateY(-74deg);transform-origin:right}
+        .reflexo{position:absolute;top:calc(100% + 14px);left:0;right:0;height:130px;overflow:hidden;pointer-events:none;opacity:.16}
+        .reflexo img{width:100%;transform:scaleY(-1);border-radius:10px;-webkit-mask-image:linear-gradient(rgba(0,0,0,.85),transparent 78%);mask-image:linear-gradient(rgba(0,0,0,.85),transparent 78%)}
+        .etiqueta{display:flex;align-items:baseline;justify-content:center;gap:14px;margin:4rem 0 1.4rem}
+        .etiqueta .preco{font-family:var(--serif);font-weight:900;font-size:44px;color:#fff;font-variant-numeric:tabular-nums}
+        .etiqueta .uni{font-size:14px;color:var(--text-dim)}
+        .vt-micro{font-size:13.5px;color:var(--text-dim);margin-top:14px}
+        .specs{display:flex;justify-content:center;gap:0;margin-top:3.6rem;font-family:var(--mono);font-size:13px;color:var(--text);flex-wrap:wrap}
+        .specs span{padding:0 22px;border-right:1px solid var(--hair);white-space:nowrap;line-height:2}
+        .specs span:last-child{border-right:0}
+        .specs b{color:var(--bright);font-weight:500}
+
+        .spreads{padding:5.5rem 1.5rem 3rem;background:var(--bg-deep);border-top:1px solid var(--hair)}
+        .spreads .head{max-width:1040px;margin:0 auto 3rem}
+        .spreads h2,.metodo-v2 h2{font-family:var(--serif);font-weight:700;font-size:clamp(1.7rem,3.4vw,2.5rem);color:#fff;letter-spacing:-.015em}
+        .sp-grid{max-width:1040px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:56px 44px}
+        .sp{margin:0}
+        .sp:nth-child(even){transform:translateY(44px)}
+        .sp.reveal{transform:translateY(26px)}
+        .sp.reveal.visible{transform:none}
+        .sp.reveal.visible:nth-child(even){transform:translateY(44px)}
+        .sp .ph{border-radius:12px;border:1px solid var(--hair);overflow:hidden;box-shadow:0 22px 55px rgba(0,0,0,.55);transition:transform .3s ease,box-shadow .3s ease}
+        .sp .ph img{width:100%;aspect-ratio:900/1200;object-fit:cover;object-position:top}
+        .sp:hover .ph{transform:translateY(-5px);box-shadow:0 30px 66px rgba(0,0,0,.62),0 0 46px var(--hair-accent)}
+        .sp figcaption{margin-top:16px;max-width:400px}
+        .sp .tipo{font-family:var(--mono);font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--bright);display:block;margin-bottom:6px}
+        .sp .cap{font-family:var(--serif);font-size:17px;color:#E8EDE9;line-height:1.5}
+
+        .metodo-v2{padding:6.5rem 1.5rem 5rem;background:var(--bg)}
+        .met-grid{max-width:1040px;margin:2.6rem auto 0;display:grid;grid-template-columns:repeat(3,1fr);gap:38px}
+        .met .num{font-family:var(--serif);font-style:italic;font-weight:900;font-size:52px;color:var(--bright);line-height:1;margin-bottom:14px}
+        .met .nome{font-family:var(--serif);font-weight:700;font-size:21px;color:#fff;letter-spacing:-.01em;margin-bottom:8px}
+        .met p{font-size:14.5px;color:var(--text);line-height:1.62}
+        .pull{max-width:820px;margin:5rem auto 0;text-align:center}
+        .pull blockquote{font-family:var(--serif);font-style:italic;font-size:clamp(1.25rem,2.6vw,1.7rem);color:var(--sage);line-height:1.6}
+        .pull .kicker{display:block;margin-bottom:16px}
+
+        .caixa{padding:5.5rem 1.5rem;background:var(--bg-deep);border-top:1px solid var(--hair)}
+        .caixa .inner{max-width:1040px;margin:0 auto;display:grid;grid-template-columns:.85fr 1.15fr;gap:60px;align-items:center}
+        .caixa .mini{width:min(260px,60vw);margin:0 auto;transform:rotateY(-10deg) rotate(1deg);border-radius:8px;box-shadow:0 26px 60px rgba(0,0,0,.55),0 0 70px rgba(225,114,35,.16)}
+        .kitlist{border-top:1px solid var(--hair)}
+        .kitem{display:grid;grid-template-columns:30px 1fr;gap:16px;padding:20px 0;border-bottom:1px solid var(--hair);align-items:baseline}
+        .kitem .ck{color:var(--bright);font-weight:700;font-size:17px}
+        .kitem .nome{font-family:var(--serif);font-weight:700;font-size:19px;color:#fff;margin-bottom:4px}
+        .kitem p{font-size:14px;color:var(--text);line-height:1.6}
+
+        .fechosec{padding:6rem 1.5rem;text-align:center;position:relative;overflow:hidden;background:radial-gradient(ellipse 700px 380px at 50% 115%,rgba(225,114,35,.12),transparent 62%),var(--bg)}
+        .fecho{font-family:var(--serif);font-style:italic;font-weight:900;font-size:clamp(2rem,4.6vw,3rem);color:#fff;letter-spacing:-.015em;margin-bottom:1rem}
+        .fechosec .valor{font-size:1.05rem;color:var(--text);line-height:1.7;margin-bottom:2.2rem}
+        .fechosec .valor b{color:#fff;font-weight:600}
+        .garantia{font-size:13.5px;color:var(--text-dim);margin-top:18px;line-height:1.6;max-width:440px;margin-inline:auto}
+
+        @media(max-width:860px){
+          .sp-grid{grid-template-columns:1fr;gap:44px}
+          .sp:nth-child(even),.sp.reveal.visible:nth-child(even){transform:none}
+          .met-grid{grid-template-columns:1fr;gap:34px}
+          .caixa .inner{grid-template-columns:1fr;gap:40px}
+        }
+        @media(prefers-reduced-motion:reduce){
+          .reveal{opacity:1;transform:none;transition:none}
+          .obj{animation:none;transform:rotateY(-10deg) rotateX(2deg)}
+          .vt-title .peso{animation:none}
+        }
+      `}</style>
+    </>
+  );
+}
