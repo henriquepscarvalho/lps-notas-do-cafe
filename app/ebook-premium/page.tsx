@@ -298,16 +298,18 @@ export default function EbookPremium() {
         <p className="reveal kicker">{EBOOK.kicker}</p>
         <h1 className={"reveal vt-title" + (EBOOK.manchete ? " vt-frase" : "")}><span className="peso">{EBOOK.manchete || EBOOK.titulo}</span></h1>
         <p className="reveal vt-sub">{EBOOK.subApoio || EBOOK.sub}</p>
-        <div className="reveal palco">
+        {/* no mobile o hero vira flex e o bloco de compra sobe pra ANTES da capa
+            (CTA na primeira dobra, decisão HC 20/07); no desktop a ordem é esta. */}
+        <div className="reveal palco vt-o-palco">
           <div className="obj">
             <div className="lombada" aria-hidden="true" />
             <img className="frente" src={EBOOK.capa} alt={EBOOK.capaAlt} loading="eager" />
             <div className="reflexo" aria-hidden="true"><img src={EBOOK.capa} alt="" /></div>
           </div>
         </div>
-        <div className="reveal etiqueta"><span className="preco">{PRECO}</span><span className="uni">pagamento único</span></div>
-        {EBOOK.retorno && <p className="reveal vt-retorno">{EBOOK.retorno}</p>}
-        <div className="reveal">
+        <div className="reveal etiqueta vt-o-etiq"><span className="preco">{PRECO}</span><span className="uni">pagamento único</span></div>
+        {EBOOK.retorno && <p className="reveal vt-retorno vt-o-ret">{EBOOK.retorno}</p>}
+        <div className="reveal vt-o-cta">
           <a href={CHECKOUT} className="btn" style={{ padding: "15px 32px", fontSize: 17 }} onClick={ctaClick}>{CTA_LABEL}</a>
           <p className="vt-micro">{EBOOK.ctaMicro}</p>
           {EBOOK.autoridade && <p className="vt-autoridade">{EBOOK.autoridade}</p>}
@@ -562,6 +564,28 @@ a{color:inherit;text-decoration:none}
           .sp:nth-child(even),.sp.reveal.visible:nth-child(even){transform:none}
           .met-grid{grid-template-columns:1fr;gap:34px}
           .caixa .inner{grid-template-columns:1fr;gap:40px}
+        }
+        /* mobile: CTA na primeira dobra (HC 20/07). Hero vira flex, o bloco de
+           compra sobe pra antes da capa e a tipografia/respiros comprimem. */
+        @media(max-width:560px){
+          .vitrine{display:flex;flex-direction:column;padding:2.2rem 1.25rem 3.4rem}
+          .vitrine .kicker{order:1;margin-bottom:1rem}
+          .vt-title{order:2}
+          .vt-sub{order:3;margin-bottom:1.2rem}
+          .vt-o-etiq{order:4}
+          .vt-o-ret{order:5}
+          .vt-o-cta{order:6}
+          .vt-o-palco{order:7;margin:2.4rem 0 .6rem}
+          .specs{order:8;margin-top:2rem}
+          .vt-title{font-size:2.35rem}
+          .vt-frase{font-size:1.6rem;line-height:1.22}
+          .vt-sub{font-size:15px;line-height:1.55}
+          .etiqueta{margin:.9rem 0 .9rem}
+          .etiqueta .preco{font-size:32px}
+          .vt-retorno{margin:-.4rem 0 1rem;font-size:14px}
+          .vt-micro{margin-top:11px;font-size:12.5px}
+          .vt-autoridade{font-size:11.5px}
+          .obj .frente{width:min(300px,64vw)}
         }
         @media(prefers-reduced-motion:reduce){
           .reveal{opacity:1;transform:none;transition:none}
