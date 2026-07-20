@@ -2,6 +2,7 @@
 
 import { useEffect, useState, CSSProperties } from "react";
 import { captureUtm, getUtm } from "../lib/utm";
+import { sendBeacon } from "../PageBeacon";
 
 interface SubscribeFormProps {
   id?: string;
@@ -43,7 +44,7 @@ export default function SubscribeForm({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, utm: getUtm() }),
       });
-      if (!res.ok) throw new Error();
+      if (!res.ok) throw new Error(String(res.status));
       setFormStatus("success");
       // Meta Pixel: dispara Lead event para atribuicao correta no Ads Manager.
       // Sem isso, o pixel so conta PageView e o Meta subreporta conversoes.
@@ -60,7 +61,10 @@ export default function SubscribeForm({
         try { sessionStorage.setItem("vdn_funnel", String(Date.now())); } catch {}
         window.location.href = "/pesquisa";
       }, 1200);
-    } catch {
+    } catch (err) {
+      // vdn-erro-subscribe: falha do submit vira beacon no lp_page_views (incidente MM 14-15/07/26,
+      // 33h de /api/subscribe caido sem sinal). Sufixo = status HTTP; 0 = rede/timeout.
+      try { const _st = err instanceof Error && /^\d+$/.test(err.message) ? err.message : "0"; sendBeacon("notas-do-cafe", "erro-subscribe-" + _st, { dedupe: false }); } catch { /* best-effort */ }
       setFormStatus("error");
     }
   }

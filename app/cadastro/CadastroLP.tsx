@@ -56,7 +56,7 @@ export default function CadastroLP() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email, utm: getUtm() }),
           });
-          if (!res.ok) throw new Error();
+          if (!res.ok) throw new Error(String(res.status));
           btn.textContent = "Inscrito!";
           const w = window as unknown as { fbq?: (...a: unknown[]) => void };
           if (w.fbq) w.fbq("track", "Lead", { content_name: "notas-do-cafe" });
@@ -64,7 +64,10 @@ export default function CadastroLP() {
           try { sessionStorage.setItem("vdn_funnel", String(Date.now())); } catch {}
           sendBeacon("notas-do-cafe", "lead", { eventType: "converteu" });
           setTimeout(() => { window.location.href = "/cadastro-confirmado"; }, 900);
-        } catch {
+        } catch (err) {
+          // vdn-erro-subscribe: falha do submit vira beacon no lp_page_views (incidente MM 14-15/07/26,
+          // 33h de /api/subscribe caido sem sinal). Sufixo = status HTTP; 0 = rede/timeout.
+          try { const _st = err instanceof Error && /^\d+$/.test(err.message) ? err.message : "0"; sendBeacon("notas-do-cafe", "erro-subscribe-" + _st, { dedupe: false }); } catch { /* best-effort */ }
           btn.disabled = false;
           btn.textContent = idle && idle !== "Enviando..." ? "Erro, tente de novo" : "Erro, tente de novo";
         }

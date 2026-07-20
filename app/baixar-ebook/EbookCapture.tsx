@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { captureUtm, getUtm } from "../lib/utm";
+import { sendBeacon } from "../PageBeacon";
 import { applyExp014 } from "../lib/exp014";
 
 const AUTOMATION_ID = "aut_e7997773-c01a-46ec-b616-a3a08ea4e3cf";
@@ -98,13 +99,16 @@ export default function EbookCapture() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, automationId: AUTOMATION_ID, utm: getUtm() }),
       });
-      if (!res.ok) throw new Error();
+      if (!res.ok) throw new Error(String(res.status));
       setStatus("success");
       try { localStorage.setItem("vdn_lead_email", email); } catch {}
       setTimeout(() => {
         window.location.href = "/baixar-ebook-confirmado";
       }, 1500);
-    } catch {
+    } catch (err) {
+      // vdn-erro-subscribe: falha do submit vira beacon no lp_page_views (incidente MM 14-15/07/26,
+      // 33h de /api/subscribe caido sem sinal). Sufixo = status HTTP; 0 = rede/timeout.
+      try { const _st = err instanceof Error && /^\d+$/.test(err.message) ? err.message : "0"; sendBeacon("notas-do-cafe", "erro-subscribe-" + _st, { dedupe: false }); } catch { /* best-effort */ }
       setStatus("error");
     }
   }
