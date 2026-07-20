@@ -133,6 +133,8 @@ const EBOOK = {
     "titulo": "A primeira variável, aberta na íntegra",
     "intro": "Uma das oito variáveis da coada, exatamente como aparece no miolo. As outras sete vêm com o guia.",
     "cta": "Ler a variável inteira",
+    "img": "/ebook-web/lp-pag-1.webp",
+    "imgCap": "A premissa: o que separa sua xícara do balcão são oito variáveis, nunca a máquina",
     "blocos": [
       {
         "t": "h3",
@@ -225,10 +227,6 @@ const EBOOK = {
       {
         "t": "p",
         "x": "Cada xícara que sai do coador em vez do balcão devolve a diferença entre a faixa de R$ 7,00 a R$ 12,00 e o custo do seu pacote dividido pelas xícaras que ele rende, perto de R$ 2,90 . Some o café que você para de descartar."
-      },
-      {
-        "t": "p",
-        "x": "Variável 01 · variável pesada"
       },
       {
         "t": "h3",
@@ -353,6 +351,12 @@ export default function EbookPremium() {
               (que ja tinha dado unobserve), deixando o card em opacity 0 ao expandir. */}
           <div className="reveal">
           <div className={"am-paper" + (amOpen ? " aberta" : "")}>
+            {EBOOK.amostra.img && (
+              <figure className="am-pag">
+                <img src={EBOOK.amostra.img} alt={EBOOK.amostra.imgCap} loading="lazy" />
+                {EBOOK.amostra.imgCap && <figcaption>{EBOOK.amostra.imgCap}</figcaption>}
+              </figure>
+            )}
             <div className="am-miolo">
               {EBOOK.amostra.blocos.map((b: { t?: string; x?: string }, i: number) =>
                 b.t === "h3" ? <h3 key={i}>{b.x}</h3>
@@ -360,10 +364,17 @@ export default function EbookPremium() {
                 : <p key={i}>{b.x}</p>
               )}
             </div>
-            {!amOpen && <div className="am-fade" aria-hidden="true" />}
-            <button className="am-toggle" onClick={() => setAmOpen(!amOpen)}>
-              {amOpen ? "Fechar a amostra" : (EBOOK.amostra.cta || "Ler a amostra inteira")}
-            </button>
+            {/* aberta, a amostra termina em compra, nao em "fechar" (decisao HC 20/07) */}
+            {amOpen ? (
+              <a href={CHECKOUT} className="btn am-cta" onClick={ctaClick}>{CTA_LABEL}</a>
+            ) : (
+              <>
+                <div className="am-fade" aria-hidden="true" />
+                <button className="am-toggle" onClick={() => setAmOpen(true)}>
+                  {EBOOK.amostra.cta || "Ler a amostra inteira"}
+                </button>
+              </>
+            )}
           </div>
           </div>
         </section>
@@ -504,8 +515,12 @@ a{color:inherit;text-decoration:none}
         .amostra{padding:5rem 1.5rem;background:var(--bg);border-top:1px solid var(--hair)}
         .amostra .head{max-width:820px;margin:0 auto 2.4rem}
         .am-intro{font-size:15px;color:var(--text);margin-top:12px;line-height:1.6}
-        .am-paper{position:relative;max-width:820px;margin:0 auto;background:#F7F5ED;color:#20211C;border-radius:14px;padding:2.6rem clamp(1.4rem,4vw,3.2rem) 4.8rem;box-shadow:0 26px 60px rgba(0,0,0,.5);max-height:460px;overflow:hidden}
-        .am-paper.aberta{max-height:none}
+        .am-paper{position:relative;max-width:820px;margin:0 auto;background:#F7F5ED;color:#20211C;border-radius:14px;padding:2.2rem clamp(1.4rem,4vw,3.2rem) 4.8rem;box-shadow:0 26px 60px rgba(0,0,0,.5);max-height:640px;overflow:hidden}
+        .am-paper.aberta{max-height:none;padding-bottom:2.6rem}
+        .am-pag{margin:0 0 2rem}
+        .am-pag img{width:100%;display:block;border-radius:6px}
+        .am-pag figcaption{font-family:var(--sans);font-size:12.5px;color:#5C5E54;padding-top:10px;line-height:1.5}
+        .am-cta{margin:2.2rem auto 0;display:flex;width:fit-content;padding:15px 32px;font-size:16px}
         .am-miolo h3{font-family:var(--serif);font-size:21px;color:#14150F;margin:1.6em 0 .5em;line-height:1.3}
         .am-miolo h3:first-child{margin-top:0}
         .am-miolo p{font-size:15.5px;line-height:1.75;color:#33342C;margin:0 0 1em}
