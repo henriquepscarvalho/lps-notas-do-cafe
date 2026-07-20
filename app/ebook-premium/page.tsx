@@ -348,7 +348,11 @@ export default function EbookPremium() {
             <h2 className="reveal">{EBOOK.amostra.titulo}</h2>
             <p className="reveal am-intro">{EBOOK.amostra.intro}</p>
           </div>
-          <div className={"reveal am-paper" + (amOpen ? " aberta" : "")}>
+          {/* reveal fica no WRAPPER: o className do papel muda com o state, e o React
+              reescrevendo o atributo apagava a classe `visible` posta pelo observer
+              (que ja tinha dado unobserve), deixando o card em opacity 0 ao expandir. */}
+          <div className="reveal">
+          <div className={"am-paper" + (amOpen ? " aberta" : "")}>
             <div className="am-miolo">
               {EBOOK.amostra.blocos.map((b: { t?: string; x?: string }, i: number) =>
                 b.t === "h3" ? <h3 key={i}>{b.x}</h3>
@@ -360,6 +364,7 @@ export default function EbookPremium() {
             <button className="am-toggle" onClick={() => setAmOpen(!amOpen)}>
               {amOpen ? "Fechar a amostra" : (EBOOK.amostra.cta || "Ler a amostra inteira")}
             </button>
+          </div>
           </div>
         </section>
       )}
