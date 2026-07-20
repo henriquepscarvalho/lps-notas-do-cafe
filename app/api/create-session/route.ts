@@ -7,7 +7,7 @@ import { NextResponse } from "next/server";
 const SC = "NC";
 const PRICE_CHEIO = "price_1TukzgLXu3X73K7LaGbdeElv"; // R$ 27 (live)
 const TITULO = "Café de Balcão no Coador de Casa";
-// Bump = ebook irmão da vertical (PROVISÓRIO: pareamento final vem do JSON do HC, ticket 07)
+// Bump = ebook irmão SELADO (bump-pareamento.json, HC 19/07): WS → BZ
 const BUMP_SC = "BC";
 const BUMP_PRICE = "price_1TukzeLXu3X73K7LdM980r2a"; // bump BC R$ 13,50 (live)
 const BUMP_TITULO = "Brasa Pronta em 20 Minutos";
@@ -32,6 +32,8 @@ export async function POST(req: Request) {
   const params: Record<string, string> = {
     ui_mode: "embedded",
     mode: "payment",
+    locale: "pt-BR", // leitor BR sempre vê o checkout em português, browser que for
+
     return_url: `${origin}/ebook-premium/obrigado?session_id={CHECKOUT_SESSION_ID}`,
     "metadata[sc]": SC, // contrato do webhook central (ticket 11): resolve o ebook pelo sc
   };

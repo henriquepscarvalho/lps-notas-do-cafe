@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import PageBeacon, { sendBeacon } from "../PageBeacon";
 
 /* ============================================================
@@ -10,16 +10,16 @@ import PageBeacon, { sendBeacon } from "../PageBeacon";
    ============================================================ */
 const EBOOK = {
   "slug": "notas-do-cafe",
-  "kicker": "Guia Notas do Café · Café de coador",
+  "kicker": "Café de Balcão no Coador de Casa · Guia Notas do Café",
   "titulo": "Café de Balcão no Coador de Casa",
   "sub": "As oito variáveis que fazem o coador de papel da sua cozinha repetir a xícara do balcão, sem a máquina de R$ 2 mil.",
-  "ctaMicro": "Acesso imediato. Leia numa semana de manhãs, prove a diferença na segunda coada.",
+  "ctaMicro": "Acesso imediato. Prove a diferença na segunda coada.",
   "capa": "/ebook-web/capa-notas-do-cafe.webp",
   "capaAlt": "Capa do guia Café de Balcão no Coador de Casa",
   "specs": [
     {
-      "n": "40",
-      "l": "páginas"
+      "n": "1",
+      "l": "checklist da coada"
     },
     {
       "n": "8",
@@ -78,7 +78,7 @@ const EBOOK = {
     }
   ],
   "metodo": {
-    "kicker": "O método",
+    "kicker": "O método Medir, Ajustar, Provar",
     "titulo": "Cada variável em 3 tempos",
     "passos": [
       {
@@ -119,7 +119,131 @@ const EBOOK = {
   ],
   "garantia": "Leu o guia e não encontrou nenhuma variável pra corrigir na sua coada? Responda o email da compra em até 7 dias e devolvemos os R$ 27.",
   "fecho": "Sem frescura.",
-  "despedida": "Bom café. Até sábado."
+  "despedida": "Bom café. Até sábado.",
+  "manchete": "O coador de papel da sua cozinha repete a xícara do balcão, sem a máquina de R$ 2 mil.",
+  "subApoio": "As oito variáveis da coada, uma por uma, com o ajuste que muda a xícara já na próxima manhã.",
+  "retorno": "Custa menos que um pacote de grão especial.",
+  "autoridade": "Do time da news Notas do Café, no seu email todo dia às 8h08.",
+  "fechoAncora": "R$ 27 pra tirar do coador o que a máquina cara promete. Pagamento único, sem assinatura.",
+  "custoEspera": "Toda manhã sem o ajuste é a mesma xícara mediana de novo.",
+  "garantiaNome": "Melhorou a coada ou devolve · 7 dias",
+  "amostra": {
+    "on": true,
+    "kicker": "Leia antes de pagar",
+    "titulo": "A primeira variável, aberta na íntegra",
+    "intro": "Uma das oito variáveis da coada, exatamente como aparece no miolo. As outras sete vêm com o guia.",
+    "cta": "Ler a variável inteira",
+    "blocos": [
+      {
+        "t": "h3",
+        "x": "O grão e a torra decidem antes do coador"
+      },
+      {
+        "t": "p",
+        "x": "Nenhuma técnica das outras sete variáveis corrige matéria errada. O grão que você comprou e o ponto de torra dele já definiram o teto da sua xícara, semanas antes de a água encostar no pó."
+      },
+      {
+        "t": "p",
+        "x": "Café perde aroma pelo contato com o ar. Em grão inteiro a perda é lenta, porque só a superfície externa fica exposta. Moído, a área exposta multiplica, e o aroma vai embora poucos dias depois de o pacote ser aberto. O pó da semana passada não estragou: emudeceu."
+      },
+      {
+        "t": "p",
+        "x": "A torra escura carrega outro defeito, e ele não sai com técnica. Passado o ponto, o açúcar do grão queima e vira amargor seco. A água na temperatura certa apenas extrai o que já existe ali dentro. Torra média é a faixa que mais perdoa erro de execução no coador."
+      },
+      {
+        "t": "h3",
+        "x": "Por que a prateleira empurra o moído"
+      },
+      {
+        "t": "p",
+        "x": "Não é maldade do mercado, é logística. O pó em pacote selado tem validade longa impressa na embalagem, gira rápido e dispensa moedor na casa de quem compra. A torra escura aguenta mais tempo de gôndola e agrada o paladar acostumado ao café de bar. O supermercado otimiza giro e prazo. A sua xícara não entra na conta."
+      },
+      {
+        "t": "p",
+        "x": "A saída é ler o pacote pelos dois campos que decidem a coada, a data de torra e o grau de torra , e comprar em grão inteiro."
+      },
+      {
+        "t": "h3",
+        "x": "Onde o defeito se esconde"
+      },
+      {
+        "t": "p",
+        "x": "O defeito da variável 01 não nasce no coador. Nasce na gôndola, semanas antes, e o rótulo entrega tudo em dois campos que quase ninguém procura."
+      },
+      {
+        "t": "p",
+        "x": "Vire o pacote antes de pôr no carrinho e leia de trás para a frente."
+      },
+      {
+        "t": "li",
+        "x": "Procure a data de torra . Validade fala de segurança do alimento; data de torra fala de aroma. Grão com mais de dois meses fora do torrador não responde a técnica nenhuma."
+      },
+      {
+        "t": "li",
+        "x": "Confira o grau de torra e mire na torra média : já perdeu a acidez verde, ainda não ganhou gosto de queima."
+      },
+      {
+        "t": "li",
+        "x": "Cheque se é grão inteiro ou moído . O moído perde aroma poucos dias depois de aberto, e despejo nenhum devolve o que evaporou."
+      },
+      {
+        "t": "li",
+        "x": "Calcule o pacote pelo consumo. A 15 gramas por xícara , 250 gramas rendem perto de 16. Leve o que acaba em até um mês."
+      },
+      {
+        "t": "h3",
+        "x": "O movimento"
+      },
+      {
+        "t": "li",
+        "x": "Escolha onde comprar pelo rótulo, não pela marca: serve qualquer torrefação ou mercado que imprima a data de torra no pacote."
+      },
+      {
+        "t": "li",
+        "x": "Na gôndola, compre grão inteiro de torra média com data de torra impressa no pacote . Os três campos juntos, nunca dois de três."
+      },
+      {
+        "t": "li",
+        "x": "Dimensione o pacote pelo consumo: duas xícaras por dia a 15 gramas pedem perto de 250 gramas a cada oito ou nove dias."
+      },
+      {
+        "t": "li",
+        "x": "Anote no pacote o dia em que abriu. Passou do mês, o aroma caiu, e a próxima compra vem menor."
+      },
+      {
+        "t": "p",
+        "x": "A troca leva uma compra para acontecer e não custa equipamento nenhum na bancada. O que muda é o campo que você lê no rótulo e o tamanho do pacote que você leva para casa. A xícara responde já na primeira coada do pacote novo."
+      },
+      {
+        "t": "p",
+        "x": "Rafael comprava café já moído, em pacote de supermercado sem data de torra. Fazia a jarra no fim de semana e descartava quase um terço dela, porque saía com gosto de queimado e ninguém terminava."
+      },
+      {
+        "t": "p",
+        "x": "Passou a comprar grão inteiro de torra média, com a data impressa no rótulo e em pacote que acaba dentro do mês. Parou de jogar café fora e trocou 72 cafés de balcão por xícaras de casa no primeiro ano."
+      },
+      {
+        "t": "p",
+        "x": "Cada xícara que sai do coador em vez do balcão devolve a diferença entre a faixa de R$ 7,00 a R$ 12,00 e o custo do seu pacote dividido pelas xícaras que ele rende, perto de R$ 2,90 . Some o café que você para de descartar."
+      },
+      {
+        "t": "p",
+        "x": "Variável 01 · variável pesada"
+      },
+      {
+        "t": "h3",
+        "x": "A resposta pronta"
+      },
+      {
+        "t": "p",
+        "x": "Cinco respostas para as objeções que a variável 01 encontra."
+      },
+      {
+        "t": "p",
+        "x": "A diferença por xícara é a conta do livro inteiro. A de casa sai do pacote dividido pelas xícaras que rende."
+      }
+    ]
+  }
 };
 
 const PRECO = "R$ 27";
@@ -131,6 +255,7 @@ function ctaClick() {
 }
 
 export default function EbookPremium() {
+  const [amOpen, setAmOpen] = useState(false);
   useEffect(() => {
     const els = document.querySelectorAll(".reveal");
     const jump = new URLSearchParams(location.search).get("jump");
@@ -173,8 +298,8 @@ export default function EbookPremium() {
       <section className="vitrine">
         <div className="spot" aria-hidden="true" />
         <p className="reveal kicker">{EBOOK.kicker}</p>
-        <h1 className="reveal vt-title"><span className="peso">{EBOOK.titulo}</span></h1>
-        <p className="reveal vt-sub">{EBOOK.sub}</p>
+        <h1 className={"reveal vt-title" + (EBOOK.manchete ? " vt-frase" : "")}><span className="peso">{EBOOK.manchete || EBOOK.titulo}</span></h1>
+        <p className="reveal vt-sub">{EBOOK.subApoio || EBOOK.sub}</p>
         <div className="reveal palco">
           <div className="obj">
             <div className="lombada" aria-hidden="true" />
@@ -183,9 +308,11 @@ export default function EbookPremium() {
           </div>
         </div>
         <div className="reveal etiqueta"><span className="preco">{PRECO}</span><span className="uni">pagamento único</span></div>
+        {EBOOK.retorno && <p className="reveal vt-retorno">{EBOOK.retorno}</p>}
         <div className="reveal">
           <a href={CHECKOUT} className="btn" style={{ padding: "15px 32px", fontSize: 17 }} onClick={ctaClick}>{CTA_LABEL}</a>
           <p className="vt-micro">{EBOOK.ctaMicro}</p>
+          {EBOOK.autoridade && <p className="vt-autoridade">{EBOOK.autoridade}</p>}
         </div>
         <div className="reveal specs">
           {EBOOK.specs.map((s) => (
@@ -212,6 +339,30 @@ export default function EbookPremium() {
           ))}
         </div>
       </section>
+
+      {/* Amostra: uma unidade real do miolo, aberta na íntegra (reciprocidade, ticket 17) */}
+      {EBOOK.amostra.on && (
+        <section className="amostra">
+          <div className="head">
+            <p className="reveal kicker" style={{ display: "block", marginBottom: ".9rem" }}>{EBOOK.amostra.kicker}</p>
+            <h2 className="reveal">{EBOOK.amostra.titulo}</h2>
+            <p className="reveal am-intro">{EBOOK.amostra.intro}</p>
+          </div>
+          <div className={"reveal am-paper" + (amOpen ? " aberta" : "")}>
+            <div className="am-miolo">
+              {EBOOK.amostra.blocos.map((b: { t?: string; x?: string }, i: number) =>
+                b.t === "h3" ? <h3 key={i}>{b.x}</h3>
+                : b.t === "li" ? <p key={i} className="am-li">{b.x}</p>
+                : <p key={i}>{b.x}</p>
+              )}
+            </div>
+            {!amOpen && <div className="am-fade" aria-hidden="true" />}
+            <button className="am-toggle" onClick={() => setAmOpen(!amOpen)}>
+              {amOpen ? "Fechar a amostra" : (EBOOK.amostra.cta || "Ler a amostra inteira")}
+            </button>
+          </div>
+        </section>
+      )}
 
       {/* Método editorial em 3 colunas + pull quote do spine */}
       <section className="metodo-v2">
@@ -259,9 +410,19 @@ export default function EbookPremium() {
       <section className="fechosec">
         <div className="reveal" style={{ maxWidth: 560, margin: "0 auto" }}>
           <h2 className="fecho">{EBOOK.fecho}</h2>
-          <p className="valor"><b>{PRECO}</b>, pagamento único. Sem assinatura, sem mensalidade.</p>
+          {EBOOK.fechoAncora
+            ? <p className="valor">{EBOOK.fechoAncora}</p>
+            : <p className="valor"><b>{PRECO}</b>, pagamento único. Sem assinatura, sem mensalidade.</p>}
           <a href={CHECKOUT} className="btn" style={{ padding: "16px 34px", fontSize: 17 }} onClick={ctaClick}>{CTA_LABEL}</a>
-          <p className="garantia">{EBOOK.garantia}</p>
+          {EBOOK.custoEspera && <p className="espera">{EBOOK.custoEspera}</p>}
+          {EBOOK.garantiaNome ? (
+            <div className="gbox">
+              <div className="gtit">{EBOOK.garantiaNome}</div>
+              <p>{EBOOK.garantia}</p>
+            </div>
+          ) : (
+            <p className="garantia">{EBOOK.garantia}</p>
+          )}
         </div>
       </section>
 
@@ -311,6 +472,9 @@ a{color:inherit;text-decoration:none}
         .etiqueta .preco{font-family:var(--serif);font-weight:900;font-size:44px;color:#fff;font-variant-numeric:tabular-nums}
         .etiqueta .uni{font-size:14px;color:var(--text-dim)}
         .vt-micro{font-size:13.5px;color:var(--text-dim);margin-top:14px}
+        .vt-frase{font-style:normal;font-size:clamp(1.85rem,4.8vw,3.3rem);line-height:1.16;max-width:820px;margin-inline:auto}
+        .vt-retorno{font-size:15px;color:var(--text);margin:-0.6rem 0 1.6rem}
+        .vt-autoridade{font-size:12.5px;color:var(--text-dim);margin-top:7px}
         .specs{display:flex;justify-content:center;gap:0;margin-top:3.6rem;font-family:var(--mono);font-size:13px;color:var(--text);flex-wrap:wrap}
         .specs span{padding:0 22px;border-right:1px solid var(--hair);white-space:nowrap;line-height:2}
         .specs span:last-child{border-right:0}
@@ -318,7 +482,7 @@ a{color:inherit;text-decoration:none}
 
         .spreads{padding:5.5rem 1.5rem 3rem;background:var(--bg-deep);border-top:1px solid var(--hair)}
         .spreads .head{max-width:1040px;margin:0 auto 3rem}
-        .spreads h2,.metodo-v2 h2{font-family:var(--serif);font-weight:700;font-size:clamp(1.7rem,3.4vw,2.5rem);color:#fff;letter-spacing:-.015em}
+        .spreads h2,.metodo-v2 h2,.amostra h2{font-family:var(--serif);font-weight:700;font-size:clamp(1.7rem,3.4vw,2.5rem);color:#fff;letter-spacing:-.015em}
         .sp-grid{max-width:1040px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:56px 44px}
         .sp{margin:0}
         .sp:nth-child(even){transform:translateY(44px)}
@@ -332,6 +496,19 @@ a{color:inherit;text-decoration:none}
         .sp .tipo{font-family:var(--mono);font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--bright);display:block;margin-bottom:6px}
         .sp .cap{font-family:var(--serif);font-size:17px;color:#E8EDE9;line-height:1.5}
 
+        .amostra{padding:5rem 1.5rem;background:var(--bg);border-top:1px solid var(--hair)}
+        .amostra .head{max-width:820px;margin:0 auto 2.4rem}
+        .am-intro{font-size:15px;color:var(--text);margin-top:12px;line-height:1.6}
+        .am-paper{position:relative;max-width:820px;margin:0 auto;background:#F7F5ED;color:#20211C;border-radius:14px;padding:2.6rem clamp(1.4rem,4vw,3.2rem) 4.8rem;box-shadow:0 26px 60px rgba(0,0,0,.5);max-height:460px;overflow:hidden}
+        .am-paper.aberta{max-height:none}
+        .am-miolo h3{font-family:var(--serif);font-size:21px;color:#14150F;margin:1.6em 0 .5em;line-height:1.3}
+        .am-miolo h3:first-child{margin-top:0}
+        .am-miolo p{font-size:15.5px;line-height:1.75;color:#33342C;margin:0 0 1em}
+        .am-li{padding-left:1.1em;position:relative}
+        .am-li::before{content:"•";position:absolute;left:0;color:#14150F}
+        .am-fade{position:absolute;left:0;right:0;bottom:0;height:160px;background:linear-gradient(rgba(247,245,237,0),#F7F5ED 76%)}
+        .am-toggle{position:absolute;left:50%;transform:translateX(-50%);bottom:1.5rem;z-index:2;font-family:var(--sans);font-weight:600;font-size:14px;padding:10px 22px;border-radius:6px;border:1px solid #20211C;background:#F7F5ED;color:#20211C;cursor:pointer}
+        .am-toggle:hover{background:#20211C;color:#F7F5ED}
         .metodo-v2{padding:6.5rem 1.5rem 5rem;background:var(--bg)}
         .met-grid{max-width:1040px;margin:2.6rem auto 0;display:grid;grid-template-columns:repeat(3,1fr);gap:38px}
         .met .num{font-family:var(--serif);font-style:italic;font-weight:900;font-size:52px;color:var(--bright);line-height:1;margin-bottom:14px}
@@ -355,6 +532,10 @@ a{color:inherit;text-decoration:none}
         .fechosec .valor{font-size:1.05rem;color:var(--text);line-height:1.7;margin-bottom:2.2rem}
         .fechosec .valor b{color:#fff;font-weight:600}
         .garantia{font-size:13.5px;color:var(--text-dim);margin-top:18px;line-height:1.6;max-width:440px;margin-inline:auto}
+        .espera{font-size:14.5px;color:var(--text);margin-top:22px;line-height:1.6;max-width:440px;margin-inline:auto}
+        .gbox{margin:26px auto 0;max-width:440px;border:1px solid var(--hair);border-radius:12px;padding:18px 22px;background:var(--bg-deep)}
+        .gbox .gtit{font-family:var(--serif);font-weight:700;font-size:17px;color:#fff;margin-bottom:6px}
+        .gbox p{font-size:13.5px;color:var(--text-dim);line-height:1.6}
 
         @media(max-width:860px){
           .sp-grid{grid-template-columns:1fr;gap:44px}
