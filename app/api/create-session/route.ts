@@ -39,6 +39,13 @@ export async function POST(req: Request) {
   };
   if (bump) params["metadata[bump]"] = BUMP_SC;
 
+  // Sem description o email de venda e a lista do Dashboard mostram so o valor
+  // (metadata nao aparece la). Suffix: fatura do cartao vira "NEWSLETTER* EBOOK <SC>"
+  // (prefix 10 + "* " + suffix <= 10 = teto de 22 do cartao; boleto ignora).
+  params["payment_intent_data[description]"] =
+    `Ebook ${TITULO} (${SC})` + (bump ? ` + bump ${BUMP_SC}` : "");
+  params["payment_intent_data[statement_descriptor_suffix]"] = `EBOOK ${SC}`;
+
   // ponytail: price IDs live não existem em test mode; sk_test_ usa price_data
   // inline com os mesmos valores. Flip pra live = trocar a env key, código intacto.
   if (isTestKey) {
