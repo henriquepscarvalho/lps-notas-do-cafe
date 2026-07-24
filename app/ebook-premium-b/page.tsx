@@ -271,9 +271,9 @@ const EBOOK = {
 const PRECO = "R$ 27";
 const PRECO_DE = "R$ 47"; // âncora riscada; vazio = sem desconto, render V2 intacto
 // CTAs com copy própria por seção + seta de avanço (HC 24/07); nav e hero sem preço
-const CTA_AMOSTRA = "Abrir as outras 7 frentes →";
+const CTA_AMOSTRA = "Abrir as outras 7 variáveis →";
 const CTA_CAIXA = "Levar o kit completo →";
-const CTA_FECHO = "Começar a auditoria →";
+const CTA_FECHO = "Começar pela primeira variável →";
 const CHECKOUT = "/ebook-premium/checkout";
 
 function ctaClick() {
@@ -332,7 +332,7 @@ export default function EbookPremium() {
         {/* V5 do burst 24/07: CTA primeiro, preço numa linha só abaixo do botão */}
         <div className="reveal vt-o-cta">
           {/* primeiro CTA da página leva a seta de avanço (HC 24/07) */}
-          <a href={CHECKOUT} className="btn" style={{ padding: "15px 32px", fontSize: 17 }} onClick={ctaClick}>Quero economizar →</a>
+          <a href={CHECKOUT} className="btn" style={{ padding: "15px 32px", fontSize: 17 }} onClick={ctaClick}>Quero o guia →</a>
           <p className="vt-preco-micro">{PRECO_DE && <><s>{PRECO_DE}</s> </>}<b>{PRECO}</b> · acesso imediato, corte no mesmo dia</p>
         </div>
         <div className="reveal palco vt-o-palco">
