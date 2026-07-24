@@ -28,6 +28,11 @@ export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}) as Record<string, unknown>);
   const bump = body?.bump === true;
 
+  // Variante do split A/B/C (EXP-027): sai do cookie lp_eb que o middleware setou
+  // na borda. Carimba em metadata.variant → o webhook central persiste em
+  // ebook_purchases.variant (atribuição de venda por braço, ticket 10).
+  const variant = (req.headers.get("cookie") || "").match(/(?:^|;\s*)lp_eb=([ABC])(?:;|$)/)?.[1];
+
   const origin = new URL(req.url).origin;
   const params: Record<string, string> = {
     ui_mode: "embedded",
@@ -37,6 +42,7 @@ export async function POST(req: Request) {
     return_url: `${origin}/ebook-premium/obrigado?session_id={CHECKOUT_SESSION_ID}`,
     "metadata[sc]": SC, // contrato do webhook central (ticket 11): resolve o ebook pelo sc
   };
+  if (variant) params["metadata[variant]"] = variant;
   if (bump) params["metadata[bump]"] = BUMP_SC;
 
   // Sem description o email de venda e a lista do Dashboard mostram so o valor

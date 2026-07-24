@@ -5,8 +5,8 @@ import { useEffect } from "react";
 // variant lido inline do localStorage (sem acoplar no lib/exp014, que nem toda LP tem)
 function getVariant(): string | null {
   try {
-    const v = localStorage.getItem("vdn_exp014");
-    return v === "A" || v === "B" ? v : null;
+    const m = document.cookie.match(/(?:^|;\s*)lp_eb=([ABC])(?:;|$)/);
+    return m ? m[1] : null;
   } catch {
     return null;
   }

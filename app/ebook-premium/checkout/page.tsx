@@ -11,6 +11,7 @@ const EBOOK = {
   "titulo": "Café de Balcão no Coador de Casa",
   "kicker": "Guia Notas do Café",
   "preco": "R$ 27",
+  "precoDe": "R$ 47",
   "bump": {
     "titulo": "Brasa Pronta em 20 Minutos",
     "news": "Brasa Certa",
@@ -109,6 +110,7 @@ export default function EbookCheckout() {
           <p className="kicker">{EBOOK.kicker}</p>
           <h1>{EBOOK.titulo}</h1>
           <p className="ck-resumo">
+            {!bump && EBOOK.precoDe && <s>{EBOOK.precoDe}</s>}
             <b>{bump ? "R$ 40,50" : EBOOK.preco}</b>, pagamento único.
             {bump ? " Guia + irmão da vertical." : " Sem assinatura, sem mensalidade."}
           </p>
@@ -180,6 +182,7 @@ a{color:inherit;text-decoration:none}
         .ck-head h1{font-family:var(--serif);font-style:italic;font-weight:900;font-size:clamp(1.8rem,5vw,2.6rem);color:#fff;letter-spacing:-.02em;margin-bottom:.7rem}
         .ck-resumo{font-size:15px;color:var(--text);line-height:1.6}
         .ck-resumo b{color:#fff;font-variant-numeric:tabular-nums}
+        .ck-resumo s{color:var(--text-dim);font-variant-numeric:tabular-nums;margin-right:6px}
         .ck-box{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.5),0 0 60px rgba(225,114,35,.10);min-height:120px}
         .ck-pend{padding:2.2rem 1.6rem;font-family:var(--sans,inherit);color:#26302B}
         .ck-pend p{font-size:14.5px;line-height:1.6;margin:0 0 .5rem}

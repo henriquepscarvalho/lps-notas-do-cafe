@@ -34,7 +34,7 @@ const EBOOK = {
       "l": "PDF"
     }
   ],
-  "spreadsTitulo": "Páginas reais, não promessa",
+  "spreadsTitulo": "Páginas reais, ",
   "paginas": [
     {
       "src": "/ebook-web/lp-pag-1.webp",
@@ -241,13 +241,39 @@ const EBOOK = {
         "x": "A diferença por xícara é a conta do livro inteiro. A de casa sai do pacote dividido pelas xícaras que rende."
       }
     ]
-  }
+  },
+  "faq": [
+    {
+      "q": "Como recebo depois de pagar?",
+      "a": "O pagamento confirma e o acesso abre na hora: a versão web pra ler no navegador e o PDF pra guardar. O link também chega no email da compra."
+    },
+    {
+      "q": "Preciso de algum conhecimento antes?",
+      "a": "Não. Cada passo mostra o que fazer, na ordem, sem pré-requisito."
+    },
+    {
+      "q": "Quanto tempo leva?",
+      "a": "3 minutos de diagnóstico, seguindo o passo a passo."
+    },
+    {
+      "q": "É pagamento único ou assinatura?",
+      "a": "Pagamento único de R$ 27, processado pela Stripe. Sem assinatura, sem mensalidade. O acesso é seu."
+    },
+    {
+      "q": "E se não for pra mim?",
+      "a": "Leu o guia e não encontrou nenhuma variável pra corrigir na sua coada? Responda o email da compra em até 7 dias e devolvemos os R$ 27."
+    }
+  ],
+  "spreadsTituloEm": "não promessa",
+  "spreadsSub": ""
 };
 
 const PRECO = "R$ 27";
 const PRECO_DE = "R$ 47"; // âncora riscada; vazio = sem desconto, render V2 intacto
-// CTA sem preço (HC 24/07): o valor mora na etiqueta riscada, não no botão
-const CTA_LABEL = "Quero o guia";
+// CTAs com copy própria por seção + seta de avanço (HC 24/07); nav e hero sem preço
+const CTA_AMOSTRA = "Abrir as outras 7 frentes →";
+const CTA_CAIXA = "Levar o kit completo →";
+const CTA_FECHO = "Começar a auditoria →";
 const CHECKOUT = "/ebook-premium/checkout";
 
 function ctaClick() {
@@ -287,8 +313,9 @@ export default function EbookPremium() {
             <img src="/ebook-web/simbolo.png" alt="" width={32} height={32} />
             <span className="wm"><span className="t">Notas</span><span className="s">{" do Café"}</span></span>
           </a>
-          {/* nav sem preço (HC 24/07): mesmo label em toda largura */}
-          <a href={CHECKOUT} className="btn" onClick={ctaClick}>{CTA_LABEL}</a>
+          <a href={CHECKOUT} className="btn" onClick={ctaClick}>
+            Quero o guia
+          </a>
         </div>
       </nav>
 
@@ -298,22 +325,22 @@ export default function EbookPremium() {
         <p className="reveal kicker">{EBOOK.kicker}</p>
         <h1 className={"reveal vt-title" + (EBOOK.manchete ? " vt-frase" : "")}><span className="peso">{EBOOK.manchete || EBOOK.titulo}</span></h1>
         <p className="reveal vt-sub">{EBOOK.subApoio || EBOOK.sub}</p>
-        {/* no mobile o hero vira flex e o bloco de compra sobe pra ANTES da capa
-            (CTA na primeira dobra, decisão HC 20/07); no desktop a ordem é esta. */}
+        {/* ordem DOM = ordem de conversão (preço/CTA antes da capa em toda largura
+            estreita; CTA na primeira dobra, decisão HC 20/07). No desktop ≥900px
+            o grid manda a capa pra coluna direita (modelo dos ebooks de cadastro,
+            HC 24/07). */}
+        {/* V5 do burst 24/07: CTA primeiro, preço numa linha só abaixo do botão */}
+        <div className="reveal vt-o-cta">
+          {/* primeiro CTA da página leva a seta de avanço (HC 24/07) */}
+          <a href={CHECKOUT} className="btn" style={{ padding: "15px 32px", fontSize: 17 }} onClick={ctaClick}>Quero economizar →</a>
+          <p className="vt-preco-micro">{PRECO_DE && <><s>{PRECO_DE}</s> </>}<b>{PRECO}</b> · acesso imediato, corte no mesmo dia</p>
+        </div>
         <div className="reveal palco vt-o-palco">
           <div className="obj">
             <div className="lombada" aria-hidden="true" />
             <img className="frente" src={EBOOK.capa} alt={EBOOK.capaAlt} loading="eager" />
             <div className="reflexo" aria-hidden="true"><img src={EBOOK.capa} alt="" /></div>
           </div>
-        </div>
-        <div className="reveal etiqueta vt-o-etiq">{PRECO_DE && <s className="de">{PRECO_DE}</s>}<span className="preco">{PRECO}</span><span className="uni">pagamento único</span></div>
-        {EBOOK.retorno && <p className="reveal vt-retorno vt-o-ret">{EBOOK.retorno}</p>}
-        <div className="reveal vt-o-cta">
-          {/* primeiro CTA da página leva a seta de avanço (HC 24/07) */}
-          <a href={CHECKOUT} className="btn" style={{ padding: "15px 32px", fontSize: 17 }} onClick={ctaClick}>{CTA_LABEL} →</a>
-          <p className="vt-micro">{EBOOK.ctaMicro}</p>
-          {EBOOK.autoridade && <p className="vt-autoridade">{EBOOK.autoridade}</p>}
         </div>
         <div className="reveal specs">
           {EBOOK.specs.map((s) => (
@@ -326,7 +353,8 @@ export default function EbookPremium() {
       <section className="spreads">
         <div className="head">
           <p className="reveal kicker" style={{ display: "block", marginBottom: ".9rem" }}>Por dentro do guia</p>
-          <h2 className="reveal">{EBOOK.spreadsTitulo}</h2>
+          <h2 className="reveal">{EBOOK.spreadsTitulo}<em>{EBOOK.spreadsTituloEm}</em></h2>
+          {EBOOK.spreadsSub && <p className="reveal sp-sub">{EBOOK.spreadsSub}</p>}
         </div>
         <div className="sp-grid">
           {EBOOK.paginas.map((p) => (
@@ -369,7 +397,7 @@ export default function EbookPremium() {
             </div>
             {/* aberta, a amostra termina em compra, nao em "fechar" (decisao HC 20/07) */}
             {amOpen ? (
-              <a href={CHECKOUT} className="btn am-cta" onClick={ctaClick}>{CTA_LABEL}</a>
+              <a href={CHECKOUT} className="btn am-cta" onClick={ctaClick}>{CTA_AMOSTRA}</a>
             ) : (
               <>
                 <div className="am-fade" aria-hidden="true" />
@@ -421,7 +449,25 @@ export default function EbookPremium() {
                 </div>
               ))}
             </div>
+            {/* CTA na própria caixa + reforço do preço (HC 24/07) */}
+            <div className="reveal caixa-cta">
+              <a href={CHECKOUT} className="btn" onClick={ctaClick}>{CTA_CAIXA}</a>
+              <p className="caixa-preco">{PRECO_DE && <>De <s>{PRECO_DE}</s> por </>}<b>{PRECO}</b> · acesso imediato</p>
+            </div>
           </div>
+        </div>
+      </section>
+
+      {/* FAQ: objeções de compra, antes do CTA final */}
+      <section className="faq">
+        <h2 className="reveal">Perguntas frequentes</h2>
+        <div className="faq-list">
+          {EBOOK.faq.map((f) => (
+            <details key={f.q} className="reveal fq">
+              <summary>{f.q}<span className="chev" aria-hidden="true" /></summary>
+              <p>{f.a}</p>
+            </details>
+          ))}
         </div>
       </section>
 
@@ -429,12 +475,9 @@ export default function EbookPremium() {
       <section className="fechosec">
         <div className="reveal" style={{ maxWidth: 560, margin: "0 auto" }}>
           <h2 className="fecho">{EBOOK.fecho}</h2>
-          {PRECO_DE && <p className="fecho-preco"><s>{PRECO_DE}</s><b>{PRECO}</b></p>}
-          {EBOOK.fechoAncora
-            ? <p className="valor">{EBOOK.fechoAncora}</p>
-            : <p className="valor"><b>{PRECO}</b>, pagamento único. Sem assinatura, sem mensalidade.</p>}
-          <a href={CHECKOUT} className="btn" style={{ padding: "16px 34px", fontSize: 17 }} onClick={ctaClick}>{CTA_LABEL}</a>
-          {EBOOK.custoEspera && <p className="espera">{EBOOK.custoEspera}</p>}
+          {EBOOK.fechoAncora && <p className="valor">{EBOOK.fechoAncora}</p>}
+          <a href={CHECKOUT} className="btn" style={{ padding: "16px 34px", fontSize: 17 }} onClick={ctaClick}>{CTA_FECHO}</a>
+          <p className="vt-preco-micro">{PRECO_DE && <><s>{PRECO_DE}</s> </>}<b>{PRECO}</b> · acesso imediato</p>
           {EBOOK.garantiaNome ? (
             <div className="gbox">
               <div className="gtit">{EBOOK.garantiaNome}</div>
@@ -479,44 +522,49 @@ a{color:inherit;text-decoration:none}
         .vt-title .peso{display:inline-block;animation:pesoIn 1.4s cubic-bezier(.16,1,.3,1) both}
         @keyframes pesoIn{from{opacity:0;letter-spacing:.04em;transform:translateY(10px)}to{opacity:1;letter-spacing:-.025em;transform:none}}
         .vt-sub{font-family:var(--serif);font-size:clamp(1.05rem,2vw,1.3rem);color:var(--text);line-height:1.65;max-width:560px;margin:0 auto 3.2rem}
-        .palco{position:relative;display:flex;justify-content:center;perspective:1500px;margin-bottom:1rem}
+        .palco{position:relative;display:flex;justify-content:center;perspective:1500px;margin:2.6rem 0 1rem}
         .obj{position:relative;transform-style:preserve-3d;animation:orbita 11s ease-in-out infinite;will-change:transform}
         @keyframes orbita{0%,100%{transform:rotateY(-14deg) rotateX(3deg)}50%{transform:rotateY(14deg) rotateX(1.5deg)}}
         .obj .frente{width:min(380px,72vw);border-radius:10px;box-shadow:0 42px 90px rgba(0,0,0,.62),0 0 120px rgba(225,114,35,.20)}
         .obj .lombada{position:absolute;top:1.4%;bottom:1.4%;left:-11px;width:11px;border-radius:4px 0 0 4px;background:linear-gradient(90deg,#100904,#342012);transform:rotateY(-74deg);transform-origin:right}
         .reflexo{position:absolute;top:calc(100% + 14px);left:0;right:0;height:130px;overflow:hidden;pointer-events:none;opacity:.16}
         .reflexo img{width:100%;transform:scaleY(-1);border-radius:10px;-webkit-mask-image:linear-gradient(rgba(0,0,0,.85),transparent 78%);mask-image:linear-gradient(rgba(0,0,0,.85),transparent 78%)}
-        .etiqueta{display:flex;align-items:baseline;justify-content:center;gap:14px;margin:4rem 0 1.4rem}
-        .etiqueta .de{font-family:var(--serif);font-size:22px;color:var(--text-dim);font-variant-numeric:tabular-nums;text-decoration-thickness:1.5px}
-        .etiqueta .preco{font-family:var(--serif);font-weight:900;font-size:44px;color:#fff;font-variant-numeric:tabular-nums}
-        .etiqueta .uni{font-size:14px;color:var(--text-dim)}
-        .vt-micro{font-size:13.5px;color:var(--text-dim);margin-top:14px}
+        .vt-preco-micro{font-size:14px;color:var(--text-dim);margin-top:14px;font-variant-numeric:tabular-nums;text-wrap:balance}
+        .vt-preco-micro s{opacity:.8;text-decoration-thickness:1.5px}
+        .vt-preco-micro b{color:#fff;font-weight:600}
         .vt-frase{font-style:normal;font-size:clamp(1.85rem,4.8vw,3.3rem);line-height:1.16;max-width:820px;margin-inline:auto}
-        .vt-retorno{font-size:15px;color:var(--text);margin:-0.6rem 0 1.6rem}
-        .vt-autoridade{font-size:12.5px;color:var(--text-dim);margin-top:7px}
-        .specs{display:flex;justify-content:center;gap:0;margin-top:3.6rem;font-family:var(--mono);font-size:13px;color:var(--text);flex-wrap:wrap}
+        .specs{display:flex;justify-content:center;gap:0;margin-top:3.2rem;font-family:var(--mono);font-size:13px;color:var(--text);flex-wrap:wrap}
+        /* desktop: modelo dos ebooks de cadastro, texto à esquerda e capa à direita */
+        @media(min-width:900px){
+          .vitrine{display:grid;grid-template-columns:1.08fr .92fr;grid-template-areas:"kicker palco" "title palco" "sub palco" "cta palco" "specs specs";column-gap:56px;text-align:left;padding:4.5rem max(1.5rem,calc((100vw - 1120px)/2)) 5.5rem}
+          .vitrine>.kicker{grid-area:kicker;margin-bottom:1.2rem}
+          .vt-title{grid-area:title}
+          .vt-frase{font-size:clamp(1.9rem,3.3vw,2.85rem);max-width:none;margin-inline:0}
+          .vt-sub{grid-area:sub;margin:0 0 1.9rem;max-width:520px}
+          .vt-o-cta{grid-area:cta;justify-self:start}
+          .vt-o-palco{grid-area:palco;align-self:center;margin:0}
+          .specs{grid-area:specs;margin-top:4.2rem}
+        }
         .specs span{padding:0 22px;border-right:1px solid var(--hair);white-space:nowrap;line-height:2}
         .specs span:last-child{border-right:0}
         .specs b{color:var(--bright);font-weight:500}
 
-        .spreads{padding:5.5rem 1.5rem 3rem;background:var(--bg-deep);border-top:1px solid var(--hair)}
-        .spreads .head{max-width:1040px;margin:0 auto 3rem}
+        .spreads{padding:5.5rem 1.5rem 4.5rem;background:var(--bg-deep);border-top:1px solid var(--hair)}
+        .spreads .head{max-width:1040px;margin:0 auto 3rem;text-align:center}
         .spreads h2,.metodo-v2 h2,.amostra h2{font-family:var(--serif);font-weight:700;font-size:clamp(1.7rem,3.4vw,2.5rem);color:#fff;letter-spacing:-.015em}
-        .sp-grid{max-width:1040px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:56px 44px}
+        .spreads h2 em{font-style:normal;color:var(--bright)}
+        .sp-sub{font-size:15px;color:var(--text);margin-top:12px}
+        .sp-grid{max-width:1040px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
         .sp{margin:0}
-        .sp:nth-child(even){transform:translateY(44px)}
-        .sp.reveal{transform:translateY(26px)}
-        .sp.reveal.visible{transform:none}
-        .sp.reveal.visible:nth-child(even){transform:translateY(44px)}
         .sp .ph{border-radius:12px;border:1px solid var(--hair);overflow:hidden;box-shadow:0 22px 55px rgba(0,0,0,.55);transition:transform .3s ease,box-shadow .3s ease}
         .sp .ph img{width:100%;aspect-ratio:900/1200;object-fit:cover;object-position:top}
         .sp:hover .ph{transform:translateY(-5px);box-shadow:0 30px 66px rgba(0,0,0,.62),0 0 46px var(--hair-accent)}
-        .sp figcaption{margin-top:16px;max-width:400px}
+        .sp figcaption{margin-top:16px}
         .sp .tipo{font-family:var(--mono);font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--bright);display:block;margin-bottom:6px}
         .sp .cap{font-family:var(--serif);font-size:17px;color:#E8EDE9;line-height:1.5}
 
         .amostra{padding:5rem 1.5rem;background:var(--bg);border-top:1px solid var(--hair)}
-        .amostra .head{max-width:820px;margin:0 auto 2.4rem}
+        .amostra .head{max-width:820px;margin:0 auto 2.4rem;text-align:center}
         .am-intro{font-size:15px;color:var(--text);margin-top:12px;line-height:1.6}
         .am-paper{position:relative;max-width:820px;margin:0 auto;background:#F7F5ED;color:#20211C;border-radius:14px;padding:2.2rem clamp(1.4rem,4vw,3.2rem) 4.8rem;box-shadow:0 26px 60px rgba(0,0,0,.5);max-height:640px;overflow:hidden}
         .am-paper.aberta{max-height:none;padding-bottom:2.6rem}
@@ -527,8 +575,9 @@ a{color:inherit;text-decoration:none}
         .am-miolo h3{font-family:var(--serif);font-size:21px;color:#14150F;margin:1.6em 0 .5em;line-height:1.3}
         .am-miolo h3:first-child{margin-top:0}
         .am-miolo p{font-size:15.5px;line-height:1.75;color:#33342C;margin:0 0 1em}
-        .am-li{padding-left:1.1em;position:relative}
-        .am-li::before{content:"•";position:absolute;left:0;color:#14150F}
+        .am-miolo{counter-reset:passo}
+        .am-li{padding-left:2.1em;position:relative;counter-increment:passo}
+        .am-li::before{content:counter(passo);position:absolute;left:0;top:2px;width:1.4em;height:1.4em;border-radius:50%;background:var(--on-light);color:#fff;font-family:var(--sans);font-size:11.5px;font-weight:700;display:flex;align-items:center;justify-content:center}
         .am-fade{position:absolute;left:0;right:0;bottom:0;height:160px;background:linear-gradient(rgba(247,245,237,0),#F7F5ED 76%)}
         .am-toggle{position:absolute;left:50%;transform:translateX(-50%);bottom:1.5rem;z-index:2;font-family:var(--sans);font-weight:600;font-size:14px;padding:10px 22px;border-radius:6px;border:1px solid #20211C;background:#F7F5ED;color:#20211C;cursor:pointer}
         .am-toggle:hover{background:#20211C;color:#F7F5ED}
@@ -549,47 +598,48 @@ a{color:inherit;text-decoration:none}
         .kitem .ck{color:var(--bright);font-weight:700;font-size:17px}
         .kitem .nome{font-family:var(--serif);font-weight:700;font-size:19px;color:#fff;margin-bottom:4px}
         .kitem p{font-size:14px;color:var(--text);line-height:1.6}
+        .caixa-cta{margin-top:28px}
+        .caixa-cta .btn{padding:14px 30px;font-size:16px}
+        .caixa-preco{font-size:13.5px;color:var(--text-dim);margin-top:12px}
+        .caixa-preco s{font-variant-numeric:tabular-nums}
+        .caixa-preco b{color:#fff;font-weight:600;font-variant-numeric:tabular-nums}
 
+        .faq{padding:5.5rem 1.5rem;background:var(--bg);border-top:1px solid var(--hair)}
+        .faq h2{font-family:var(--serif);font-weight:700;font-size:clamp(1.7rem,3.4vw,2.5rem);color:#fff;letter-spacing:-.015em;text-align:center;margin-bottom:2.6rem}
+        .faq-list{max-width:820px;margin:0 auto;display:grid;gap:14px}
+        .fq{border:1px solid var(--hair);border-radius:14px;background:var(--bg-deep)}
+        .fq summary{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 24px;cursor:pointer;font-weight:600;font-size:16px;color:#fff;list-style:none}
+        .fq summary::-webkit-details-marker{display:none}
+        .fq .chev{flex:none;width:30px;height:30px;border:1px solid var(--hair);border-radius:50%;position:relative;transition:transform .25s ease}
+        .fq .chev::before{content:"";position:absolute;left:50%;top:50%;width:8px;height:8px;border-right:1.5px solid var(--text);border-bottom:1.5px solid var(--text);transform:translate(-50%,-68%) rotate(45deg)}
+        .fq[open] .chev{transform:rotate(180deg)}
+        .fq p{padding:0 24px 20px;font-size:14.5px;color:var(--text);line-height:1.65;max-width:640px}
         .fechosec{padding:6rem 1.5rem;text-align:center;position:relative;overflow:hidden;background:radial-gradient(ellipse 700px 380px at 50% 115%,rgba(225,114,35,.12),transparent 62%),var(--bg)}
         .fecho{font-family:var(--serif);font-style:italic;font-weight:900;font-size:clamp(2rem,4.6vw,3rem);color:#fff;letter-spacing:-.015em;margin-bottom:1rem}
-        .fecho-preco{display:flex;align-items:baseline;justify-content:center;gap:12px;margin-bottom:.7rem}
-        .fecho-preco s{font-family:var(--serif);font-size:19px;color:var(--text-dim);font-variant-numeric:tabular-nums;text-decoration-thickness:1.5px}
-        .fecho-preco b{font-family:var(--serif);font-weight:900;font-size:34px;color:#fff;font-variant-numeric:tabular-nums}
         .fechosec .valor{font-size:1.05rem;color:var(--text);line-height:1.7;margin-bottom:2.2rem}
         .fechosec .valor b{color:#fff;font-weight:600}
         .garantia{font-size:13.5px;color:var(--text-dim);margin-top:18px;line-height:1.6;max-width:440px;margin-inline:auto}
-        .espera{font-size:14.5px;color:var(--text);margin-top:22px;line-height:1.6;max-width:440px;margin-inline:auto}
         .gbox{margin:26px auto 0;max-width:440px;border:1px solid var(--hair);border-radius:12px;padding:18px 22px;background:var(--bg-deep)}
         .gbox .gtit{font-family:var(--serif);font-weight:700;font-size:17px;color:#fff;margin-bottom:6px}
         .gbox p{font-size:13.5px;color:var(--text-dim);line-height:1.6}
 
         @media(max-width:860px){
-          .sp-grid{grid-template-columns:1fr;gap:44px}
-          .sp:nth-child(even),.sp.reveal.visible:nth-child(even){transform:none}
+          .sp-grid{grid-template-columns:1fr;gap:36px;max-width:380px}
           .met-grid{grid-template-columns:1fr;gap:34px}
           .caixa .inner{grid-template-columns:1fr;gap:40px}
         }
-        /* mobile: CTA na primeira dobra (HC 20/07). Hero vira flex, o bloco de
-           compra sobe pra antes da capa e a tipografia/respiros comprimem. */
+        /* mobile: CTA na primeira dobra (HC 20/07); a ordem já vem do DOM,
+           aqui só comprime tipografia e respiros. */
         @media(max-width:560px){
-          .vitrine{display:flex;flex-direction:column;padding:2.2rem 1.25rem 3.4rem}
-          .vitrine .kicker{order:1;margin-bottom:1rem}
-          .vt-title{order:2}
-          .vt-sub{order:3;margin-bottom:1.2rem}
-          .vt-o-etiq{order:4}
-          .vt-o-ret{order:5}
-          .vt-o-cta{order:6}
-          .vt-o-palco{order:7;margin:2.4rem 0 .6rem}
-          .specs{order:8;margin-top:2rem}
+          .vitrine{padding:2.2rem 1.25rem 3.4rem}
+          .vitrine .kicker{margin-bottom:1rem}
+          .vt-sub{margin-bottom:1.2rem}
+          .vt-o-palco{margin:2.4rem 0 .6rem}
+          .specs{margin-top:2rem}
           .vt-title{font-size:2.35rem}
           .vt-frase{font-size:1.6rem;line-height:1.22}
           .vt-sub{font-size:15px;line-height:1.55}
-          .etiqueta{margin:.9rem 0 .9rem}
-          .etiqueta .preco{font-size:32px}
-          .etiqueta .de{font-size:17px}
-          .vt-retorno{margin:-.4rem 0 1rem;font-size:14px}
-          .vt-micro{margin-top:11px;font-size:12.5px}
-          .vt-autoridade{font-size:11.5px}
+          .vt-preco-micro{margin-top:12px;font-size:13px}
           .obj .frente{width:min(300px,64vw)}
         }
         @media(prefers-reduced-motion:reduce){
