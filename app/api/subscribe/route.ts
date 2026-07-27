@@ -118,8 +118,11 @@ export async function POST(req: Request) {
   if (!subRes.ok) {
     const err = await subRes.text();
     console.error("Beehiiv subscription error:", err);
+    // source:"bh" marca que a falha veio do Beehiiv (nao da rota):
+    // o beacon do cliente grava erro-subscribe-bh<status> e o report separa
+    // upstream fora do ar de bug nosso. Additivo, contrato existente intacto.
     return NextResponse.json(
-      { error: "Falha ao criar assinatura" },
+      { error: "Falha ao criar assinatura", source: "bh" },
       { status: subRes.status }
     );
   }

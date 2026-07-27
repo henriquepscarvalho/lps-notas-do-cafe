@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { captureUtm, getUtm } from "../lib/utm";
 import { sendBeacon } from "../PageBeacon";
 import { applyExp014 } from "../lib/exp014";
+import { emailError } from "../lib/email";
 
 const AUTOMATION_ID = "aut_e7997773-c01a-46ec-b616-a3a08ea4e3cf";
 
@@ -54,6 +55,8 @@ function MailIcon() {
 
 export default function EbookCapture() {
   const [status, setStatus] = useState<Status>("idle");
+  // erro de validação do campo, escopado ao form que submeteu (hero | final)
+  const [fieldErr, setFieldErr] = useState<{ form: "hero" | "final"; msg: string } | null>(null);
 
   useEffect(() => {
     captureUtm();
@@ -88,10 +91,16 @@ export default function EbookCapture() {
     return () => io.disconnect();
   }, []);
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>, form: "hero" | "final") {
     e.preventDefault();
     const email = new FormData(e.currentTarget).get("email") as string;
-    if (!email) return;
+    // espelho da validação do servidor: erro específico antes do fetch
+    const msg = emailError(email ?? "");
+    if (msg) {
+      setFieldErr({ form, msg });
+      return;
+    }
+    setFieldErr(null);
     setStatus("sending");
     try {
       const res = await fetch("/api/subscribe", {
@@ -99,7 +108,12 @@ export default function EbookCapture() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, automationId: AUTOMATION_ID, utm: getUtm() }),
       });
-      if (!res.ok) throw new Error(String(res.status));
+      if (!res.ok) {
+        // source=="bh" no corpo = falha veio do Beehiiv -> sufixo bh<status>
+        let _sfx = String(res.status);
+        try { if ((await res.json())?.source === "bh") _sfx = "bh" + res.status; } catch { /* corpo nao-JSON */ }
+        throw new Error(_sfx);
+      }
       setStatus("success");
       try { localStorage.setItem("vdn_lead_email", email); } catch {}
       setTimeout(() => {
@@ -108,7 +122,7 @@ export default function EbookCapture() {
     } catch (err) {
       // vdn-erro-subscribe: falha do submit vira beacon no lp_page_views (incidente MM 14-15/07/26,
       // 33h de /api/subscribe caido sem sinal). Sufixo = status HTTP; 0 = rede/timeout.
-      try { const _st = err instanceof Error && /^\d+$/.test(err.message) ? err.message : "0"; sendBeacon("notas-do-cafe", "erro-subscribe-" + _st, { dedupe: false }); } catch { /* best-effort */ }
+      try { const _st = err instanceof Error && /^(bh)?\d+$/.test(err.message) ? err.message : "0"; sendBeacon("notas-do-cafe", "erro-subscribe-" + _st, { dedupe: false }); } catch { /* best-effort */ }
       setStatus("error");
     }
   }
@@ -148,6 +162,8 @@ export default function EbookCapture() {
   .ebk .ebk-btn{background:var(--gold);color:#1E100A;border:none;border-radius:11px;padding:16px 26px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap;transition:.15s;box-shadow:0 6px 16px rgba(8,7,4,.5);position:relative;overflow:hidden;isolation:isolate}
   .ebk .ebk-btn:hover{background:var(--gold-br);transform:translateY(-1px);box-shadow:0 8px 22px rgba(200,150,62,.28)}
   .ebk .ebk-btn:disabled{opacity:.7;cursor:default}
+  .ebk .ebk-err{font-size:13px;color:#F87171;margin:-4px 0 10px;max-width:480px}
+  .ebk .ebk-form input[aria-invalid]{border-color:#F87171}
   .ebk .ebk-trust{font-size:13px;color:var(--faint);display:flex;align-items:center;gap:7px;flex-wrap:wrap}
   .ebk .ebk-trust b{color:var(--muted);font-weight:600}
   .ebk .ebk-bookw{display:flex;justify-content:center;perspective:1400px}
@@ -190,6 +206,7 @@ export default function EbookCapture() {
     .ebk .ebk-eyebrow{display:none}
     .ebk h1{font-size:27px;line-height:1.12;order:1;margin-bottom:18px}
     .ebk .ebk-form{margin-left:auto;margin-right:auto;flex-direction:column;order:2;max-width:340px;width:100%}
+    .ebk .ebk-err{order:2;margin:-2px auto 8px;max-width:340px}
     .ebk .ebk-trust{justify-content:center;order:3}
     .ebk .ebk-lead{margin:22px auto 0;order:4;font-size:15px;max-width:340px}
     .ebk .ebk-bookw{order:-1;margin-bottom:16px} .ebk .ebk-book{width:128px;transform:rotateY(-7deg)}
@@ -219,15 +236,25 @@ export default function EbookCapture() {
               <span className="ebk-eyebrow">☕ Guia gratuito · 7 métodos</span>
               <h1>7 métodos passados pelo <em>filtro editorial</em> da Notas do Café.</h1>
               <p className="ebk-lead">7 métodos, cada um com <b>nota, ponto de moagem e tempo de extração</b>. Sem snobismo, só o que vale a xícara. Pra ler num café.</p>
-              <form className="ebk-form" onSubmit={handleSubmit}>
+              <form className="ebk-form" onSubmit={(e) => handleSubmit(e, "hero")}>
                 <span className="ebk-field">
                   <MailIcon />
-                  <input type="email" name="email" placeholder="seu@email.com" required />
+                  <input
+                    type="email"
+                    name="email"
+                    placeholder="seu@email.com"
+                    required
+                    aria-invalid={fieldErr?.form === "hero" || undefined}
+                    onChange={() => fieldErr && setFieldErr(null)}
+                  />
                 </span>
                 <button className="ebk-btn" type="submit" disabled={disabled}>
                   {BUTTON_LABEL[status]}
                 </button>
               </form>
+              {fieldErr?.form === "hero" && (
+                <p className="ebk-err" role="alert">{fieldErr.msg}</p>
+              )}
               <p className="ebk-trust">
                 🔒 <b>Grátis</b> e chega no seu email em segundos.
               </p>
@@ -286,15 +313,25 @@ export default function EbookCapture() {
           <div className="ebk-wrap">
             <h2>Tome o café certo hoje.</h2>
             <p>Os 7 métodos avaliados pra você acertar a xícara de uma vez.</p>
-            <form className="ebk-form" onSubmit={handleSubmit}>
+            <form className="ebk-form" onSubmit={(e) => handleSubmit(e, "final")}>
               <span className="ebk-field">
                 <MailIcon />
-                <input type="email" name="email" placeholder="seu@email.com" required />
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="seu@email.com"
+                  required
+                  aria-invalid={fieldErr?.form === "final" || undefined}
+                  onChange={() => fieldErr && setFieldErr(null)}
+                />
               </span>
               <button className="ebk-btn" type="submit" disabled={disabled}>
                 {status === "idle" ? "Quero baixar grátis ↓" : BUTTON_LABEL[status]}
               </button>
             </form>
+            {fieldErr?.form === "final" && (
+              <p className="ebk-err" role="alert">{fieldErr.msg}</p>
+            )}
             <div className="ebk-seal">
               <span>🎁 Grátis</span>
               <span>📩 Chega na hora</span>

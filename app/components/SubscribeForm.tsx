@@ -3,6 +3,7 @@
 import { useEffect, useState, CSSProperties } from "react";
 import { captureUtm, getUtm } from "../lib/utm";
 import { sendBeacon } from "../PageBeacon";
+import { emailError } from "../lib/email";
 
 interface SubscribeFormProps {
   id?: string;
@@ -26,6 +27,7 @@ export default function SubscribeForm({
   const [formStatus, setFormStatus] = useState<
     "idle" | "sending" | "success" | "error"
   >("idle");
+  const [fieldErr, setFieldErr] = useState<string | null>(null);
 
   // Captura UTMs/click-ids da URL no load (persiste em localStorage)
   useEffect(() => {
@@ -36,7 +38,13 @@ export default function SubscribeForm({
     e.preventDefault();
     const form = e.currentTarget;
     const email = new FormData(form).get("email") as string;
-    if (!email) return;
+    // espelho da validação do servidor: erro específico antes do fetch
+    const msg = emailError(email ?? "");
+    if (msg) {
+      setFieldErr(msg);
+      return;
+    }
+    setFieldErr(null);
     setFormStatus("sending");
     try {
       const res = await fetch("/api/subscribe", {
@@ -44,7 +52,12 @@ export default function SubscribeForm({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, utm: getUtm() }),
       });
-      if (!res.ok) throw new Error(String(res.status));
+      if (!res.ok) {
+        // source=="bh" no corpo = falha veio do Beehiiv -> sufixo bh<status>
+        let _sfx = String(res.status);
+        try { if ((await res.json())?.source === "bh") _sfx = "bh" + res.status; } catch { /* corpo nao-JSON */ }
+        throw new Error(_sfx);
+      }
       setFormStatus("success");
       // Meta Pixel: dispara Lead event para atribuicao correta no Ads Manager.
       // Sem isso, o pixel so conta PageView e o Meta subreporta conversoes.
@@ -64,12 +77,13 @@ export default function SubscribeForm({
     } catch (err) {
       // vdn-erro-subscribe: falha do submit vira beacon no lp_page_views (incidente MM 14-15/07/26,
       // 33h de /api/subscribe caido sem sinal). Sufixo = status HTTP; 0 = rede/timeout.
-      try { const _st = err instanceof Error && /^\d+$/.test(err.message) ? err.message : "0"; sendBeacon("notas-do-cafe", "erro-subscribe-" + _st, { dedupe: false }); } catch { /* best-effort */ }
+      try { const _st = err instanceof Error && /^(bh)?\d+$/.test(err.message) ? err.message : "0"; sendBeacon("notas-do-cafe", "erro-subscribe-" + _st, { dedupe: false }); } catch { /* best-effort */ }
       setFormStatus("error");
     }
   }
 
   return (
+    <>
     <form
       className={className}
       id={id}
@@ -88,7 +102,9 @@ export default function SubscribeForm({
         placeholder="Seu melhor email"
         aria-label="Seu email"
         required
-      />
+      
+        aria-invalid={fieldErr ? true : undefined}
+        onChange={() => fieldErr && setFieldErr(null)}/>
       <button
         type="submit"
         className={buttonClassName}
@@ -100,5 +116,11 @@ export default function SubscribeForm({
         {formStatus === "error" && "Erro, tente novamente"}
       </button>
     </form>
+    {fieldErr && (
+      <p role="alert" style={{ color: "#F87171", fontSize: "13px", textAlign: "center", margin: "8px 0 0" }}>
+        {fieldErr}
+      </p>
+    )}
+    </>
   );
 }
