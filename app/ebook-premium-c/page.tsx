@@ -364,12 +364,11 @@ export default function EbookPremium() {
         <p className="reveal kicker">{EBOOK.kicker}</p>
         <h2 className={"reveal vt-title" + (EBOOK.manchete ? " vt-frase" : "")}><span className="peso">{EBOOK.manchete || EBOOK.titulo}</span></h2>
         <p className="reveal vt-sub">{EBOOK.subApoio || EBOOK.sub}</p>
-        {/* ordem DOM = ordem de conversão (preço/CTA antes da capa em toda largura
-            estreita; CTA na primeira dobra, decisão HC 20/07). No desktop ≥900px
-            o grid manda a capa pra coluna direita (modelo dos ebooks de cadastro,
-            HC 24/07). */}
-        {/* V5 do burst 24/07: CTA primeiro, preço numa linha só abaixo do botão */}
-                <div className="reveal palco vt-o-palco">
+        {/* ordem DOM = título, sub, capa, CTA, reforço (HC 27/07): a calculadora
+            logo acima já fecha em botão, e empilhar outro CTA antes da capa satura
+            o topo no mobile. No desktop ≥900px o grid manda a capa pra coluna
+            direita por área, então a ordem do DOM não afeta a versão larga. */}
+        <div className="reveal palco vt-o-palco">
           <div className="obj" onClick={() => setZoom({ src: EBOOK.capa, cap: EBOOK.capaAlt })}>
             <div className="lombada" aria-hidden="true" />
             <img className="frente" src={EBOOK.capa} alt={EBOOK.capaAlt} loading="eager" />
@@ -379,7 +378,7 @@ export default function EbookPremium() {
         <div className="reveal vt-o-cta">
           {/* seta espelha a B: mesmo botão da vitrine (HC 24/07) */}
           <a href={CHECKOUT} className="btn" style={{ padding: "15px 32px", fontSize: 17 }} onClick={ctaClick}>Quero a xícara do balcão →</a>
-          <p className="vt-preco-micro">{PRECO_DE && <><s>{PRECO_DE}</s> </>}<b>{PRECO}</b> · acesso imediato, corte no mesmo dia</p>
+          <p className="vt-preco-micro">{PRECO_DE && <><s>{PRECO_DE}</s> </>}<b>{PRECO}</b> · acesso imediato, xícara nova amanhã cedo</p>
         </div>
         <div className="reveal specs">
           {EBOOK.specs.map((s) => (
@@ -761,7 +760,7 @@ a{color:inherit;text-decoration:none}
         .fq .chev::before{content:"";position:absolute;left:50%;top:50%;width:8px;height:8px;border-right:1.5px solid var(--text);border-bottom:1.5px solid var(--text);transform:translate(-50%,-68%) rotate(45deg)}
         .fq[open] .chev{transform:rotate(180deg)}
         .fq p{padding:0 24px 20px;font-size:14.5px;color:var(--text);line-height:1.65;max-width:640px}
-/* mobile: CTA na primeira dobra (HC 20/07); a ordem já vem do DOM,
+/* mobile: capa antes do CTA (HC 27/07); a ordem já vem do DOM,
            aqui só comprime tipografia e respiros. */
         @media(max-width:560px){
           .vitrine{padding:2.2rem 1.25rem 3.4rem}
