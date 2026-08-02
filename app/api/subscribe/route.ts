@@ -86,6 +86,28 @@ export async function POST(req: Request) {
     "Content-Type": "application/json",
   };
 
+  // vdn-retry-429: rate limit do Beehiiv é por CONTA (key compartilhada entre
+  // news); batch interno rodando na mesma key não pode perder cadastro de
+  // leitor (incidente RF 30/07/26: 6 subscribes perdidos em rajada de 1 min).
+  // Retry só no 429: até 2 tentativas extras (1.5s, 3s), devolve a última.
+  const bhPost = async (url: string, body: unknown) => {
+    let res = await fetch(url, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(body),
+    });
+    for (const ms of [1500, 3000]) {
+      if (res.status !== 429) break;
+      await new Promise((r) => setTimeout(r, ms));
+      res = await fetch(url, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(body),
+      });
+    }
+    return res;
+  };
+
   const payload: Record<string, unknown> = {
     email,
     reactivate_existing: true,
@@ -99,20 +121,12 @@ export async function POST(req: Request) {
 
   // 1. Cria a inscrição com a origem carimbada
   const subUrl = `https://api.beehiiv.com/v2/publications/${pubId}/subscriptions`;
-  let subRes = await fetch(subUrl, {
-    method: "POST",
-    headers,
-    body: JSON.stringify(payload),
-  });
+  let subRes = await bhPost(subUrl, payload);
 
   // custom_fields nunca podem derrubar o cadastro: retry sem eles
   if (!subRes.ok && custom_fields.length) {
     delete payload.custom_fields;
-    subRes = await fetch(subUrl, {
-      method: "POST",
-      headers,
-      body: JSON.stringify(payload),
-    });
+    subRes = await bhPost(subUrl, payload);
   }
 
   if (!subRes.ok) {
@@ -129,13 +143,9 @@ export async function POST(req: Request) {
 
   // 2. Dispara a automação (mesmo padrão de antes)
   if (autoId && autoId !== "placeholder") {
-    const journeyRes = await fetch(
+    const journeyRes = await bhPost(
       `https://api.beehiiv.com/v2/publications/${pubId}/automations/${autoId}/journeys`,
-      {
-        method: "POST",
-        headers,
-        body: JSON.stringify({ email }),
-      }
+      { email }
     );
     if (!journeyRes.ok) {
       console.error("Beehiiv automation journey error:", await journeyRes.text());
