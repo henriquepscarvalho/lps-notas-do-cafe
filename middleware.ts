@@ -1,68 +1,74 @@
 import { NextRequest, NextResponse } from "next/server";
 
 /**
- * Split A/B/C/Q da porta de venda do ebook (EXP-027 + ticket 24 do quiz-vsl-ebooks).
+ * Porta de venda do ebook: dois sorteios independentes na borda.
  *
- *  /ebook-premium    → A (controle) + sorteio na 1ª visita
- *  /ebook-premium-b  → B
- *  /ebook-premium-c  → C
- *  /teste            → Q, metade do sorteio: quiz de diagnóstico + VSL
+ *  EXP-029 (ticket 24 do quiz-vsl-ebooks) — cookie `lp_q`, 50/50:
+ *    Q → /teste (quiz de diagnóstico + VSL)   N → a LP de vendas de sempre
+ *  EXP-027 — cookie `lp_eb`, 1/3 entre as LPs, só para quem caiu no N:
+ *    A → /ebook-premium   B → /ebook-premium-b   C → /ebook-premium-c
  *
  * A bifurcação pro quiz mora AQUI, na porta, e não na copy: o banner da edição
  * diária e a automação de monetização continuam apontando pro mesmo
  * /ebook-premium, então as duas superfícies entram no teste sem reescrever
  * nenhum email nem reassar nenhuma edição.
  *
- * Sorteio na BORDA (antes de qualquer render/beacon): cookie `lp_eb` grava a
- * variante por 1 ano. Cookie B/C/Q na porta principal = redirect 307 pra rota
- * própria; cookie A = segue. Hit direto em -b/-c (link compartilhado) seta o
- * cookie da rota, sem sorteio. `?v=a|b|c|q` força a variante pra revisão. Chave
- * NOVA de propósito: não reusa `vdn_exp014` (travada em "B", contamina o carimbo).
+ * Chave PRÓPRIA de propósito: o `lp_eb` já está gravado desde 27/07 em quem
+ * visitou a LP, e reusar essa chave deixaria o braço Q só com visitante novo,
+ * comparando duas populações diferentes. Com `lp_q` todo mundo re-sorteia a
+ * porta e ninguém perde a variante de LP que já tinha.
+ *
+ * Sorteio antes de qualquer render/beacon; cookies de 1 ano; redirect 307. Hit
+ * direto em -b/-c (link compartilhado) não sorteia. `?v=a|b|c|q` força pra
+ * revisão sem gravar o sorteio forçado.
  */
 
 const COOKIE = "lp_eb";
+const QCOOKIE = "lp_q";
 const ROUTE: Record<string, string> = {
   A: "/ebook-premium",
   B: "/ebook-premium-b",
   C: "/ebook-premium-c",
-  Q: "/teste",
 };
-// metade pro quiz, metade repartida no A/B/C (o EXP-027 segue rodando, com meia base)
-const POOL = ["Q", "Q", "Q", "A", "B", "C"] as const;
+const QROUTE = "/teste";
 
-function valid(v: string | undefined | null): "A" | "B" | "C" | "Q" | null {
-  return v === "A" || v === "B" || v === "C" || v === "Q" ? v : null;
+function valid(v: string | undefined | null): "A" | "B" | "C" | null {
+  return v === "A" || v === "B" || v === "C" ? v : null;
 }
 
 export function middleware(req: NextRequest) {
   const { pathname, searchParams } = req.nextUrl;
 
-  const forced = valid(searchParams.get("v")?.toUpperCase());
+  const f = (searchParams.get("v") || "").toUpperCase();
   const routeV = pathname === "/ebook-premium-b" ? "B" : pathname === "/ebook-premium-c" ? "C" : null;
-  const cookieV = valid(req.cookies.get(COOKIE)?.value);
 
-  // precedência: ?v= (revisão) > rota direta (-b/-c) > cookie existente > sorteio
-  const variant = forced ?? routeV ?? cookieV ?? POOL[Math.floor(Math.random() * POOL.length)];
+  const qRaw = req.cookies.get(QCOOKIE)?.value;
+  const q = qRaw === "Q" || qRaw === "N" ? qRaw : Math.random() < 0.5 ? "Q" : "N";
+  // porta: ?v= (revisão) > rota direta -b/-c > sorteio do EXP-029
+  const quiz = f === "Q" ? true : valid(f) || routeV ? false : q === "Q";
 
-  const canonical = ROUTE[variant];
+  // variante da LP: vale para quem não caiu no quiz, e sobrevive ao sorteio da porta
+  const variant =
+    valid(f) ?? routeV ?? valid(req.cookies.get(COOKIE)?.value)
+    ?? (["A", "B", "C"] as const)[Math.floor(Math.random() * 3)];
+
+  const canonical = quiz ? QROUTE : ROUTE[variant];
   let res: NextResponse;
   if (pathname !== canonical) {
     const url = req.nextUrl.clone(); // preserva query (?internal, ?jump, ?v)
     // o quiz carimba source="quiz" quando a jornada chega sem ?src=; sem este
     // carimbo a visita da automação trocaria de origem só por cair no braço Q,
-    // e a comparação entre as duas portas perderia a régua de canal
-    if (variant === "Q" && !searchParams.get("src")) url.searchParams.set("src", "ebook-premium");
+    // e a régua de canal do report perderia o pé
+    if (quiz && !searchParams.get("src")) url.searchParams.set("src", "ebook-premium");
     url.pathname = canonical;
     res = NextResponse.redirect(url, 307);
   } else {
     res = NextResponse.next();
   }
 
-  res.cookies.set(COOKIE, variant, {
-    path: "/",
-    maxAge: 60 * 60 * 24 * 365,
-    sameSite: "lax",
-  });
+  const ano = { path: "/", maxAge: 60 * 60 * 24 * 365, sameSite: "lax" as const };
+  res.cookies.set(COOKIE, variant, ano);
+  res.cookies.set(QCOOKIE, q, ano); // grava o sorteio, nunca o ?v= forçado
   return res;
 }
 
