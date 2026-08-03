@@ -745,7 +745,7 @@
         if (step.entry && !quizStarted) {
           quizStarted = true;
           track("QuizStart", { first: answers[step.id] });
-          beacon("quiz-start", "converteu");
+          beacon("quiz-inicio", "converteu");
         }
         setTimeout(next, 180);
       });
