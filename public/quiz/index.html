@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#2C1810" />
+  <meta name="description" content="Teste anônimo de 2 minutos: descubra qual é a sua xícara, rapadura, pomar ou cacau, e qual variável da coada está no caminho dela." />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Toda xícara tem um alvo. A sua tem nome.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Eczar:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/quiz/css/main.css" />
+</head>
+<body>
+  <main class="shell">
+    <div class="progress-wrap" id="progress" hidden>
+      <div class="progress-meta">
+        <span id="progress-phase">Abrindo o mapa</span>
+        <span id="progress-label">0%</span>
+      </div>
+      <div class="progress-bar" aria-hidden="true"><i id="progress-fill"></i></div>
+    </div>
+
+    <div id="screen" class="screen is-active" aria-live="polite"></div>
+
+    <footer class="site-foot">
+      O teste não vende equipamento e não substitui o gosto de ninguém.
+      <span class="tagline">Da fazenda à xícara. Sem frescura.</span>
+    </footer>
+  </main>
+
+  <script src="/quiz/js/config.js"></script>
+  <script src="/quiz/js/quiz.js"></script>
+</body>
+</html>
