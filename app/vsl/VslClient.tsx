@@ -17,8 +17,8 @@ const CFG = {
   // Segundo de play em que a voz fecha o nome do produto (158,3s no whisper
   // do corte final). ?offer=5 na URL testa sem esperar.
   offerDelaySeconds: 158,
-  // Sem resultado de quiz o vídeo começa aqui: a abertura assume \"analisei as
-  // suas respostas\" e o braço quente nunca respondeu. Valor = fim da última
+  // Sem resultado de quiz o vídeo começa aqui: a abertura assume "analisei as
+  // suas respostas" e o braço quente nunca respondeu. Valor = fim da última
   // frase que cita as respostas no whisper (vo.json). ?skip=0 revisa a abertura.
   skipSemQuizSeconds: 1.8,
   checkout: "/ebook-premium/checkout",
@@ -87,10 +87,10 @@ export default function VslClient() {
       /* sem resultado */
     }
     // sem quiz o vídeo pula a abertura que assume as respostas; ?skip=N revisa
-    const skipParam = new URLSearchParams(location.search).get(\"skip\");
+    const skipParam = new URLSearchParams(location.search).get("skip");
     let temQuiz = false;
     try {
-      temQuiz = !!sessionStorage.getItem(\"nc_xicara_result\");
+      temQuiz = !!sessionStorage.getItem("nc_xicara_result");
     } catch {
       /* sem storage */
     }
