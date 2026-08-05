@@ -81,6 +81,12 @@ export async function POST(req: Request) {
   const utm_term = clean(c.term);
   if (utm_term) custom_fields.push({ name: "ad_term", value: utm_term });
 
+  // Lead do quiz (ticket 38): nome e estágio do diagnóstico viram custom fields.
+  const nome = clean(body?.nome);
+  if (nome) custom_fields.push({ name: "nome", value: nome });
+  const quizEstagio = clean(body?.quiz_estagio);
+  if (quizEstagio) custom_fields.push({ name: "quiz_estagio", value: quizEstagio });
+
   const headers = {
     Authorization: `Bearer ${apiKey}`,
     "Content-Type": "application/json",

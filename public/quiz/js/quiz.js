@@ -286,8 +286,8 @@
       id: "p15",
       type: "name",
       label: "Personalizar",
-      title: "Qual o seu primeiro nome?",
-      why: "Somente para o diagnóstico. Nada de spam.",
+      title: "Nome e email para abrir o seu diagnóstico",
+      why: "O diagnóstico abre na tela, na hora. Pelo email, você recebe a Notas do Café, a edição diária. Sai quando quiser.",
     },
     { id: "analyzing", type: "analyzing" },
   ];
@@ -345,6 +345,71 @@
     } catch (_) {
       /* pixel opcional */
     }
+  }
+
+  /* Lead é evento PADRÃO do Meta: sai por track(), nunca por trackCustom().
+     O 4º argumento leva o eventID: a rota /api/subscribe dispara o MESMO Lead
+     pela CAPI, e sem o id compartilhado a Meta contaria os dois (CPL do teste
+     pela metade). Mesma convenção do form do /cadastro. */
+  function trackStd(eventName, params, opts) {
+    try {
+      if (typeof window.fbq === "function") {
+        window.fbq("track", eventName, params || {}, opts || {});
+      }
+    } catch (_) {
+      /* pixel opcional */
+    }
+  }
+
+  /* ── captura do lead (ticket 38) ───────────────────────────────
+     O quiz assina o leitor na news pela MESMA rota /api/subscribe do
+     /cadastro (a chave do Beehiiv mora no servidor). utm_source=quiz
+     marca quem fez o teste; fbclid/campaign da URL preservam a
+     atribuição do anúncio; nome e estágio vão como custom fields.
+     Best-effort: falha de rede nunca segura o diagnóstico. */
+  function subscribeLead(result) {
+    const email = (answers.email || "").trim().toLowerCase();
+    if (!email) return;
+    if (isInternal()) return; // E2E e sessão interna nunca assinam de verdade
+    const doneKey = "lpv_" + cfg.beaconSlug + "_subscribed";
+    try {
+      if (sessionStorage.getItem(doneKey)) return;
+    } catch (_) {
+      /* modo privado: sem dedupe, reactivate_existing segura o resto */
+    }
+    const p = new URLSearchParams(location.search);
+    const eventId = genId(); // dedup do Lead entre pixel e CAPI da rota
+    fetch("/api/subscribe", {
+      method: "POST",
+      keepalive: true,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: email,
+        nome: (result.name || "").trim(),
+        quiz_estagio: String(result.stage),
+        eventId: eventId,
+        utm: {
+          source: "quiz",
+          medium: p.get("utm_medium") || "",
+          campaign: p.get("utm_campaign") || "",
+          content: p.get("utm_content") || "",
+          term: p.get("utm_term") || "",
+          fbclid: p.get("fbclid") || "",
+          gclid: p.get("gclid") || "",
+          referrer: document.referrer || "",
+        },
+      }),
+    })
+      .then(function (res) {
+        if (!res.ok) return;
+        try {
+          sessionStorage.setItem(doneKey, "1");
+        } catch (_) {}
+        trackStd("Lead", { stage: result.stage }, { eventID: eventId });
+      })
+      .catch(function () {
+        /* best-effort, nunca quebra o quiz */
+      });
   }
 
   /* ── beacon do funil ───────────────────────────────────────────
@@ -804,6 +869,8 @@
 
   function renderName(step) {
     const value = answers.p15 || "";
+    const emailValue = answers.email || "";
+    beacon("quiz-email");
     el.screen.innerHTML = `
       <div class="card">
         <p class="q-label">${escapeHtml(step.label || "")}</p>
@@ -813,28 +880,39 @@
           <label for="name-input">Primeiro nome</label>
           <input id="name-input" type="text" autocomplete="given-name" maxlength="40" placeholder="Ex.: Rafael" value="${escapeAttr(value)}" />
         </div>
+        <div class="field">
+          <label for="email-input">Seu melhor email</label>
+          <input id="email-input" type="email" autocomplete="email" maxlength="120" placeholder="Ex.: rafael@gmail.com" value="${escapeAttr(emailValue)}" />
+        </div>
         <div class="actions">
-          <button type="button" class="btn btn-primary" id="btn-name-next" ${value.trim().length >= 2 ? "" : "disabled"}>Ver a minha xícara</button>
+          <button type="button" class="btn btn-primary" id="btn-name-next" disabled>Ver a minha xícara</button>
         </div>
       </div>
     `;
     const input = document.getElementById("name-input");
+    const emailInput = document.getElementById("email-input");
     const btn = document.getElementById("btn-name-next");
+    const emailOk = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
     const sync = () => {
       answers.p15 = input.value;
-      btn.disabled = input.value.trim().length < 2;
+      answers.email = emailInput.value;
+      btn.disabled = input.value.trim().length < 2 || !emailOk(emailInput.value);
     };
     input.addEventListener("input", sync);
-    input.addEventListener("keydown", (e) => {
+    emailInput.addEventListener("input", sync);
+    const enter = (e) => {
       if (e.key === "Enter" && !btn.disabled) btn.click();
-    });
+    };
+    input.addEventListener("keydown", enter);
+    emailInput.addEventListener("keydown", enter);
     btn.addEventListener("click", () => {
-      const v = input.value.trim();
-      if (v.length < 2) return;
-      answers.p15 = v;
+      if (input.value.trim().length < 2 || !emailOk(emailInput.value)) return;
+      answers.p15 = input.value.trim();
+      answers.email = emailInput.value.trim();
       next();
     });
     setTimeout(() => input.focus(), 50);
+    sync();
   }
 
   function renderAnalyzing() {
@@ -842,6 +920,7 @@
     const name = result.name || "leitor";
     track("QuizComplete", { profile: result.profileKey, family: result.familyKey });
     beacon("quiz-fim");
+    subscribeLead(result);
 
     const beans = Array.from({ length: 16 }, (_, i) => `<i data-b="${i}"></i>`).join("");
 
