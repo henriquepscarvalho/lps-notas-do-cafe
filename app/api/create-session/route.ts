@@ -44,6 +44,17 @@ export async function POST(req: Request) {
   };
   if (variant) params["metadata[variant]"] = variant;
   if (bump) params["metadata[bump]"] = BUMP_SC;
+  // Jornada e origem (decisão HC 05/08): o webhook central persiste em
+  // ebook_purchases.journey_id/src e aí cada real fica colado no caminho (teste, VSL
+  // direta, LP) e no canal que trouxe a venda. Sem isso, receita por caminho é só o
+  // piso do beacon da /obrigado. Metadata do Stripe tem teto de 500 caracteres por
+  // valor, então corta curto e nunca deixa a chave existir vazia.
+  const curto = (v: unknown) =>
+    typeof v === "string" && v.trim() ? v.trim().slice(0, 120) : "";
+  const journey = curto(body?.journey);
+  const src = curto(body?.src);
+  if (journey) params["metadata[journey]"] = journey;
+  if (src) params["metadata[src]"] = src;
 
   // Sem description o email de venda e a lista do Dashboard mostram so o valor
   // (metadata nao aparece la). Suffix: fatura do cartao vira "NEWSLETTER* EBOOK <SC>"

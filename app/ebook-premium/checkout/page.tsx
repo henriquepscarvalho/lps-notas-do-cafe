@@ -34,6 +34,19 @@ declare global {
   }
 }
 
+/* Lê a jornada que o PageBeacon abriu na primeira página. Best-effort: modo privado
+   ou storage bloqueado devolve vazio e o checkout segue igual, só sem atribuição. */
+function jornada() {
+  try {
+    return {
+      journey: sessionStorage.getItem("vdn_journey") || "",
+      src: sessionStorage.getItem("vdn_source") || "",
+    };
+  } catch {
+    return {};
+  }
+}
+
 export default function EbookCheckout() {
   const [bump, setBump] = useState(false);
   const [stripeOk, setStripeOk] = useState(false);
@@ -66,7 +79,11 @@ export default function EbookCheckout() {
           fetch("/api/create-session", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ bump }),
+            // jornada e origem viajam com a compra: sem isso a venda chega no Supabase
+            // sem saber por qual caminho (teste, VSL direta, LP) nem por qual canal ela
+            // veio, e a receita por caminho fica só no piso do beacon da /obrigado.
+            // sessionStorage é onde o PageBeacon guarda os dois desde a 1ª página.
+            body: JSON.stringify({ bump, ...jornada() }),
           })
             .then((r) => r.json())
             .then((d) => {
