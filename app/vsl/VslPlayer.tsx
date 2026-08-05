@@ -16,11 +16,25 @@ type Props = {
   /** Play deliberado (som ligado), 1x por sessão. Autoplay mudo não conta. */
   onPlay?: () => void;
   seekable?: boolean;
+  /** Segundo em que o vídeo começa (autoplay E replay com som). A página usa
+   *  pra pular a abertura que assume o quiz quando o leitor veio sem teste. */
+  startAt?: number;
 };
 
-export default function VslPlayer({ src, poster, onTime, onPlay, seekable }: Props) {
+export default function VslPlayer({ src, poster, onTime, onPlay, seekable, startAt }: Props) {
   const video = useRef<HTMLVideoElement>(null);
   const played = useRef(false);
+  const startRef = useRef(0);
+
+  // o valor chega depois do mount (a página lê o contexto de quiz num effect),
+  // então aplica no vídeo já em autoplay mudo enquanto ninguém deu play com som
+  useEffect(() => {
+    startRef.current = startAt || 0;
+    const v = video.current;
+    if (v && !played.current && startRef.current > 0 && v.currentTime < startRef.current) {
+      v.currentTime = startRef.current;
+    }
+  }, [startAt]);
   const [phase, setPhase] = useState<"idle" | "muted" | "sound">("idle");
   const [paused, setPaused] = useState(false);
   const [pct, setPct] = useState(0);
@@ -45,7 +59,7 @@ export default function VslPlayer({ src, poster, onTime, onPlay, seekable }: Pro
   function startWithSound() {
     const v = video.current;
     if (!v) return;
-    v.currentTime = 0;
+    v.currentTime = startRef.current;
     v.muted = false;
     v.play().catch(() => undefined);
     setPhase("sound");

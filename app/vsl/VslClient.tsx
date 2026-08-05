@@ -17,6 +17,10 @@ const CFG = {
   // Segundo de play em que a voz fecha o nome do produto (158,3s no whisper
   // do corte final). ?offer=5 na URL testa sem esperar.
   offerDelaySeconds: 158,
+  // Sem resultado de quiz o vídeo começa aqui: a abertura assume \"analisei as
+  // suas respostas\" e o braço quente nunca respondeu. Valor = fim da última
+  // frase que cita as respostas no whisper (vo.json). ?skip=0 revisa a abertura.
+  skipSemQuizSeconds: 1.8,
   checkout: "/ebook-premium/checkout",
   produto: "Café de Balcão no Coador de Casa",
   preco: "R$ 27",
@@ -50,6 +54,7 @@ type QuizResult = {
 
 export default function VslClient() {
   const [res, setRes] = useState<QuizResult | null>(null);
+  const [startAt, setStartAt] = useState(0);
   const [revealed, setRevealed] = useState(false);
   const [stickyOn, setStickyOn] = useState(false);
   const revealedRef = useRef(false);
@@ -81,6 +86,16 @@ export default function VslClient() {
     } catch {
       /* sem resultado */
     }
+    // sem quiz o vídeo pula a abertura que assume as respostas; ?skip=N revisa
+    const skipParam = new URLSearchParams(location.search).get(\"skip\");
+    let temQuiz = false;
+    try {
+      temQuiz = !!sessionStorage.getItem(\"nc_xicara_result\");
+    } catch {
+      /* sem storage */
+    }
+    if (skipParam !== null) setStartAt(Math.max(0, Number(skipParam) || 0));
+    else if (!temQuiz) setStartAt(CFG.skipSemQuizSeconds);
     // ?offer=5 encurta o gate pra teste
     const p = Number(new URLSearchParams(location.search).get("offer"));
     if (p > 0) delay.current = p;
@@ -138,6 +153,7 @@ export default function VslClient() {
           <VslPlayer
             src={CFG.videoSrc}
             poster={CFG.poster}
+            startAt={startAt}
             seekable={revealed}
             onPlay={onPlay}
             onTime={(t) => {
