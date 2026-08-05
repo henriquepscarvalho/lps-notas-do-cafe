@@ -129,7 +129,7 @@ export default function VslClient() {
           <p className="chip">
             {xicara ? `Sua xícara · ${xicara}` : "Diagnóstico em vídeo"}
           </p>
-          <h1>{nome ? `${nome}, a sua xícara tem nome.` : "A sua xícara tem nome."}</h1>
+          <h1>{nome ? `${nome}, a sua xícara tem nome.` : "A sua xícara ganha nome neste vídeo."}</h1>
           <p className="sub">
             Aperte o play. O vídeo mostra o que separa a sua coada da xícara do
             balcão{res?.familyName ? `, e por que a família ${res.familyName} é a primeira a ajustar` : ""}.
