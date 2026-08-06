@@ -1,4 +1,56 @@
 import { NextResponse } from "next/server";
+import crypto from "node:crypto";
+
+// CAPI server-side: dispara o evento Lead na Conversions API da Meta depois do
+// cadastro confirmado. Dedup com o pixel do navegador via event_id (Meta conta 1x).
+// Captura iOS/adblock que o pixel client-side perde. No-op se META_CAPI_TOKEN ausente.
+async function sendCapiLead(opts: {
+  email: string;
+  eventId?: string;
+  req: Request;
+  eventSourceUrl?: string;
+}) {
+  const token = process.env.META_CAPI_TOKEN;
+  if (!token) return; // desligado até o token estar no env
+  const pixelId = process.env.META_PIXEL_ID || "1350334970327217";
+  const sha = (s: string) =>
+    crypto.createHash("sha256").update(s.trim().toLowerCase()).digest("hex");
+  const cookie = opts.req.headers.get("cookie") || "";
+  const getCookie = (k: string) => {
+    const m = cookie.match(new RegExp("(?:^|; )" + k + "=([^;]+)"));
+    return m ? decodeURIComponent(m[1]) : undefined;
+  };
+  const user_data: Record<string, unknown> = { em: [sha(opts.email)] };
+  const ip = (opts.req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
+  if (ip) user_data.client_ip_address = ip;
+  const ua = opts.req.headers.get("user-agent");
+  if (ua) user_data.client_user_agent = ua;
+  const fbp = getCookie("_fbp");
+  if (fbp) user_data.fbp = fbp;
+  const fbc = getCookie("_fbc");
+  if (fbc) user_data.fbc = fbc;
+  const event: Record<string, unknown> = {
+    event_name: "Lead",
+    event_time: Math.floor(Date.now() / 1000),
+    action_source: "website",
+    user_data,
+  };
+  if (opts.eventId) event.event_id = opts.eventId;
+  if (opts.eventSourceUrl) event.event_source_url = opts.eventSourceUrl;
+  try {
+    const res = await fetch(
+      `https://graph.facebook.com/v21.0/${pixelId}/events?access_token=${encodeURIComponent(token)}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ data: [event] }),
+      }
+    );
+    if (!res.ok) console.error("Meta CAPI Lead error:", await res.text());
+  } catch (e) {
+    console.error("Meta CAPI Lead exception:", e);
+  }
+}
 
 // Contrato de origem de lead (UTM).
 // Ordem de captura: body.utm (cliente, via localStorage) > Referer da LP > click-id > "direct" honesto.
@@ -157,6 +209,14 @@ export async function POST(req: Request) {
       console.error("Beehiiv automation journey error:", await journeyRes.text());
     }
   }
+
+  // CAPI Lead server-side (dedup via event_id com o pixel). Nunca quebra o cadastro.
+  await sendCapiLead({
+    email,
+    eventId: clean(body?.eventId),
+    req,
+    eventSourceUrl: referring_site,
+  });
 
   return NextResponse.json({ success: true });
 }
