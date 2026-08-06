@@ -405,6 +405,7 @@
         try {
           sessionStorage.setItem(doneKey, "1");
         } catch (_) {}
+        pixelMatch(email);
         trackStd("Lead", { stage: result.stage }, { eventID: eventId });
       })
       .catch(function () {
@@ -1060,9 +1061,39 @@
     return escapeHtml(str).replace(/'/g, "&#39;");
   }
 
+  /* Pixels do quiz. Espelha o tracking-pixels.tsx do Next: pixel(s) da news MAIS o
+     TS Pixel da conta que compra a midia, onde as campanhas ST_ otimizam Lead. Sem o
+     segundo, a Meta nao ve o Lead do quiz e o conjunto entrega sem sinal de conversao.
+     Config sem pixel nenhum continua sem pixel (golden local). */
+  const TS_PIXEL = "1350334970327217";
+  let PIXEL_IDS = [];
+
+  function pixelIds() {
+    const base = (cfg.metaPixelIds || [cfg.metaPixelId, cfg.metaPixelIdExtra]).filter(
+      Boolean
+    );
+    if (!base.length) return [];
+    return base.indexOf(TS_PIXEL) >= 0 ? base.slice() : base.concat(TS_PIXEL);
+  }
+
+  /* Advanced Matching: sem o email, a Meta so casa a conversao pelo cookie _fbp/_fbc,
+     que iOS, Safari e adblock derrubam. O fbevents hasheia no navegador, o email cru
+     nunca sai daqui em texto. Roda depois que o leitor digita, antes do Lead. */
+  function pixelMatch(email) {
+    if (!email || typeof window.fbq !== "function") return;
+    try {
+      PIXEL_IDS.forEach(function (id) {
+        window.fbq("init", id, { em: email });
+      });
+    } catch (_) {
+      /* pixel opcional */
+    }
+  }
+
   function initPixel() {
-    const id = cfg.metaPixelId;
-    if (!id) return;
+    const ids = pixelIds();
+    if (!ids.length) return;
+    PIXEL_IDS = ids;
     if (window.fbq) return;
     !(function (f, b, e, v, n, t, s) {
       if (f.fbq) return;
@@ -1080,7 +1111,9 @@
       s = b.getElementsByTagName(e)[0];
       s.parentNode.insertBefore(t, s);
     })(window, document, "script", "https://connect.facebook.net/en_US/fbevents.js");
-    window.fbq("init", id);
+    ids.forEach(function (id) {
+      window.fbq("init", id);
+    });
     window.fbq("track", "PageView");
   }
 

@@ -40,7 +40,50 @@ type Carrinho = {
 const brl = (cents: number) =>
   (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
+/* Purchase no navegador. O event_id e o session_id do Stripe, o mesmo que o webhook
+   central manda pela CAPI: a Meta recebe dos dois lados e conta uma venda so. O valor
+   vem carimbado no return_url pelo create-session, que e quem sabe se teve bump. O
+   snippet do pixel mora no layout com strategy afterInteractive, entao espera o fbq. */
+function pixelPurchase(sessionId: string, centavos: number) {
+  let tries = 0;
+  const fire = () => {
+    try {
+      const fbq = (window as unknown as { fbq?: (...a: unknown[]) => void }).fbq;
+      if (typeof fbq === "function") {
+        fbq(
+          "track",
+          "Purchase",
+          { value: centavos / 100, currency: "BRL" },
+          { eventID: sessionId }
+        );
+        return;
+      }
+    } catch {
+      /* pixel opcional */
+    }
+    if (tries++ < 20) setTimeout(fire, 250);
+  };
+  fire();
+}
+
 export default function EbookObrigado() {
+  // F5 na pagina de obrigado nao pode virar segunda venda no painel. O teto no valor
+  // barra query forjada na URL; a fonte confiavel de receita e o Purchase da CAPI.
+  useEffect(() => {
+    const p = new URLSearchParams(window.location.search);
+    const sid = p.get("session_id");
+    const centavos = Number(p.get("v"));
+    if (!sid || !centavos || centavos < 100 || centavos > 100000) return;
+    const key = "purchase_" + sid;
+    try {
+      if (sessionStorage.getItem(key)) return;
+      sessionStorage.setItem(key, "1");
+    } catch {
+      /* modo privado: o dedup fica por conta do event_id */
+    }
+    pixelPurchase(sid, centavos);
+  }, []);
+
   const [carrinho, setCarrinho] = useState<Carrinho | null>(null);
   const [comprando, setComprando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);

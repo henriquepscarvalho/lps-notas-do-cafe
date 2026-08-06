@@ -12,6 +12,11 @@ const BUMP_SC = "BC";
 const BUMP_PRICE = "price_1TukzeLXu3X73K7LdM980r2a"; // bump BC R$ 13,50 (live)
 const BUMP_TITULO = "Brasa Pronta em 20 Minutos";
 
+// Valor em centavos, espelho dos prices live. O create-session e o unico que sabe se
+// teve bump, entao carimba o total no return_url e a /obrigado dispara o Purchase certo.
+const VALOR_CHEIO = 2700;
+const VALOR_BUMP = 1350;
+
 export async function POST(req: Request) {
   const apiKey = process.env.STRIPE_API_KEY;
   if (!apiKey) {
@@ -39,7 +44,9 @@ export async function POST(req: Request) {
     mode: "payment",
     locale: "pt-BR", // leitor BR sempre vê o checkout em português, browser que for
 
-    return_url: `${origin}/ebook-premium/obrigado?session_id={CHECKOUT_SESSION_ID}`,
+    return_url: `${origin}/ebook-premium/obrigado?session_id={CHECKOUT_SESSION_ID}&v=${
+      bump ? VALOR_CHEIO + VALOR_BUMP : VALOR_CHEIO
+    }`,
     "metadata[sc]": SC, // contrato do webhook central (ticket 11): resolve o ebook pelo sc
   };
   if (variant) params["metadata[variant]"] = variant;
@@ -67,12 +74,12 @@ export async function POST(req: Request) {
   // inline com os mesmos valores. Flip pra live = trocar a env key, código intacto.
   if (isTestKey) {
     params["line_items[0][price_data][currency]"] = "brl";
-    params["line_items[0][price_data][unit_amount]"] = "2700";
+    params["line_items[0][price_data][unit_amount]"] = String(VALOR_CHEIO);
     params["line_items[0][price_data][product_data][name]"] = `Ebook ${TITULO}`;
     params["line_items[0][quantity]"] = "1";
     if (bump) {
       params["line_items[1][price_data][currency]"] = "brl";
-      params["line_items[1][price_data][unit_amount]"] = "1350";
+      params["line_items[1][price_data][unit_amount]"] = String(VALOR_BUMP);
       params["line_items[1][price_data][product_data][name]"] = `Ebook ${BUMP_TITULO}`;
       params["line_items[1][quantity]"] = "1";
     }
