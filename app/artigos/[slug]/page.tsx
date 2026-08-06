@@ -31,13 +31,7 @@ export async function generateMetadata({
   };
 }
 
-const PROOF_AVATARS = [
-  "https://randomuser.me/api/portraits/men/32.jpg",
-  "https://randomuser.me/api/portraits/women/44.jpg",
-  "https://randomuser.me/api/portraits/men/12.jpg",
-  "https://randomuser.me/api/portraits/women/68.jpg",
-  "https://randomuser.me/api/portraits/men/45.jpg",
-];
+const PROOF_AVATARS: string[] = [];
 
 function Capture({ variant }: { variant: "meio" | "fim" }) {
   return (

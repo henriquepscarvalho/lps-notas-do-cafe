@@ -342,7 +342,7 @@ export default function EbookCapture() {
         <footer className="ebk-foot">
           <div>Notas do Café · Da fazenda à xícara, sem frescura</div>
           <div className="ebk-fsig">© 2026 Notas do Café</div>
-        </footer>
+        <div style={{marginTop:8}}><a href="/privacidade" style={{color:"inherit",textDecoration:"underline"}}>Política de Privacidade</a> · <a href="/contato" style={{color:"inherit",textDecoration:"underline"}}>Contato</a></div></footer>
       </div>
     </>
   );
