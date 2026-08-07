@@ -297,22 +297,6 @@ function Dropdown({
   );
 }
 
-/* ─── Field Icons (inline, no deps) ─── */
-const FIELD_ICONS: Record<string, React.ReactNode> = {
-  user: <><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4 4-6 8-6s8 2 8 6" /></>,
-  mail: <><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></>,
-  phone: <path d="M5 4h4l2 5-3 2a12 12 0 0 0 5 5l2-3 5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z" />,
-};
-
-function FieldIcon({ name }: { name: string }) {
-  return (
-    <svg className="survey-field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      {FIELD_ICONS[name]}
-    </svg>
-  );
-}
-
 /* ─── Text Input Component ─── */
 function TextInput({
   label,
@@ -323,7 +307,6 @@ function TextInput({
   type = "text",
   placeholder,
   readOnly,
-  icon,
 }: {
   label: string;
   questionNumber: number;
@@ -333,7 +316,6 @@ function TextInput({
   type?: string;
   placeholder?: string;
   readOnly?: boolean;
-  icon?: string;
 }) {
   return (
     <div className="survey-field">
@@ -342,23 +324,20 @@ function TextInput({
         {label}
         {required && <span className="survey-required">*</span>}
       </label>
-      <div className={`survey-input-wrap${icon ? " has-icon" : ""}`}>
-        {icon && <FieldIcon name={icon} />}
-        <input
-          type={type}
-          className="survey-input"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder}
-          inputMode={type === "tel" ? "tel" : type === "email" ? "email" : "text"}
-          autoComplete={type === "email" ? "email" : type === "tel" ? "tel" : "on"}
-          autoCapitalize={type === "email" ? "off" : "sentences"}
-          autoCorrect={type === "email" ? "off" : "on"}
-          spellCheck={type !== "email"}
-          readOnly={readOnly}
-          style={readOnly ? { opacity: 0.7, cursor: "not-allowed" } : undefined}
-        />
-      </div>
+      <input
+        type={type}
+        className="survey-input"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        readOnly={readOnly}
+        style={readOnly ? { opacity: 0.7, cursor: "not-allowed" } : undefined}
+        inputMode={type === "tel" ? "tel" : type === "email" ? "email" : "text"}
+        autoComplete={type === "email" ? "email" : type === "tel" ? "tel" : "on"}
+        autoCapitalize={type === "email" ? "off" : "sentences"}
+        autoCorrect={type === "email" ? "off" : "on"}
+        spellCheck={type !== "email"}
+      />
     </div>
   );
 }
@@ -463,80 +442,32 @@ export default function Pesquisa() {
     };
   }, []);
 
-  // Wizard: 4 steps, one section per screen
-  const [step, setStep] = useState(1);
+  // Progressive reveal
+  const section2Ref = useRef<HTMLDivElement>(null);
+  const section3Ref = useRef<HTMLDivElement>(null);
+  const section4Ref = useRef<HTMLDivElement>(null);
 
-  const SECTION_FIELDS: (keyof FormData)[][] = [
-    REQUIRED_FIELDS.slice(0, 6),                   // 1 · O Apreciador (6)
-    REQUIRED_FIELDS.slice(6, 10),                  // 2 · O Primeiro Gole (4)
-    REQUIRED_FIELDS.slice(10),                     // 3 · A Xícara (5)
-    ["maior_desafio", "pergunta_mentoria"],        // 4 · A Última Nota (2, opcionais)
-  ];
-  const SECTION_REQUIRED = [true, true, true, false];
-  const stepDone = (n: number) =>
-    !SECTION_REQUIRED[n - 1] || SECTION_FIELDS[n - 1].every((f) => form[f].trim() !== "");
+  const section1Done = REQUIRED_FIELDS.slice(0, 6).every(f => form[f].trim() !== "");
+  const section2Done = REQUIRED_FIELDS.slice(6, 10).every(f => form[f].trim() !== "");
+  const section3Done = REQUIRED_FIELDS.slice(10).every(f => form[f].trim() !== "");
 
-  // Goal gradient per section: "N de M respondidas" for the current step only
-  const stepTotal = SECTION_FIELDS[step - 1].length;
-  const answeredInStep = SECTION_FIELDS[step - 1].filter((f) => form[f].trim() !== "").length;
+  const [revealed, setRevealed] = useState(4);
 
-  // Personalization: greet by first name from step 2 on
-  const firstName = form.nome.trim().split(" ")[0];
-
-  // The reveal animation starts every .survey-reveal at opacity 0 and only the
-  // IntersectionObserver flips it to .visible. A step mounted after that
-  // observer disconnected would stay invisible. Activating on step change
-  // keeps each screen visible without the observer.
   useEffect(() => {
-    document.querySelectorAll(".reveal, .survey-reveal").forEach((el) => el.classList.add("visible"));
-    window.scrollTo(0, 0);
-  }, [step]);
+    if (section1Done && revealed === 1) setRevealed(2);
+  }, [section1Done, revealed]);
 
-  // Steps whose partial save the server confirmed — gates the "✓ salvo" chip
-  // so it only shows where a write actually happened.
-  const [savedSteps, setSavedSteps] = useState<number[]>([]);
+  useEffect(() => {
+    if (section2Done && revealed === 2) setRevealed(3);
+  }, [section2Done, revealed]);
 
-  // Partial capture: every step transition attaches the answers of the step
-  // just completed to the Beehiiv lead, so an abandoned survey still keeps
-  // them. Fire-and-forget; never blocks navigation, once per step per session.
-  function sendPartial(closedStep: number) {
-    try {
-      const key = `vdn_pesquisa_parcial_${closedStep}`;
-      if (sessionStorage.getItem(key)) return;
-      sessionStorage.setItem(key, "1");
-      const payload: Record<string, string> = { email: form.email };
-      for (const f of SECTION_FIELDS[closedStep - 1]) payload[f] = form[f];
-      fetch("/api/pesquisa-parcial", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-        keepalive: true,
-      })
-        .then((r) => r.json())
-        .then((j) => { if (j?.saved) setSavedSteps((s) => (s.includes(closedStep) ? s : [...s, closedStep])); })
-        .catch(() => {});
-    } catch {}
-  }
-
-  function goNext() {
-    if (!stepDone(step)) {
-      setErrorMsg("Preencha todos os campos obrigatórios (*).");
-      return;
-    }
-    sendPartial(step);
-    setErrorMsg("");
-    setStep((s) => Math.min(s + 1, 4));
-  }
+  useEffect(() => {
+    if (section3Done && revealed === 3) setRevealed(4);
+  }, [section3Done, revealed]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setErrorMsg("");
-
-    // Enter on an earlier step advances instead of submitting a half-filled form
-    if (step < 4) {
-      goNext();
-      return;
-    }
 
     // Validate required
     for (const field of REQUIRED_FIELDS) {
@@ -592,73 +523,19 @@ export default function Pesquisa() {
               height={40}
             />
           </a>
-          <div className="survey-stepper" aria-label={`Etapa ${step} de 4`}>
-            {/* Nomes unificados da rede (decisão HC 13/07) */}
-            {["Você", "Conexão", "Momento", "Destino"].map((label, i) => {
-              const n = i + 1;
-              const state = n < step ? "done" : n === step ? "active" : "todo";
-              return (
-                <button
-                  key={label}
-                  type="button"
-                  className={`survey-step ${state}`}
-                  onClick={() => { if (n < step) { setErrorMsg(""); setStep(n); } }}
-                  disabled={n > step}
-                  aria-label={`Etapa ${n}: ${label}`}
-                >
-                  <span className="survey-step-dot">{n < step ? "✓" : n}</span>
-                  <span className="survey-step-label">{label}</span>
-                </button>
-              );
-            })}
-          </div>
-          <h1 className="survey-title">
-            {step === 1 && "Quero te conhecer."}
-            {step === 2 && (firstName ? `Prazer, ${firstName}.` : "Prazer.")}
-            {step === 3 && (firstName ? `Quase lá, ${firstName}.` : "Quase lá.")}
-            {step === 4 && (firstName ? `Por último, ${firstName}.` : "Por último.")}
-          </h1>
-          <p className="survey-subtitle">
-            {step === 1 && "Suas respostas moldam o que você recebe. 4 etapas, uns 4 minutos, progresso salvo."}
-            {step === 2 && "Agora quero entender como você chegou até aqui e o que te move."}
-            {step === 3 && "Cinco perguntas rápidas sobre sua relação com o café."}
-            {step === 4 && "Duas perguntas opcionais, as mais valiosas de todas."}
-          </p>
+          <p className="survey-kicker survey-reveal">Falta 1 Passo</p>
+          <h1 className="survey-title survey-reveal">Quero te conhecer.</h1>
+          <p className="survey-subtitle survey-reveal">Responda as perguntas abaixo. Leva menos de 1 minuto e suas respostas moldam as edições que você recebe.</p>
         </header>
 
-        {/* Progress */}
-        <div className="progress-wrapper">
-          <div className="progress-bar">
-            <div className="progress-fill" style={{ width: `${(answeredInStep / stepTotal) * 100}%` }} />
-          </div>
-          <span className="progress-label">
-            {answeredInStep} de {stepTotal} respondidas
-          </span>
-        </div>
+        {/* Skip */}
 
-        {/* Recap: reinforce the section just finished. Echoing every answer so
-            far walls off the questions by step 4; email/phone/surname read as
-            noise rather than progress. */}
-        {step > 1 && (
-          <div className="survey-recap">
-            {SECTION_FIELDS[step - 2]
-              .filter((f) => f !== "email" && f !== "celular" && f !== "sobrenome")
-              .map((f) => (
-                <span key={f} className="survey-recap-item">✓ {form[f]}</span>
-              ))}
-            {savedSteps.includes(step - 1) && (
-              <span className="survey-recap-item survey-recap-saved">✓ salvo</span>
-            )}
-          </div>
-        )}
+        {/* Progress */}
 
         {/* Form */}
         <form className="survey-form" onSubmit={handleSubmit} noValidate>
-          {step === 1 && (<div>
           {/* ─── O Apreciador ─── */}
           <section className="survey-section survey-reveal">
-            <h2 className="survey-section-title">Seção 1 · O Apreciador</h2>
-            <div className="survey-section-line" />
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 0.9rem" }}>
 <TextInput
@@ -668,7 +545,6 @@ export default function Pesquisa() {
               onChange={set("nome")}
               required
               placeholder="Seu primeiro nome"
-              icon="user"
             />
 <TextInput
               questionNumber={2}
@@ -677,7 +553,6 @@ export default function Pesquisa() {
               onChange={set("sobrenome")}
               required
               placeholder="Seu sobrenome"
-              icon="user"
             />
 </div>
 
@@ -690,7 +565,6 @@ export default function Pesquisa() {
               type="email"
               placeholder="seu@email.com"
               readOnly={emailLocked}
-              icon="mail"
             />
 
             <TextInput
@@ -701,7 +575,6 @@ export default function Pesquisa() {
               required
               type="tel"
               placeholder="11987654321"
-              icon="phone"
             />
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 0.9rem" }}>
@@ -723,13 +596,11 @@ export default function Pesquisa() {
             />
 </div>
           </section>
-          </div>)}
 
-          {step === 2 && (<div>
+          {revealed >= 2 && (
+          <div ref={section2Ref}>
           {/* ─── O Primeiro Gole ─── */}
-          <section className="survey-section survey-reveal">
-            <h2 className="survey-section-title">Seção 2 · O Primeiro Gole</h2>
-            <div className="survey-section-line" />
+          <section className="survey-section">
 
             <Dropdown
               questionNumber={7}
@@ -767,13 +638,13 @@ export default function Pesquisa() {
               required
             />
           </section>
-          </div>)}
+          </div>
+          )}
 
-          {step === 3 && (<div>
+          {revealed >= 3 && (
+          <div ref={section3Ref}>
           {/* ─── A Xícara ─── */}
-          <section className="survey-section survey-reveal">
-            <h2 className="survey-section-title">Seção 3 · A Xícara</h2>
-            <div className="survey-section-line" />
+          <section className="survey-section">
 
             <Dropdown
               questionNumber={11}
@@ -811,7 +682,6 @@ export default function Pesquisa() {
               required
             />
 
-            <p className="survey-trust">só pra calibrar o conteúdo, nunca publicado</p>
             <Dropdown
               questionNumber={15}
               label="Qual faixa melhor representa sua renda ou faturamento mensal?"
@@ -821,13 +691,13 @@ export default function Pesquisa() {
               required
             />
           </section>
-          </div>)}
+          </div>
+          )}
 
-          {step === 4 && (<div>
+          {revealed >= 4 && (
+          <div ref={section4Ref}>
           {/* ─── A Última Nota ─── */}
-          <section className="survey-section survey-reveal">
-            <h2 className="survey-section-title">Seção 4 · A Última Nota</h2>
-            <div className="survey-section-line" />
+          <section className="survey-section">
             <p className="survey-section-desc">
               Essas duas perguntas são opcionais, mas são as mais valiosas.
               <br />
@@ -836,7 +706,7 @@ export default function Pesquisa() {
 
             <TextArea
               questionNumber={16}
-              label="Qual é o maior problema com o café que você bebe hoje? (opcional)"
+              label="Qual é o maior problema com o café que você bebe hoje?"
               value={form.maior_desafio}
               onChange={set("maior_desafio")}
               placeholder="Ex: Compro café de supermercado porque não sei onde encontrar coisa boa na minha cidade e tenho medo de gastar R$ 60 num grão ruim..."
@@ -844,14 +714,12 @@ export default function Pesquisa() {
 
             <TextArea
               questionNumber={17}
-              label="Descreva o seu ritual de café ideal. (opcional)"
+              label="Descreva o seu ritual de café ideal."
               value={form.pergunta_mentoria}
               onChange={set("pergunta_mentoria")}
               placeholder="Horário, método, grão, onde você está, o que está fazendo ao mesmo tempo..."
             />
           </section>
-
-          </div>)}
 
           {/* ─── Error ─── */}
           {errorMsg && (
@@ -860,38 +728,24 @@ export default function Pesquisa() {
             </div>
           )}
 
-          {/* ─── Nav ─── */}
+          {/* ─── Submit ─── */}
           <div className="survey-submit-wrapper">
-            {step < 4 ? (
-              <button type="button" className="survey-submit" onClick={goNext}>
-                Continuar →
-              </button>
-            ) : (
-              <>
-                <button
-                  type="submit"
-                  className="survey-submit"
-                  disabled={status === "sending"}
-                >
-                  {status === "sending" ? "Enviando..." : "Enviar e concluir →"}
-                </button>
-                <p style={{ textAlign: "center", marginTop: 10, fontSize: "0.8rem", color: "var(--s-text-3)" }}>
-                  você volta pro último passo da sua jornada
-                </p>
-                <p style={{ textAlign: "center", marginTop: 6, fontSize: "0.8rem", color: "var(--s-text-3)" }}>
-                  Respostas privadas: moldam só o conteúdo que você recebe.
-                </p>
-              </>
-            )}
-            {step > 1 && (
-              <button type="button" className="survey-back" onClick={() => { setErrorMsg(""); setStep((s) => s - 1); }}>
-                ← Voltar
-              </button>
-            )}
-            <a href="/cadastro-confirmado" onClick={() => { try { sessionStorage.setItem("vdn_pesquisa", "skip"); } catch {} sendBeacon("notas-do-cafe", "pesquisa_skip", { eventType: "converteu" }); }} style={{ display: "block", textAlign: "center", marginTop: 14, fontSize: "0.875rem", color: "var(--s-text-3)", textDecoration: "underline", textUnderlineOffset: 3 }}>
+            <button
+              type="submit"
+              className="survey-submit"
+              disabled={status === "sending"}
+            >
+              {status === "sending" ? "Enviando..." : "Enviar Respostas"}
+            </button>
+            <a href="/cadastro-confirmado" onClick={() => { try { sessionStorage.setItem("vdn_pesquisa", "skip"); } catch {} }} style={{ display: "block", textAlign: "center", marginTop: 14, fontSize: "0.875rem", color: "var(--s-text-3)", textDecoration: "underline", textUnderlineOffset: 3 }}>
               Preencher depois
             </a>
+            <p style={{ fontFamily: "var(--font-mono, monospace)", fontSize: 11.5, color: "var(--s-text-3)", textAlign: "center", marginTop: 16, letterSpacing: ".04em" }}>
+              SEUS DADOS SÃO PRIVADOS.
+            </p>
           </div>
+          </div>
+          )}
         </form>
       </main>
 
