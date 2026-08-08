@@ -27,10 +27,10 @@ const SHARE_URL = "https://api.whatsapp.com/send/?text=A%20Notas%20do%20Caf%C3%A
    SOT = _combo/lib/newsletters.json (pool sanguíneo TOP4 da Notas do Café). Não editar à mão. */
 const COMBO_API = "https://scriptorium-combo.vercel.app/api/combo";
 const REC_POOL = [
-  { slug: "brasa-certa", name: "Brasa Certa", card: "O churrasco perfeito sem mistério: o corte certo, o ponto, o tempo da brasa.", hora: "14:14", leitores: "2.706", emoji: "🔥", logo: "/images/rec/brasa-certa.png" },
-  { slug: "jogos-de-valor", name: "Jogos de Valor", card: "Os jogos de tabuleiro que valem a mesa, com curadoria honesta.", hora: "14:14", leitores: "1.748", emoji: "👑", logo: "/images/rec/jogos-de-valor.png" },
-  { slug: "setup-memoravel", name: "Setup Memorável", card: "Produtividade digital sem culto a app: o que de fato move o ponteiro.", hora: "08:08", leitores: "2.639", emoji: "🖥️", logo: "/images/rec/setup-memoravel.png" },
-  { slug: "turno-do-pai", name: "Turno do Pai", card: "O manual prático da paternidade nos primeiros anos, sem julgamento.", hora: "06:06", leitores: "1.693", emoji: "👶", logo: "/images/rec/turno-do-pai.png" },
+  { slug: "fotografia-do-dia", name: "Fotografia do Dia", card: "Uma foto por dia, com a luz, a lente e a decisão que o fotógrafo tomou antes de apertar. E o passo pra repetir.", hora: "08:08", leitores: null, emoji: "📷", logo: "/images/rec/fotografia-do-dia.png" },
+  { slug: "mestre-do-teclado", name: "Mestre do Teclado", card: "Dez minutos de prática, o erro de iniciante corrigido e uma música conhecida para você tocar.", hora: "19:19", leitores: null, emoji: "🎹", logo: "/images/rec/mestre-do-teclado.png" },
+  { slug: "pipoca-pronta", name: "Pipoca Pronta", card: "O programa de hoje já escolhido, com a plataforma onde ele está e a duração em minutos.", hora: "18:18", leitores: null, emoji: "📺", logo: "/images/rec/pipoca-pronta.png" },
+  { slug: "destino-do-dia", name: "Destino do Dia", card: "Um destino incrível dentro do Brasil por dia, com os gastos completos de toda a viagem.", hora: "06:06", leitores: null, emoji: "🧳", logo: "/images/rec/destino-do-dia.png" },
 ];
 
 const CC_CSS = `
