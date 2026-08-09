@@ -170,7 +170,7 @@ export default function EbookObrigado() {
 
         {mostraBiblioteca && oferta && (
           <section className="bib bib-ok">
-            <p className="btag">Biblioteca liberada</p>
+            <p className="btag">Bundle liberado</p>
             <h2>{oferta.nome}</h2>
             <p className="bsub">
               Os {oferta.itens.length} guias são seus. O email com a lista inteira chega
@@ -203,7 +203,7 @@ export default function EbookObrigado() {
             {oferta.descontoCents > 0 && (
               <p className="bdesc">
                 Já abatemos {brl(oferta.descontoCents)}: o que você acabou de pagar sai
-                do preço da biblioteca.
+                do preço do bundle.
               </p>
             )}
 
@@ -218,7 +218,7 @@ export default function EbookObrigado() {
             </ul>
 
             <button className="bbtn" onClick={levar} disabled={comprando}>
-              {comprando ? "Processando…" : `Levar a biblioteca por ${brl(oferta.precoCents)}`}
+              {comprando ? "Processando…" : `Levar o bundle por ${brl(oferta.precoCents)}`}
             </button>
             <p className="bnota">
               {carrinho?.umClique
