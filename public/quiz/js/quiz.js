@@ -283,6 +283,20 @@
       ],
     },
     {
+      // M11 (Ouro VTurb fase 1): microcompromisso na penúltima etapa. As duas
+      // saídas são positivas de propósito: o quiz nunca deixa o leitor
+      // responder contra a própria solução.
+      id: "compromisso",
+      type: "single",
+      label: "O compromisso",
+      title: "O seu diagnóstico sai num vídeo curto. Você assiste até o fim?",
+      why: "Quem assiste inteiro sai com a variável pra ajustar já na coada de amanhã; quem para no meio fica só com o nome da xícara.",
+      options: [
+        { id: "inteiro", text: "Sim, assisto até o fim" },
+        { id: "agora", text: "Sim, e ajusto a coada de amanhã" },
+      ],
+    },
+    {
       id: "p15",
       type: "name",
       label: "Personalizar",
@@ -440,9 +454,11 @@
 
   function captureSource() {
     try {
-      const src = new URLSearchParams(location.search).get("src");
-      if (src && !sessionStorage.getItem("vdn_source")) {
-        sessionStorage.setItem("vdn_source", src);
+      const qs = new URLSearchParams(location.search);
+      const src = (qs.get("src") || "").trim().slice(0, 60);
+      const utm = (qs.get("utm_content") || "").trim().slice(0, 52);
+      if (!sessionStorage.getItem("vdn_source")) {
+        sessionStorage.setItem("vdn_source", utm ? "ad:" + utm : src || "quiz");
       }
       if (!sessionStorage.getItem("vdn_journey")) {
         sessionStorage.setItem("vdn_journey", genId());
@@ -813,6 +829,7 @@
           track("QuizStart", { first: answers[step.id] });
           beacon("quiz-inicio", "converteu");
         }
+        if (step.id === "compromisso") beacon("quiz-compromisso", "converteu");
         setTimeout(next, 180);
       });
     });
@@ -925,6 +942,20 @@
 
     const beans = Array.from({ length: 16 }, (_, i) => `<i data-b="${i}"></i>`).join("");
 
+    // M11: o diagnóstico ecoa o relato do leitor (p4 e p5). As próprias
+    // palavras seguram a espera e provam que o teste foi lido.
+    function optText(qid) {
+      const st = STEPS.find((s) => s.id === qid);
+      const op = st && st.options ? st.options.find((o) => o.id === answers[qid]) : null;
+      return op ? op.text : "";
+    }
+    const ecoP4 = optText("p4");
+    const ecoP5 = optText("p5");
+    const eco =
+      ecoP4 && ecoP5
+        ? `Do seu relato · Matéria da coada: ${ecoP4}. O olho no rótulo: ${ecoP5}.`
+        : "";
+
     el.screen.innerHTML = `
       <div class="card analyzing">
         <div class="roast-tray" id="tray" aria-hidden="true">${beans}</div>
@@ -932,6 +963,7 @@
         <h1 class="analyzing-title">Fechando a sua xícara, ${escapeHtml(name)}.</h1>
 
         <div class="build-bars" id="build-bars">
+          ${eco ? `<p class="build-echo">${escapeHtml(eco)}</p>` : ""}
           <div class="build-row" data-i="0">
             <div class="build-meta"><span>O gosto que você persegue</span><span class="build-pct">0%</span></div>
             <div class="build-track"><i></i></div>
