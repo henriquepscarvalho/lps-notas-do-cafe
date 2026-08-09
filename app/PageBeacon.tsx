@@ -63,7 +63,11 @@ export function captureSource(defaultSource?: string): void {
   if (typeof window === "undefined") return;
   try {
     isInternalAccess(); // grava o flag interno cedo, se ?internal= estiver na URL
-    const param = new URLSearchParams(window.location.search).get("src");
+    // ?src= é o carimbo canônico; utm_campaign é o fallback pros emails que já saem
+    // carimbados pelo funil (ex.: monetizacao-s1-abre nos 12 da Monetização), que antes
+    // caíam no beacon como visita anônima.
+    const q = new URLSearchParams(window.location.search);
+    const param = q.get("src") || q.get("utm_campaign");
     const src = (param || "").trim().slice(0, 60);
     if (src && !sessionStorage.getItem("vdn_source")) {
       sessionStorage.setItem("vdn_source", src);

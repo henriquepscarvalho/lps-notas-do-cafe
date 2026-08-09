@@ -65,7 +65,10 @@ export function middleware(req: NextRequest) {
     // carimbo de origem quando a jornada chega sem ?src=; sem ele a visita da
     // automação trocaria de origem só por cair no braço V, e a régua de canal do
     // report perderia o pé
-    if (vsl && !searchParams.get("src")) url.searchParams.set("src", "ebook-premium");
+    // com utm_campaign na URL o email já vem carimbado; anexar o default aqui
+    // sobrescreveria o carimbo (src explícito vence utm no beacon)
+    if (vsl && !searchParams.get("src") && !searchParams.get("utm_campaign"))
+      url.searchParams.set("src", "ebook-premium");
     url.pathname = canonical;
     res = NextResponse.redirect(url, 307);
   } else {
