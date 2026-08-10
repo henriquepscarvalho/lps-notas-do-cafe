@@ -9,84 +9,108 @@ export const artigo: Artigo = {
   statusTag: "Conilon",
   localData: "Notas do Café",
   dataPublicacao: "2026-07-14",
-  leitura: "6 minutos",
+  leitura: "11 minutos",
   imagem:
     "https://ecmveymyzdqiehvtqxms.supabase.co/storage/v1/object/public/assets/news/notas-do-cafe/notas-do-cafe-ed017.webp",
   imagemAlt:
     "Grãos de conilon honey espalhados sobre madeira escura com uma cafeteira Moka ao fundo",
   relacionados: [],
-  body: `Café conilon carrega uma fama pesada: a de robusta grosso, amargo, café de segunda que só serve pra dar corpo a blend barato e encher lata de supermercado. A fama tem fundo histórico, mas está velha. Nos últimos anos, produtores do Espírito Santo passaram a tratar o mesmo grão com o cuidado que ninguém dava a ele, e o resultado é um robusta que se prova sozinho.
+  body: `Conilon é uma palavra brasileira, e ela carrega um fardo pesado: robusta grosso, amargo, café de segunda que serve só para dar corpo a blend barato e encher lata de supermercado. A fama tem endereço histórico e tem prazo, porque o Espírito Santo passou a última década desmontando o rótulo lote a lote.
 
-Este guia responde a pergunta que todo comprador faz antes de arriscar: café conilon é ruim mesmo? A resposta curta é que depende de quem cuidou dele. A resposta longa vem abaixo, com o que separar na hora de comprar.
+Este guia é sobre o nome e sobre a lavoura que o sustenta. De onde vem a palavra conilon, por que um único estado responde por mais de 70% da produção nacional da espécie, o que o processo honey e o terreiro suspenso fizeram com o grão, como fecham os números de uma fazenda familiar capixaba e como comprar e preparar um conilon fino sem levar café de blend para casa.
 
 [[AD1]]
 
-## Café conilon é ruim? A resposta honesta
+## De onde vem a palavra conilon
 
-Não é a espécie que é ruim. É o descuido que sempre acompanhou ela. Quando o conilon é colhido verde, misturado maduro com verde, secado no chão às pressas e torrado escuro demais pra esconder defeito, ele realmente fica amargo e chapado.
+**Conilon** é o nome brasileiro de uma das variedades botânicas da *Coffea canephora*, a mesma espécie que o mundo chama de robusta. A origem do termo é geográfica: a variedade veio da região do rio Kouilou, na África central, e a pronúncia brasileira arredondou o nome até virar conilon.
 
-Foi assim por décadas, com o grão destinado a café solúvel e blend industrial, e o nome ficou queimado. A fama de café ruim não mente sobre esse conilon.
+A planta chegou ao Brasil em 1912 e passou décadas como coadjuvante. O arábica dominava a lavoura e o conilon ocupava terreno de sobra, em altitude baixa, onde a espécie nobre não se dava bem.
 
-O que mudou foi o tratamento. O mesmo grão, colhido cereja por cereja no ponto maduro, secado com controle e torrado com respeito, entrega um café encorpado, doce e complexo. O robusta feito com cuidado não tem nada a ver com o café que criou o preconceito.
+O ponto de inflexão veio nos anos 1970, quando geadas castigaram o arábica no Sul do país e o Espírito Santo apostou pesado no grão resistente ao calor. A escolha reorganizou a economia agrícola do estado e transformou uma espécie de segunda linha na base de milhares de propriedades.
 
-## O que separa o conilon comum do conilon fino
+Botanicamente, o conilon é arbusto de hastes múltiplas, propagado por semente ou por estaquia, com raiz que aguenta seca melhor que a do arábica. A comparação completa entre as duas espécies fica para outra página: aqui o assunto é o nome brasileiro e a lavoura que nasceu com ele.
 
-**Conilon** é o nome brasileiro da espécie *Coffea canephora*, o mesmo robusta cultivado no mundo todo. O Espírito Santo é o reino dele: clima quente, altitude mais baixa e uma planta que aguenta o que o arábica não aguenta. O estado responde por mais de **70% do robusta brasileiro**.
+## O Espírito Santo, capital nacional da espécie
 
-Dentro desse volume gigante, uma fatia minúscula, menos de 1%, é cultivada como **conilon fino**, ou Fine Robusta: lotes selecionados, colheita manual, secagem controlada e pontuação **acima de 80** na escala da SCA, o mesmo critério que define um café especial.
+O estado produz mais de **70% do robusta brasileiro**, perto de 10 milhões de sacas por ano, e o Brasil é o segundo maior produtor mundial da espécie, atrás do Vietnã. A concentração não é acaso: o norte capixaba oferece terra baixa, calor constante e um regime de chuva que a planta aproveita bem.
 
-A diferença na xícara é abismal. O conilon comum é colhido a máquina, seca em terreiro de chão e é torrado escuro pra mascarar defeito. O fino é colhido maduro, muitas vezes pelo processo honey, com a camada doce da cereja mantida em volta do grão na secagem, o que empurra doçura pra dentro da semente.
+O destino histórico desse volume explica a fama. A maior parte vai para café solúvel e blend industrial, mercados que compram por preço e por rendimento de extrato, não por nota de prova. Quando o comprador não paga por sabor, ninguém investe em colheita seletiva.
 
-No copo, o conilon fino do Espírito Santo entrega **notas de cacau amargo, melado, castanha e caramelo escuro**, corpo cheio e pesado, acidez quase zero e uma crema espessa quando vira espresso. É café que enche a boca.
+Dentro do volume gigante existe uma fatia minúscula, abaixo de 1%, tratada como café especial: lote selecionado, colheita manual e pontuação **acima de 80** na escala da SCA, o mesmo critério que qualifica um arábica especial. É o conilon fino, também vendido sob o nome de Fine Robusta.
 
-## Linha do tempo do conilon no Brasil
+A distância entre as duas pontas é enorme. O comum é colhido a máquina, seca em terreiro de chão e recebe torra escura para esconder defeito. O fino é colhido no ponto maduro, seca em estrutura elevada e chega ao torrador com nome de fazenda no saco.
 
-**Século XIX.** A espécie *Coffea canephora*, o robusta, cresce nativa nas florestas da bacia do Congo, na África central, longe do arábica das terras altas da Etiópia.
+## Como fecham os números de uma fazenda familiar capixaba
 
-**1912.** O robusta é trazido ao Brasil e começa a ser plantado, primeiro como curiosidade, depois pela resistência ao calor e às pragas que derrubavam o arábica.
+O conilon rende mais por pé que o arábica, e o clima capixaba favorece a produtividade. Na prática, o custo por saca sai menor, e é dessa vantagem que vive boa parte das pequenas propriedades do estado, muitas delas tocadas pela mesma família há duas ou três gerações.
 
-**Década de 1970.** Depois de geadas castigarem o arábica no Sul do país, o Espírito Santo aposta pesado no conilon, mais resistente ao clima quente, e caminha pra se tornar o maior produtor nacional da espécie.
+O problema aparece do lado do preço. O conilon bem tratado tem custo de produção próximo ao do arábica, mas ainda vende mais barato por causa da fama arrastada. Quem investiu em colheita seletiva e secagem elevada recebe pouco acima do produtor de commodity.
 
-**Anos 2000.** Produtores capixabas começam a tratar lotes selecionados como especiais: colheita da cereja madura, processo honey e natural com controle, secagem revirada no terreiro.
+A saída que os produtores acharam foi encurtar o caminho até quem bebe. Vendendo direto, sem atravessador, a faixa de **R$ 28 a R$ 42 os 250g** já paga o cuidado extra e ainda entrega ao comprador mais café por real gasto que um arábica especial equivalente.
 
-**Hoje.** Nasce o conilon fino, o Fine Robusta acima de 80 na escala SCA, defendido por torrefadores que puxam o movimento e provam que robusta levado a sério é outro café.
+O incentivo importa mais do que parece. Cada pacote comprado direto de quem plantou financia terreiro suspenso, colheita por ponto de maturação e torra recente, em vez de empurrar volume anônimo para o mercado de solúvel. O conilon especial ainda é nicho pequeno, e é aí que a escolha de quem compra pesa mais.
+
+## Conilon honey: a mucilagem que empurra doçura para dentro do grão
+
+**Honey** é um processo de secagem, não um ingrediente. Depois de colhida, a cereja é despolpada por fora, mas a camada doce e grudenta que fica colada ao grão permanece durante toda a secagem. Essa camada se chama **mucilagem**, é pegajosa como mel, e daí saiu o nome do processo. Mel nenhum entra no café.
+
+O mecanismo é simples de explicar e difícil de executar. Secando junto com a semente, o açúcar da mucilagem migra para dentro do grão, e a fermentação lenta na superfície gera compostos que viram doçura e corpo na xícara. O resultado fica num meio-termo entre o café lavado, mais limpo e ácido, e o natural, mais frutado.
+
+O risco mora na mesma camada. Como a mucilagem é doce e úmida, o produtor precisa revirar os grãos várias vezes ao dia no terreiro para que ela seque por igual. Uma revirada de menos e a fermentação passa do ponto, virando vinagre ou mofo.
+
+No copo, o conilon honey do Espírito Santo entrega **cacau, melado e castanha**. O cacau aparece logo de cara, sem doçura artificial. O melado entra no meio, com sensação de rapadura cozida. A castanha fica no fundo, redonda e oleosa, segurando o corpo até o último gole. A faixa dos 250g fica em **R$ 38 a R$ 50**, dependendo do produtor e da safra.
 
 [[CAPTURE]]
 
-## Conilon, robusta e arábica: entendendo os nomes
+## Terreiro suspenso e capuz retrátil: a secagem que mudou o grão
 
-Os três nomes se cruzam e confundem. Vale organizar antes de comprar.
+O terreiro tradicional é piso de cimento ou chão batido, e ali o café seca encostado no solo. A umidade sobe da terra, a camada de baixo demora mais que a de cima e a secagem sai desigual, abrindo porta para fermentação indesejada.
 
-**Robusta** é a espécie, *Coffea canephora*, uma das duas grandes espécies comerciais de café ao lado do arábica. Ela tem mais corpo, mais cafeína, quase o dobro da do arábica, e menos acidez.
+O terreiro suspenso resolve o problema pela física. A estrutura eleva o café acima do chão, o ar circula por baixo também, e a secagem fica uniforme sem que o grão puxe umidade do solo. É o mesmo equipamento que o especial de altitude usa há anos, aplicado a uma espécie que quase nunca o recebia.
 
-**Conilon** é como o Brasil chama a sua variedade de robusta, cultivada sobretudo no Espírito Santo. Robusta e conilon são, na prática, a mesma espécie: todo conilon é robusta.
+Uma fazenda familiar capixaba levou a ideia um passo adiante e cobriu o terreiro com um toldo retrátil, que fecha quando chove e abre quando o sol volta. O apelido virou marca do lote, o conilon encapuzado, e a função é evitar que uma chuva repentina estrague uma leva inteira em minutos.
 
-**Arábica** é a outra espécie, *Coffea arabica*, mais delicada, mais ácida, aromática, que domina o mundo dos especiais. Não é melhor por natureza: é diferente. O conilon fino mostrou que robusta bem tratado também pontua alto.
+Somado ao resto do manejo, colheita separada por ponto de maturação e revirada regular, o método entrega um perfil diferente do honey. Na boca, o conilon de terreiro suspenso mostra **chocolate ao leite, castanha e um corpo denso e cremoso**, com acidez quase ausente e persistência longa.
 
-## Como escolher e comprar um conilon fino
+## Como comprar um conilon fino sem levar café de blend
 
-Na hora de comprar, o rótulo separa o grão sério do enchimento de blend:
+O rótulo separa o grão sério do enchimento, e quatro sinais bastam:
 
-- **Procure "Fine Robusta" ou "Conilon Especial".** Some a uma pontuação acima de 80 e você está diante do conilon que mudou o jogo, não do café de lata.
-- **Confira a origem no Espírito Santo.** Fazenda, região e produtor declarados. Conilon anônimo, sem origem, costuma ser o comercial de sempre.
-- **Prefira grão inteiro e processo declarado.** Honey ou natural com secagem controlada, torrado há pouco tempo, grão pra moer na hora.
+- **Nome da categoria.** Procure Fine Robusta ou conilon especial, com pontuação declarada acima de 80 na escala da SCA.
+- **Origem com endereço.** Fazenda, região e produtor no pacote, com o Espírito Santo declarado. Conilon anônimo costuma ser o comercial de sempre.
+- **Processo escrito.** Honey, natural ou cereja descascado, com menção ao tipo de secagem. Quem investiu em terreiro suspenso faz questão de contar.
+- **Grão inteiro e torra recente.** Data de torra na etiqueta vale mais que prazo de validade, e o pó pronto perde aroma em poucos dias.
 
-Sobre preço: o conilon fino custa menos que um arábica especial e mais que o café de supermercado. A faixa dos 250g fica em torno de **R$ 35 a R$ 70**, dependendo do produtor, do processo e da safra.
+Fuja do pacote que diz apenas café tradicional, sem origem nem processo. Quem trata o conilon com seriedade mostra o terreiro; quem esconde a procedência costuma estar escondendo grão inferior.
 
-## Como preparar
+Sobre valores, a faixa é larga porque o canal muda tudo. Comprando direto do produtor, os 250g ficam entre **R$ 28 e R$ 42**. Em torrefador de especiais, com lote selecionado e pontuação alta, o mesmo peso vai de **R$ 35 a R$ 70**. Nas duas pontas ainda sai abaixo de um arábica premiado.
 
-O corpo cheio e as notas de cacau do conilon pedem um método que concentre, não que afine, e a **Moka**, a cafeteira italiana de fogão, resolve com folga. Ela funciona por pressão do vapor: a água ferve embaixo, sobe forçada por um funil, passa pelo pó e desce concentrada por cima.
+## O que muda na xícara, e o erro que apaga a diferença
 
-A receita pra uma Moka de 3 xícaras:
+O conilon fino tem assinatura reconhecível: corpo cheio, acidez quase nula, doçura de melado e um eixo de cacau que atravessa o gole inteiro. No espresso, rende crema espessa e persistente. Com leite, não desaparece atrás da espuma.
 
-- **17g de café**, o suficiente pra encher o funil sem socar
-- Água quente até logo abaixo da válvula de segurança
+Quem troca de pacote e não sente diferença quase sempre esbarra no mesmo trio: torra escura demais, pó moído com antecedência e água fervendo direto na chaleira.
+
+Torra escura queima justamente o açúcar que a mucilagem empurrou para dentro do grão, e nivela um lote de 84 pontos com o café de lata. Pó pronto expõe muito mais superfície ao ar e perde aroma em dias. Água a 100°C cozinha o pó e traz para a frente o amargor de borracha que deu má fama à espécie.
+
+Guardar bem custa nada: pote hermético, longe da luz e do calor, e moagem só na hora do preparo. Café denso perde primeiro a cremosidade e o chocolate, sobrando o amargor plano que ninguém quer.
+
+## Como preparar na Moka, o método que combina com o grão
+
+O corpo cheio e as notas de cacau pedem um método que concentre em vez de afinar, e a **Moka**, a cafeteira italiana de fogão, resolve com folga. Ela funciona por pressão de vapor: a água ferve na base, sobe forçada por um funil, atravessa o pó e desce concentrada na câmara de cima.
+
+A receita para uma Moka de 3 xícaras:
+
+- **17g de café**, o suficiente para encher o funil sem socar
+- Água quente na base, até logo abaixo da válvula de segurança
 - Moagem **média-fina**, mais fina que a do coador, parecida com sal refinado
 - Encha o funil sem apertar o pó e rosqueie a Moka fechada
-- Fogo **médio-baixo**, sem pressa, pra a extração sair calma
-- Quando ouvir o gorgolejo e a parte de cima encher, **tire do fogo**, na faixa de **4 a 5 minutos** do fogo ao copo
+- Fogo **médio-baixo**, sem pressa, para a extração sair calma
+- Quando ouvir o gorgolejo e a câmara de cima encher, **tire do fogo**
+- **Tempo total de 4 a 5 minutos** do fogo ao copo
 
-O fogo baixo é o segredo. Pressa queima o grão e puxa o amargor de borracha, justamente a fama velha do robusta. Em fogo calmo, o que sobe é cacau e melado, com o corpo redondo. O conilon fino também aguenta leite sem desaparecer.
+O fogo baixo é o segredo do método. Pressa queima o grão e puxa o amargor que a fama velha do robusta descreve. Em fogo calmo, o que sobe é cacau e melado, com o corpo redondo. Beba puro e curto, no estilo espresso, alongue com água quente para uma xícara maior ou monte o pingado: o conilon fino aguenta leite sem sumir.
 
 [[AD2]]
 
@@ -94,13 +118,25 @@ O fogo baixo é o segredo. Pressa queima o grão e puxa o amargor de borracha, j
 
 ### Café conilon é ruim?
 
-Não por natureza. O conilon comum, colhido sem seleção e torrado escuro pra esconder defeito, fica amargo e chapado, e criou a fama. O conilon fino, colhido maduro e processado com cuidado, pontua acima de 80 na SCA e entrega cacau, melado e corpo cheio.
+Não por natureza. O conilon comum, colhido sem seleção, seco no chão e torrado escuro para esconder defeito, fica amargo e plano, e foi ele que criou a fama. O conilon fino, colhido no ponto maduro e seco com controle, pontua acima de 80 na escala da SCA e entrega cacau, melado e corpo cheio.
 
-### Qual a diferença entre conilon e arábica?
+### Qual a diferença entre conilon e robusta?
 
-São espécies diferentes. O conilon, ou robusta, tem mais corpo, mais cafeína e menos acidez, e aguenta clima quente. O arábica é mais delicado, ácido e aromático. Nenhum é melhor por natureza: o cuidado no cultivo decide a qualidade dos dois.
+Nenhuma de espécie. Conilon é o nome brasileiro de uma das variedades botânicas da Coffea canephora, cultivada sobretudo no Espírito Santo, e robusta é o nome popular da espécie inteira. Todo conilon é robusta, e o termo conilon num rótulo brasileiro quase sempre indica origem capixaba.
 
-### Café conilon tem mais cafeína?
+### O que significa conilon honey?
 
-Tem. O conilon, por ser robusta, acumula quase o dobro da cafeína de um arábica. É o café que dá mais corpo, mais crema no espresso e mais estímulo por xícara.`,
+Honey é o processo de secagem em que a cereja é despolpada por fora, mas a mucilagem, camada doce e grudenta, fica colada ao grão durante toda a secagem. O açúcar migra para dentro da semente e deixa a xícara mais doce e encorpada. Não existe mel na receita, só a textura pegajosa que batizou o método.
+
+### Por que o Espírito Santo concentra a produção de conilon?
+
+Porque o estado tem terra baixa, calor constante e regime de chuva que a espécie aproveita, condições em que o arábica sofre. A aposta se firmou nos anos 1970, depois das geadas que castigaram o arábica no Sul do país, e hoje o estado responde por mais de 70% do robusta brasileiro.
+
+### Quanto custa um conilon fino?
+
+Comprando direto do produtor, os 250g ficam na faixa de R$ 28 a R$ 42. Em torrefador de café especial, com lote selecionado e pontuação declarada, o intervalo vai de R$ 35 a R$ 70. Os dois preços ficam abaixo do que um arábica especial de origem única costuma pedir.
+
+### Conilon serve para café com leite?
+
+Serve, e melhor que a maioria dos arábicas delicados. O corpo denso e o eixo de cacau atravessam a espuma sem desaparecer, então o pingado e o cappuccino mantêm sabor de café em vez de virar leite morno adocicado. Na Moka, a extração concentrada reforça a presença.`,
 };

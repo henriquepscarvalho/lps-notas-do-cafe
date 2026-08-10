@@ -9,79 +9,108 @@ export const artigo: Artigo = {
   statusTag: "Torra",
   localData: "Notas do Café",
   dataPublicacao: "2026-07-14",
-  leitura: "8 minutos",
+  leitura: "11 minutos",
   imagem:
     "https://ecmveymyzdqiehvtqxms.supabase.co/storage/v1/object/public/assets/news/notas-do-cafe/notas-do-cafe-ed024.webp",
   imagemAlt:
     "Grãos de café torrado espalhados sobre madeira escura com três moagens diferentes e um coador ao fundo",
   relacionados: [],
-  body: `Café torrado em grãos é onde uma xícara boa começa, e onde muita gente erra sem saber. A palavra torrado esconde três cafés diferentes dentro do mesmo saco: torra clara, média e escura mudam o gosto antes de você moer o primeiro grão.
+  body: `Café torrado em grãos é onde a xícara começa a ser decidida, e a palavra torrado esconde três cafés diferentes dentro do mesmo saco. Torra clara, média e escura saem do mesmo grão verde e chegam na boca como bebidas distintas, com acidez, doçura e corpo em proporções que o torrador escolheu olhando o relógio.
 
-Este guia separa o que decide a compra: o que a torra faz com o grão, como cada ponto muda o sabor, qual combina com o seu método de preparo, como reconhecer a torra no rótulo e quanto custa um bom café em grãos.
+Este guia trata da torra e só dela: o que o fogo faz dentro do grão a cada faixa de temperatura, o que o primeiro estalo decide, como cada ponto muda o sabor, qual torra combina com o seu método, como reconhecer o ponto no grão antes de pagar e por que a torra escura nivela café bom por baixo.
 
 [[AD1]]
 
-## O que a torra faz com o grão
+## Grão verde não tem gosto de café
 
-Grão verde não tem gosto de café. É a torra, o cozimento controlado no calor, que transforma o grão cru em aroma, cor e sabor. O açúcar carameliza, os ácidos se transformam e o cheiro que a gente conhece finalmente aparece.
+Abra um saco de café cru e cheire: aroma de feno, de capim, de vegetal seco. O açúcar, as proteínas, os aminoácidos e os ácidos que virarão caramelo, chocolate e fruta já estão ali dentro, só que em forma de matéria-prima, e não de sabor.
 
-Quanto mais tempo no forno, mais escuro fica o grão e mais o gosto de torra fala alto por cima do gosto de origem. Torra curta preserva as características da fazenda, do varietal e do processo. Torra longa cobre tudo com uma camada tostada.
+A torra é o cozimento controlado que transforma matéria-prima em bebida. O grão entra no tambor por volta de 11% de umidade, perde água, incha, muda de cor, estala, escurece e sai com centenas de compostos aromáticos que não existiam antes do fogo. Nada é acrescentado: tudo que aparece na xícara vem do que a fazenda já tinha entregue.
 
-Existem dois marcos que o torrador escuta pelo ouvido: o primeiro estalo, quando o grão estala feito pipoca e solta vapor, e o segundo estalo, mais tarde e mais seco. Parar perto do primeiro dá torra clara. Passar do segundo dá torra escura.
+É por causa da matéria-prima que altitude e varietal pesam tanto. Um grão de altitude, com mais açúcar acumulado no amadurecimento lento, entra no tambor com mais material pra transformar. Um grão comum entra com menos e sai com menos, por melhor que seja a mão do torrador.
 
-## Torra clara, média e escura: o que muda no sabor
+## Os estágios do fogo, do vapor ao segundo estalo
+
+A torra tem etapas nítidas, e cada uma tem a sua faixa de temperatura dentro do grão:
+
+- **Secagem, até perto de 150°C.** A água interna vira vapor e sai. O grão amarela, cheira a pão cru e ainda não fabricou sabor nenhum.
+- **Maillard, de 150°C a 190°C.** Açúcares e aminoácidos reagem entre si e criam centenas de compostos novos. É a mesma reação da crosta do pão e da carne selada, e é dela que nascem o caramelo, a rapadura e a castanha.
+- **Caramelização, na sequência.** O açúcar que não entrou na reação anterior começa a se desmanchar sozinho, e a doçura passa a ser gasta pra fabricar cor e amargor.
+- **Primeiro estalo, por volta de 196°C.** O resto da água vira vapor de uma vez e estoura a estrutura interna. O grão estala como pipoca e cresce de tamanho.
+- **Segundo estalo, perto de 224°C.** Agora quem quebra é a parede de celulose, e o óleo que morava dentro do grão é empurrado pra superfície.
+
+O tempo total varia com o equipamento e com a carga, mas a ordem nunca muda. Num tambor de torrefação pequena, o primeiro estalo costuma chegar por volta dos onze minutos, e dois minutos a mais de fogo depois dele já mudam o café de categoria.
+
+## O que o primeiro estalo decide
+
+O primeiro estalo é o marco que o torrador escuta de olhos fechados. Antes dele, o café ainda não é bebível. Depois dele, cada segundo troca uma coisa por outra: doçura por corpo, acidez por amargor, gosto de origem por gosto de torra.
+
+Quarenta segundos depois do estalo, o grão está no marrom de canela, fosco, seco, com a fenda do meio ainda bem mais clara que a superfície. É a torra média clássica, e ela guarda boa parte do açúcar construído na fase de Maillard.
+
+Dois minutos a mais e o café atravessa o silêncio que separa os dois estalos e entra no segundo. O grão fica marrom muito escuro, com pontinhos de óleo brilhando na casca. Nada foi acrescentado no caminho: o que chega na xícara é o que sobrou depois que parte do açúcar queimou.
+
+A diferença fica evidente quando o mesmo lote é dividido em dois pontos e coado lado a lado. O mais claro abre com caramelo, entrega rapadura no meio do gole e fecha com acidez leve de fruta amarela. O mais escuro vira chocolate amargo e noz tostada, com corpo mais grosso, acidez quase ausente e doçura recuada.
+
+## Torra clara, média e escura no copo
 
 ### Torra clara
 
-Grão de cor canela, seco, sem óleo na superfície. É a torra do café especial, porque preserva o que a origem tem de melhor: acidez viva, notas florais e frutadas, doçura delicada. É também a mais exigente no preparo, porque o grão fica denso e custa a entregar sabor.
+Grão de cor canela, seco, sem brilho na superfície. Preserva o que a origem tem de melhor: acidez viva, notas florais e frutadas, doçura delicada. É a mais exigente no preparo, porque o grão fica denso e resiste a entregar sabor, e por causa dessa densidade costuma pedir água mais quente e moagem um fio mais fechada.
 
 ### Torra média
 
-O meio-termo equilibrado e o ponto mais versátil de todos. A acidez cede lugar ao açúcar caramelizado, e aparecem as notas de chocolate, castanha e caramelo que agradam quase todo mundo. Corpo médio, doçura redonda, pouca aresta.
+O ponto mais versátil e o mais fácil de acertar em casa. A acidez cede espaço ao açúcar caramelizado, e aparecem caramelo, chocolate ao leite e castanha. Corpo médio, doçura redonda e pouca aresta. É a torra que perdoa erro de receita sem apagar a fazenda de onde o café veio.
 
 ### Torra escura
 
-Grão marrom bem escuro, muitas vezes com brilho de óleo na superfície. O amargor e o corpo dominam, com notas tostadas e defumadas, quase de chocolate amargo. A acidez some, e o gosto de origem também. É a torra do café mais tradicional e de boa parte do espresso italiano.
-
-## Qual torra combina com o seu método
-
-Existe uma lógica por trás de casar torra e método, e ela vem da extração. A água extrai o café de fora pra dentro. Torra escura deixa o grão poroso e solúvel, então entrega sabor rápido. Torra clara deixa o grão denso, e ele pede água mais quente e um pouco mais de paciência pra abrir.
-
-- **Coado e V60 pedem clara ou média.** Métodos filtrados valorizam acidez e aroma, exatamente o que a torra clara preserva. É onde o floral e o frutado brilham.
-- **Prensa francesa pede média ou média-escura.** A imersão longa puxa corpo, e uma torra um pouco mais escura entrega o chocolate e a castanha que combinam com esse método.
-- **Espresso pede média-escura ou escura.** A pressão e o tempo curtíssimo pedem um grão que entregue corpo e doçura concentrada depressa. Torra clara no espresso tende a sair ácida, a não ser que você domine a regulagem.
-- **Moka e coado forte pedem média-escura.** Quem gosta de café encorpado e amargo no café da manhã se dá bem com o ponto mais escuro.
-
-Nada disso é lei. Barista de café especial faz espresso de torra clara e ama o resultado. Mas pra acertar de primeira em casa, casar torra e método por esse padrão erra bem menos.
+Grão marrom muito escuro, muitas vezes com brilho de óleo na casca. Amargor e corpo dominam, com notas tostadas e defumadas de chocolate amargo. A acidez some por completo, e o gosto de origem some junto. É a torra do café tradicional brasileiro e de boa parte do espresso italiano.
 
 [[CAPTURE]]
 
-## Como reconhecer a torra no rótulo
+## A química que o fogo gasta
 
-Três sinais dizem quase tudo antes de você abrir o pacote.
+Três transformações explicam quase todo o desenho da xícara, e vale conhecer as três antes de escolher um pacote.
 
-- **A palavra.** Bom torrefador escreve torra clara, média, média-escura ou escura no rótulo. Se disser só café torrado, sem ponto de torra, desconfie: costuma ser torra escura industrial.
-- **As notas sensoriais.** Floral, frutado e cítrico apontam torra clara. Chocolate, caramelo e castanha apontam média. Tostado, amargo e defumado apontam escura.
-- **O óleo e a cor.** Grão claro e seco é torra clara ou média. Grão escuro e brilhante de óleo é torra escura. Dá pra ver pela janelinha do pacote.
+A primeira é o açúcar. Ele é o combustível de Maillard e da caramelização, e é finito: cada segundo a mais de fogo depois do primeiro estalo gasta uma parte do que a lavoura levou meses acumulando. A torra média para no meio da faixa, com boa parte da doçura ainda inteira e presa dentro da estrutura do grão.
 
-Café especial quase sempre vem em torra clara a média, porque a proposta é mostrar a origem. Café de supermercado, em lata ou pacote a vácuo, quase sempre é torra escura, que perdoa grão comum e dura mais na prateleira.
+A segunda é o ácido clorogênico, principal responsável pela acidez do café. Ele se desmancha com o calor e vira ácido quínico e ácido cafeico, dois compostos de gosto bem menos agradável. O que era acidez de fruta amarela na torra média reaparece como amargor de fundo na escura.
 
-## Quanto custa um bom café em grãos
+A terceira é o óleo. Ele mora dentro da estrutura e só alcança a superfície depois do segundo estalo. Grão brilhante, portanto, não é sinal de frescor nem de qualidade: é sinal de torra que passou do ponto, e óleo exposto ao ar oxida em poucas semanas e devolve gosto de ranço.
 
-Café em grãos custa mais que o pó de supermercado, e o motivo é simples: grão inteiro guarda o aroma por semanas, enquanto o pó perde em dias. Você paga por frescor.
+Um mito merece correção à parte: cafeína quase não muda com o fogo. A torra escura só perde mais massa, então o grão sai mais leve, e uma colher cheia de pó escuro leva mais grãos que a mesma colher de pó claro. O resultado é um tico a mais de cafeína na xícara escura, e não a menos.
 
-A faixa de um café especial em grãos fica em torno de **R$ 40 a R$ 70 os 250g**, dependendo do varietal, da origem, da torra e da safra. Microlotes premiados e raros sobem bem acima disso.
+## Qual torra comprar pra cada método
 
-Um bom começo: um Bourbon Amarelo ou um Catuaí de torra média, de origem conhecida do Sul de Minas ou do Cerrado, entrega muito por perto de **R$ 45 a R$ 55 os 250g**.
+A lógica que casa torra e método vem da extração. Torra escura deixa o grão poroso e solúvel, então ele entrega sabor rápido e ainda se quebra em partículas menores no moedor. Torra clara deixa o grão denso, e ele pede mais energia da água e um pouco mais de paciência pra abrir.
 
-## Como comprar e guardar
+- **Coado e V60:** clara ou média. Métodos filtrados valorizam aroma e acidez, exatamente o que a torra curta preserva.
+- **Prensa francesa:** média ou média-escura. A imersão longa puxa corpo, e o chocolate e a castanha da torra mais adiantada combinam com a tela de metal.
+- **Espresso:** média-escura ou escura pra acertar de primeira. A pressão e os 25 a 30 segundos de contato pedem um grão que entregue depressa. Torra clara no espresso funciona, mas exige regulagem fina.
+- **Moka:** média-escura. A cafeteira italiana já extrai com força, e o grão claro tende a sair ácido nela.
 
-Duas regras fecham a compra.
+Um detalhe prático aparece na hora de trocar de pacote: com a mesma regulagem, a torra escura drena mais rápido no coador, porque quebra mais fino. Ao mudar de torra, abra a moagem um clique pra escura e feche um fio pra clara, e prove antes de mexer de novo.
 
-- **Prefira grão inteiro e moa na hora.** Café moído perde aroma em minutos ao ar. Grão inteiro segura o cheiro por semanas. Se investir em uma coisa só, invista num moedor, não numa máquina cara.
-- **Olhe a data de torra, não só a validade.** Café especial fica melhor de 5 a 30 dias depois de torrado. Pacote sem data de torra costuma ser café velho parado.
+## Como ler a torra no grão antes de pagar
 
-Guarde o grão em pote fechado, longe da luz, do calor e da umidade. Nada de geladeira: lá dentro o grão absorve cheiro e umidade e perde qualidade.
+Cinco sinais dizem quase tudo com o pacote ainda fechado na mão:
+
+- **A palavra no rótulo.** Torrefador sério escreve torra clara, média, média-escura ou escura. Pacote que diz apenas café torrado, sem ponto declarado, quase sempre é torra escura industrial.
+- **As notas sensoriais.** Floral, frutado e cítrico apontam clara. Caramelo, chocolate e castanha apontam média. Tostado, defumado e cacau amargo apontam escura.
+- **A fenda do meio do grão.** Ela é sempre mais clara que a superfície, e a distância entre as duas cores mostra como o calor entrou. Fenda de cor próxima à casca indica torra bem conduzida. Fenda muito clara sob casca escura indica torra apressada, queimada por fora e crua por dentro.
+- **A uniformidade do saco.** Um grão claro no meio dos escuros é um quaker, cereja imatura que nunca caramelizou. Lote com muitos quakers costuma ir pra torra escura justamente pra esconder o defeito.
+- **O cheiro do pacote.** Torra média cheira a pão e caramelo. Torra escura bem feita cheira a cacau. Cheiro de cinza é grão queimado, e não existe coador que corrija.
+
+Some a data de torra a essa lista. Café especial fica no auge entre o sétimo e o trigésimo dia depois do fogo, e pacote sem data impressa costuma esconder estoque parado. A faixa de preço de um bom café em grãos fica entre **R$ 40 e R$ 70 os 250g**, e o ponto de torra quase nunca muda o valor: é escolha do torrador, não item de custo.
+
+## Por que a torra escura nivela café bom por baixo
+
+Torra escura tem lugar legítimo. Quem gosta de café amargo e encorpado no café da manhã tem todo o direito, e o espresso tradicional italiano vive muito bem nela. O problema não é o ponto, é o uso que a indústria faz dele.
+
+Quando o fogo passa do segundo estalo, o gosto de torra se sobrepõe ao gosto de origem. Um Geisha caro e um blend comum, torrados escuros, chegam parecidos na xícara, porque a camada tostada cobre os dois. Quem paga por altitude, varietal e colheita seletiva e leva pra casa o pacote escuro está comprando um atributo que não vai provar.
+
+O cálculo da indústria é direto: torra escura padroniza matéria-prima irregular, esconde grão verde e defeito de secagem, e o amargor forte passa impressão de café forte. De quebra, a xícara escura varia menos de um lote pro outro.
+
+Se o pacote tiver origem, varietal e altitude na etiqueta, a torra média entrega o que você pagou. Se a etiqueta não disser nada sobre a fazenda, o ponto de torra é o menor dos problemas.
 
 [[AD2]]
 
@@ -89,13 +118,25 @@ Guarde o grão em pote fechado, longe da luz, do calor e da umidade. Nada de gel
 
 ### Torra escura é mais forte que torra clara?
 
-Forte é uma palavra confusa. Torra escura tem mais amargor e corpo, então parece mais forte. Mas a cafeína quase não muda com a torra: clara e escura têm níveis parecidos. Se forte pra você é gosto marcante, a escura entrega. Se é energia, tanto faz.
+Em amargor e corpo, sim. Em cafeína, quase não muda: o fogo destrói pouquíssima cafeína, e a torra escura apenas deixa o grão mais leve, o que faz a colher cheia levar mais grãos. Se forte pra você é gosto marcante, a escura entrega; se é estímulo, tanto faz.
 
-### Café torrado em grãos dura quanto tempo?
+### Quanto tempo depois da torra o café fica bom?
 
-Fechado, um pacote de grãos rende bom sabor por uns 2 a 3 meses depois da torra. Aberto, o ideal é consumir em 3 a 4 semanas. E sempre grão inteiro: depois de moído, esse prazo cai pra poucos dias.
+Espere de 4 a 7 dias de descanso, pro gás carbônico da torra sair um pouco. Depois vem a janela de pico, do sétimo ao trigésimo dia. A partir dos 45 dias o aroma cai a cada semana, mesmo com a validade impressa prometendo doze meses.
 
 ### Qual torra é melhor pra quem está começando?
 
-A torra média. Ela é o ponto mais versátil, agrada quase todo paladar e perdoa erros de preparo. Depois que o paladar acostuma, vale explorar a clara pra sentir a origem e a escura pra quem gosta de amargor.`,
+A média. Ela perdoa erro de moagem e de temperatura, agrada quase todo paladar e ainda deixa a origem aparecer. Depois que o paladar se acostuma, vale provar a clara pra sentir acidez e fruta.
+
+### Grão brilhante de óleo é bom sinal?
+
+Não. O óleo só alcança a superfície depois do segundo estalo, então brilho significa torra longa. Exposto ao ar, ele oxida em poucas semanas e devolve gosto de ranço. Pra coado e prensa, prefira grão fosco e seco.
+
+### Dá pra torrar café em casa?
+
+Dá, em frigideira ou em torrador de ar quente, e é a melhor aula de café que existe. O custo é a uniformidade: sem controle de temperatura, alguns grãos passam do ponto enquanto outros ficam crus. Comece com 100g, escute o primeiro estalo e pare quarenta segundos depois dele.
+
+### O que é um quaker e por que ele estraga a xícara?
+
+É o grão que veio de cereja imatura e nunca caramelizou, por falta de açúcar pra reagir. Fica visivelmente mais claro que os outros no pacote e entrega gosto de amendoim cru e papel. Um punhado de quakers derruba um lote inteiro, e o jeito rápido de escondê-los é a torra escura.`,
 };

@@ -9,83 +9,100 @@ export const artigo: Artigo = {
   statusTag: "Descafeinado",
   localData: "Notas do Café",
   dataPublicacao: "2026-07-14",
-  leitura: "7 minutos",
+  leitura: "11 minutos",
   imagem:
     "https://ecmveymyzdqiehvtqxms.supabase.co/storage/v1/object/public/assets/news/notas-do-cafe/notas-do-cafe-ed016.webp",
   imagemAlt:
     "Grãos de café descafeinado espalhados sobre madeira escura com um coador e uma jarra de vidro ao fundo",
   relacionados: [],
-  body: `Café descafeinado carrega uma fama injusta: a de ser café de segunda, fraco e sem gosto. A fama vinha de um método antigo que maltratava o grão. Hoje existe descafeinado de chocolate amargo e nozes que engana no escuro, e existe até um café que já nasce com metade da cafeína, sem ninguém tirar nada.
+  body: `Café descafeinado carrega uma fama injusta: a de ser café de segunda, fraco e sem gosto. A fama tem endereço, e o endereço é um método antigo que maltratava o grão antes mesmo de ele encostar no fogo. Hoje existe descafeinado de chocolate amargo e nozes que engana no escuro, e existe até um varietal que já nasce com metade da cafeína, sem ninguém tirar nada dele.
 
-Este guia separa o que importa antes de você comprar: o que descafeinado quer dizer de verdade, os três jeitos de retirar a cafeína, qual deles preserva o sabor e como ler a embalagem pra não levar gato por lebre.
+Este guia separa o que decide a compra: o que a cafeína é dentro da planta, os três processos que arrancam a molécula do grão verde, quanto sobra na xícara, o café que dispensa o processo inteiro, como ler a embalagem e como preparar.
 
 [[AD1]]
 
-## O que é café descafeinado, de verdade
+## Cafeína: um alcaloide de defesa, não um ingrediente
 
-Descafeinado não quer dizer café sem graça nem café fraco. Quer dizer um café do qual se tirou a cafeína, a substância que espanta o sono. Nada mais.
+Antes de ser assunto de insônia, a cafeína é um problema que a planta resolveu. Ela é um alcaloide amargo, fabricado pelo cafeeiro como defesa química contra inseto e como inibidor de sementes concorrentes no solo em volta do pé. O grão é semente, e semente é o bem mais caro que a planta tem: a concentração ali é alta de propósito.
 
-Tirar cafeína é fácil. Difícil é tirar a cafeína e deixar o sabor no lugar, porque os mesmos compostos que dão gosto ao café saem junto quando o processo é grosseiro. É aí que mora a diferença entre um descafeinado ruim e um bom.
+O detalhe explica por que separar a cafeína do sabor dá tanto trabalho. Ela é bem solúvel em água quente, do mesmo jeito que os açúcares, os ácidos orgânicos e os compostos aromáticos que fazem o café ter gosto de café. Qualquer líquido que entre no grão atrás da cafeína encontra o resto no caminho e leva junto, a não ser que alguém segure o resto no lugar.
 
-Vale saber de saída: nenhum descafeinado fica com **zero** cafeína. Os bons chegam a retirar cerca de **99,9%**, e o que sobra são traços, o suficiente pra você tomar uma xícara à noite sem perder o sono.
+Os números de partida mostram o tamanho da tarefa. Um arábica comum carrega de 1,2% a 1,5% de cafeína no peso do grão verde, e um robusta passa fácil de 2%. Descafeinar é retirar quase toda essa fração e devolver o grão inteiro, seco e resistente o bastante pra aguentar a torra depois.
 
-## Os três jeitos de tirar a cafeína
+## Quanto de cafeína sobra num descafeinado
 
-Existem três caminhos pra descafeinar um grão, e o método usado é o que mais pesa na xícara. Boa parte dele vem escrito na embalagem, então vale reconhecer cada um.
+Nenhum processo chega a zero. A régua que a maior parte do mercado usa exige remover ao menos 97% da cafeína pro café poder ser vendido como descafeinado, e os processos bem conduzidos chegam perto de 99,9%.
 
-**Solvente químico.** O mais barato. Um líquido dissolve a cafeína do grão, parecido com o princípio de uma tinturaria. Funciona e é seguro, mas costuma deixar o café com gosto chapado, de padaria requentada. É o responsável pela má fama do descafeinado.
+Na xícara, o resto é pequeno. Um coado descafeinado costuma ficar entre 2 e 8 mg de cafeína, contra 60 a 120 mg do mesmo coado com café comum. Pra comparar com algo do armário: um quadradinho de chocolate meio amargo entrega cafeína na mesma ordem de grandeza.
 
-**Dióxido de carbono (CO2).** O gás carbônico sob alta pressão vira quase um líquido e arranca só a cafeína, poupando o aroma. Preserva bem o sabor, é caro e aparece mais em cafés de indústria grande.
+Vale saber onde o processo acontece: sempre no grão verde, antes da torra. O café chega cru na planta de descafeinação, é aberto com vapor ou com água quente pra os poros dilatarem, perde a cafeína e volta a secar até a faixa de 10% a 11% de umidade, o ponto em que pode ser guardado e torrado.
 
-**Swiss Water.** Sem nenhum solvente, só água. Os grãos verdes são mergulhados em água quente que dissolve cafeína e sabor. Esse caldo passa por um filtro de carvão com poros do tamanho exato da molécula de cafeína: a cafeína fica presa, os compostos de sabor, que são maiores, atravessam e voltam. Depois, novos grãos são banhados nesse caldo já cheio de gosto, então ele só puxa a cafeína que falta neles. O sabor nunca vai embora. Por causa disso o café não fica aguado.
+A passagem cobra um preço estrutural, e é o preço que quase ninguém explica. O grão descafeinado sai mais poroso, mais frágil e já mais escuro antes de encostar no fogo. Ele torra mais rápido e escurece antes do ponto, então torrefador que aplica nele o mesmo perfil do café comum entrega grão queimado por fora e cru por dentro. Boa parte da fama de café chapado nasce na torra apressada, não no método de remoção.
 
-> Se alguém disser que descafeinado não presta, a resposta é simples: depende de como tiraram a cafeína.
+## Solvente químico: o caminho barato que criou a má fama
 
-## Linha do tempo do descafeinado
+O processo mais antigo e mais barato usa um solvente. Os grãos verdes, já inchados de água, recebem um líquido que se liga à cafeína e a arrasta pra fora. Depois o solvente evapora, o grão é lavado e seco, e o resíduo que sobra é medido em partes por milhão.
 
-**1903.** O alemão Ludwig Roselius descobre por acaso um jeito de tirar a cafeína de grãos que pegaram água do mar no transporte, e patenteia o primeiro processo comercial. Nasce a marca Kaffee HAG.
+Dois solventes dominam. O diclorometano é o clássico industrial, eficiente e barato. O acetato de etila é o outro, e tem uma característica que virou argumento de rótulo: ele existe naturalmente em fruta madura e pode ser obtido da fermentação da cana, o que rendeu ao método os nomes de processo natural ou processo de cana, comum em café colombiano.
 
-**Anos 1930.** O processo Swiss Water começa a ser desenvolvido na Suíça, com a ideia de usar só água e filtro no lugar de químicos.
+Segurança não é o ponto fraco aqui: o solvente evapora bem abaixo da temperatura de torra, que passa dos 200°C, e o resíduo final fica dentro de limite regulado. O ponto fraco é sensorial. O solvente não distingue tão bem cafeína de aroma, e o grão volta do banho com menos a oferecer. É o método que rende o café de gosto reto, de padaria requentada.
 
-**Anos 1970.** O químico Kurt Zosel, na Alemanha, patenteia a descafeinação por dióxido de carbono, o método que preserva melhor o aroma.
+## CO2 supercrítico: o gás que vira quase líquido
 
-**Anos 1980.** O Swiss Water é industrializado no Canadá e vira sinônimo de descafeinado sem solvente, primeiro de qualidade a chegar às prateleiras.
+O segundo caminho é físico. Acima de mais ou menos 31°C e 74 bar de pressão, o gás carbônico entra num estado estranho: deixa de ser gás, deixa de ser líquido, e passa a se comportar como os dois ao mesmo tempo. Penetra o grão como gás e dissolve como líquido.
 
-**Hoje.** O Brasil produz descafeinado Swiss Water a partir de arábica de altitude, e cultiva o Laurina, um grão que dispensa qualquer remoção.
+Nessa condição, o CO2 tem preferência marcada pela molécula de cafeína e quase nenhuma afinidade pelos açúcares e pelos compostos de aroma, que são maiores e mais polares. O gás circula pelo grão molhado, carrega a cafeína, e numa segunda câmara a pressão cai, o CO2 volta a ser gás comum e a cafeína precipita sozinha.
+
+O método preserva bem o sabor e ainda tem subproduto rentável: a cafeína recuperada é vendida pura pra indústria de refrigerante e de medicamento, o que ajuda a pagar o equipamento. Em compensação, é a rota mais cara de montar, e aparece mais em indústria grande que em microlote.
+
+## Swiss Water: água, carvão ativado e um caldo já saturado
+
+O terceiro caminho não usa solvente nenhum, só água, e o desenho dele é engenhoso. Um primeiro lote de grãos verdes é mergulhado em água quente, que dissolve cafeína e sabor ao mesmo tempo e vira um caldo carregado de tudo que faz o café ser café. Esse primeiro lote é sacrificado.
+
+O caldo passa então por um filtro de carvão ativado com poros calibrados perto do tamanho da molécula de cafeína. A cafeína fica presa no carvão, e os compostos de sabor, que são moléculas maiores, atravessam e continuam na água. O que sai do filtro é um caldo cheio de gosto e sem cafeína.
+
+Daí em diante o desenho se repete com um lote novo de grãos. Como o líquido já está saturado de compostos de sabor, ele não tem de onde puxar mais sabor de dentro do grão: só a cafeína ainda falta nele, e só a cafeína sai. O ciclo se repete até a remoção passar de 99,9%, sem uma gota de químico na história.
+
+O nome vem da Suíça, onde a ideia nasceu nos anos 1930, e a industrialização aconteceu no Canadá nos anos 1980. A história começou antes: em 1903 o alemão Ludwig Roselius patenteou o primeiro processo comercial ao reparar que grãos encharcados de água do mar tinham perdido cafeína, e nos anos 1970 o químico Kurt Zosel patenteou o do CO2.
 
 [[CAPTURE]]
 
-## Laurina: o café que já nasce com metade da cafeína
+## Laurina: o grão que já nasce com metade da cafeína
 
-Tem um atalho que a natureza resolveu sozinha. O **Laurina**, também chamado de **Bourbon Pointu**, é uma mutação natural do velho Bourbon que apareceu na ilha de Reunião, no Oceano Índico, e hoje encontra terreno nas montanhas do Espírito Santo.
+Existe um atalho que a natureza resolveu sem processo nenhum. O **Laurina**, também chamado de **Bourbon Pointu**, é uma mutação natural do velho Bourbon que apareceu na ilha de Reunião, no Oceano Índico, e hoje encontra altitude e clima nas montanhas do Espírito Santo.
 
-O grão é estreito e curvado nas pontas, feito uma vírgula, e daí vem o nome pointu, pontudo em francês. A graça está na cafeína: por característica da própria planta, ele acumula cerca de **0,6%**, contra os **1,2%** de um arábica comum. Metade, mais ou menos.
+O grão é estreito e curvado nas pontas, parecido com uma vírgula, e daí vem o apelido pointu, pontudo em francês. A graça está na química da planta: o Laurina acumula perto de **0,6%** de cafeína, contra os **1,2%** de um arábica comum. Metade, mais ou menos, sem intervenção humana no meio.
 
-O ponto que muda tudo é que não há processo de remoção no meio. A cafeína já vem baixa da semente, então nada é arrancado e o sabor fica inteiro. É a resposta pra quem quer menos cafeína sem abrir mão de corpo e doçura.
+O que muda a xícara é o processo ausente. Sem banho de solvente e sem filtro de carvão no caminho, nenhum aroma foi arrastado pra fora junto com a cafeína. O sabor fica inteiro porque nunca saiu: mel, fruta clara e flores, acidez delicada e amargor baixo.
 
-## Como escolher um bom descafeinado
+O preço acompanha a raridade. O Laurina produz pouco por pé e dá mais trabalho na lavoura, e a faixa dos 250g fica entre **R$ 70 e R$ 120**, dependendo do produtor e da safra. A planta quase sumiu do mapa por ser pouco produtiva, e voltou por um esforço de resgate que levou sementes pra outros países de café fino, o Brasil entre eles.
 
-Na hora de comprar, três coisas na embalagem decidem quase tudo:
+## Como escolher na prateleira, e quanto custa
 
-- **Procure o método.** "Swiss Water" ou "processo a água" e "CO2" são os que preservam sabor. Se não disser nada, provavelmente é solvente, o mais chapado.
-- **Prefira grão em vez de pó pronto.** Grão inteiro pra moer na hora vale pra descafeinado como vale pra qualquer café: o aroma dura mais.
-- **Confira a origem e a torra.** Um descafeinado que parte de arábica de altitude, como o do Sul de Minas, tem muito mais o que oferecer que um café de origem anônima.
+Na hora de comprar, quatro linhas do rótulo decidem quase tudo:
 
-Sobre preço: um bom descafeinado custa um pouco mais que o café comum, porque o processo a água é caro e demorado. A faixa dos 250g fica em torno de **R$ 52 a R$ 70**, dependendo do torrefador e da safra.
+- **O método declarado.** Swiss Water, processo a água, CO2 ou acetato de etila natural. Pacote que não diz nada sobre o método quase sempre usou solvente comum, o mais chapado dos três.
+- **A origem do café antes da remoção.** Um descafeinado que parte de arábica de altitude do Sul de Minas tem muito mais a oferecer que um de origem anônima. A cafeína sai, mas a altitude e o varietal ficam.
+- **Grão inteiro em vez de pó pronto.** O descafeinado é mais poroso que o café comum, então perde aroma ainda mais rápido depois de moído. A regra do grão inteiro vale em dobro aqui.
+- **A data de torra.** O grão descafeinado envelhece rápido. Procure pacote torrado nas últimas semanas, com data impressa, e não apenas a validade de doze meses.
 
-## Como preparar
+Sobre dinheiro: um bom descafeinado custa mais que o café comum, porque o processo a água e o de CO2 são caros e ainda exigem uma etapa inteira de secagem depois. A faixa dos 250g fica em torno de **R$ 52 a R$ 70**, dependendo do torrefador e da safra.
 
-Um descafeinado de corpo bom pede um método limpo, e o **coado** resolve com folga. É o preparo mais brasileiro que existe: pó no filtro de papel, água quente por cima, café pingando na jarra.
+## Como preparar pra a xícara não entregar o descafeinado
 
-A receita que funciona:
+O grão descafeinado é mais frágil e mais poroso, então extrai mais rápido que o café comum na mesma moagem. Duas correções pequenas resolvem quase todo o problema: abra a moagem um clique e baixe a água um ou dois graus.
+
+A receita base no coado:
 
 - **20g de café** moído na hora, moagem média, parecida com açúcar cristal
-- **300ml de água a 92°C**, logo abaixo da fervura, numa proporção de 1 pra 15
-- Molhe primeiro só o pó com uns 40ml e espere **30 segundos**, o banho que solta o gás do grão e faz a água extrair por igual
+- **300ml de água a 92°C**, logo abaixo da fervura, na proporção de 1 pra 15
+- Pré-infusão: molhe só o pó com **40ml** e espere **30 segundos**, o bloom que solta o gás preso no grão
 - Complete em dois ou três despejos lentos, em círculos, do centro pra fora
 - **Tempo total de 3 a 4 minutos.** Sirva por volta de 55°C
 
-Uma vantagem: como não tem cafeína pra estimular, dá pra caprichar na dose sem culpa e tomar a xícara cheia à noite.
+Se a xícara sair seca e amarga no final, o café extraiu demais: abra mais um clique de moagem ou desça pra 90°C. Se sair rala e azeda, feche um fio a moagem. Mude um fator por vez e prove: em duas ou três xícaras o ponto aparece.
+
+Uma vantagem prática fecha o preparo: como o estímulo não vem junto, dá pra caprichar na dose e tomar a xícara cheia às dez da noite sem pagar a fatura de madrugada.
 
 [[AD2]]
 
@@ -93,13 +110,25 @@ Uma vantagem: como não tem cafeína pra estimular, dá pra caprichar na dose se
 
 ### Café descafeinado faz mal?
 
-Não. O descafeinado é seguro, inclusive nos métodos com solvente, que passam por controle rigoroso e deixam resíduo mínimo. Se você quer evitar até o traço de químico, escolha um Swiss Water, feito só com água.
+Não. Os três métodos são seguros, inclusive o de solvente, que passa por controle de resíduo e cujo líquido evapora muito antes da temperatura de torra. Quem quiser evitar até o traço tem duas saídas: um Swiss Water ou um processo a CO2.
 
-### Café descafeinado tem cafeína mesmo assim?
+### Descafeinado tem cafeína mesmo assim?
 
-Tem, mas pouquíssima. Os bons processos retiram cerca de 99,9%, então sobram apenas traços. Para a imensa maioria das pessoas, é o bastante pra tomar à noite sem atrapalhar o sono.
+Tem, e pouca. A régua de mercado exige ao menos 97% de remoção e os bons processos chegam perto de 99,9%, o que deixa a xícara na faixa de 2 a 8 mg. Pra quase todo mundo é o bastante pra tomar à noite sem atrapalhar o sono, já que a cafeína leva de 4 a 6 horas pra cair pela metade no corpo.
 
-### Descafeinado perde o sabor?
+### Por que tanto descafeinado tem gosto chapado?
 
-Só quando é mal feito. No método antigo com solvente, sim, o café fica chapado. Feito com água pelo Swiss Water, com CO2 ou com um grão naturalmente baixo em cafeína como o Laurina, o sabor continua inteiro.`,
+Por dois motivos que se somam. O método, porque solvente comum não separa bem cafeína de aroma. E a torra, porque o grão descafeinado é mais poroso, escurece antes e queima fácil, e muito torrefador aplica nele o mesmo perfil do café comum.
+
+### Swiss Water ou CO2, qual é melhor?
+
+Os dois preservam o sabor muito acima do solvente. O Swiss Water dispensa qualquer químico e é o mais fácil de achar em café especial brasileiro; o CO2 é industrial e aparece mais em volume grande. Entre um Swiss Water anônimo e um CO2 de arábica de altitude, o café com origem declarada tende a ganhar.
+
+### O Laurina é um descafeinado?
+
+Não é, e a diferença está no processo ausente. Ele é um varietal comum de arábica que, por mutação natural, produz cerca de metade da cafeína. Nada foi retirado, então nenhum aroma foi arrastado junto. Também não é isento: quem precisa cortar cafeína por recomendação médica ainda encontra 0,6% ali.
+
+### Dá pra fazer espresso com descafeinado?
+
+Dá, com ajuste. O grão poroso extrai mais rápido e tende a jorrar cedo, então feche a moagem em relação ao seu café comum e reduza um pouco a temperatura do grupo. Uma dose que sai em 25 a 30 segundos entrega corpo e doçura sem amargor de queimado.`,
 };
