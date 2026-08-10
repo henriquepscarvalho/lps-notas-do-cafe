@@ -38,6 +38,12 @@ export async function POST(req: Request) {
   // ebook_purchases.variant (atribuição de venda por braço, ticket 10).
   const variant = (req.headers.get("cookie") || "").match(/(?:^|;\s*)lp_eb=([ABC])(?:;|$)/)?.[1];
 
+  // Braço do 1 clique (ticket 02.2, GO do HC 09/08): cookie PRÓPRIO lp_cs, 50/50,
+  // sorteado aqui na primeira session do visitante. S liga o cartão salvo (a Stripe
+  // injeta a linha "pagamentos futuros" e o Link; o atrito sai medido contra o N).
+  const csCookie = (req.headers.get("cookie") || "").match(/(?:^|;\s*)lp_cs=([SN])(?:;|$)/)?.[1];
+  const cs = csCookie === "S" || csCookie === "N" ? csCookie : Math.random() < 0.5 ? "S" : "N";
+
   const origin = new URL(req.url).origin;
   const params: Record<string, string> = {
     ui_mode: "embedded",
@@ -50,6 +56,11 @@ export async function POST(req: Request) {
     "metadata[sc]": SC, // contrato do webhook central (ticket 11): resolve o ebook pelo sc
   };
   if (variant) params["metadata[variant]"] = variant;
+  params["metadata[cs]"] = cs; // braço do cartão salvo: leitura por session na Stripe
+  if (cs === "S") {
+    params["payment_intent_data[setup_future_usage]"] = "off_session";
+    params["customer_creation"] = "always";
+  }
   if (bump) params["metadata[bump]"] = BUMP_SC;
   // Jornada e origem (decisão HC 05/08): o webhook central persiste em
   // ebook_purchases.journey_id/src e aí cada real fica colado no caminho (teste, VSL
@@ -106,7 +117,12 @@ export async function POST(req: Request) {
       console.error("[checkout] Stripe:", data.error?.message);
       return NextResponse.json({ error: data.error?.message }, { status: r.status });
     }
-    return NextResponse.json({ clientSecret: data.client_secret });
+    const ok = NextResponse.json({ clientSecret: data.client_secret });
+    ok.headers.set(
+      "set-cookie",
+      `lp_cs=${cs}; Path=/; Max-Age=31536000; SameSite=Lax`,
+    );
+    return ok;
   } catch (err) {
     console.error("[checkout] fetch:", (err as Error).message);
     return NextResponse.json({ error: "stripe_unreachable" }, { status: 500 });
