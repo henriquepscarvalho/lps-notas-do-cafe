@@ -38,11 +38,11 @@ export async function POST(req: Request) {
   // ebook_purchases.variant (atribuição de venda por braço, ticket 10).
   const variant = (req.headers.get("cookie") || "").match(/(?:^|;\s*)lp_eb=([ABC])(?:;|$)/)?.[1];
 
-  // Braço do 1 clique (ticket 02.2, GO do HC 09/08): cookie PRÓPRIO lp_cs, 50/50,
-  // sorteado aqui na primeira session do visitante. S liga o cartão salvo (a Stripe
-  // injeta a linha "pagamentos futuros" e o Link; o atrito sai medido contra o N).
-  const csCookie = (req.headers.get("cookie") || "").match(/(?:^|;\s*)lp_cs=([SN])(?:;|$)/)?.[1];
-  const cs = csCookie === "S" || csCookie === "N" ? csCookie : Math.random() < 0.5 ? "S" : "N";
+  // Cartão salvo em TODO checkout (GO do HC 10/08). O split 50/50 do ticket 02.2 morreu
+  // com zero venda no braço S em 24h: sem dado no braço tratado o teste não media nada.
+  // metadata[cs] fica pra série da Stripe não perder o eixo, e o Set-Cookie lá embaixo
+  // sobrescreve o lp_cs=N de quem foi sorteado ontem.
+  const cs = "S";
 
   const origin = new URL(req.url).origin;
   const params: Record<string, string> = {
