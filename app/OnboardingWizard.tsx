@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback, type CSSProperties } from "react";
 import { captureSource, sendBeacon } from "./PageBeacon";
 
-/* OnboardingWizard — onboarding 4 passos, PADRAO OURO da rede (gerado pelo rollout).
+/* OnboardingWizard — onboarding de 7 passos (cadastro + 6 telas), PADRAO OURO da rede (gerado pelo rollout).
    Componente unico montado nos slugs de confirmacao. source na coluna; context muda
    so a copy do passo 1 e o fecho. Beacon apareceu/converteu por etapa. */
 
@@ -32,6 +32,22 @@ const REC_POOL = [
   { slug: "pipoca-pronta", name: "Pipoca Pronta", card: "O programa de hoje já escolhido, com a plataforma onde ele está e a duração em minutos.", hora: "18:18", leitores: null, emoji: "📺", logo: "/images/rec/pipoca-pronta.png" },
   { slug: "destino-do-dia", name: "Destino do Dia", card: "Um destino incrível dentro do Brasil por dia, com os gastos completos de toda a viagem.", hora: "06:06", leitores: null, emoji: "🧳", logo: "/images/rec/destino-do-dia.png" },
 ];
+
+/* vdn-ebook-step: passo do guia premium (passo 6), baked pelo rollout_ebook_step.py.
+   Layout Capa Herói (escolha do HC no burst de 10/08): a capa carrega a tela, título e
+   promessa embaixo. Tokens saem de app/ebook-premium/page.tsx (EBOOK.titulo/sub/capa).
+   `url` vazio = news sem LP de venda e o passo pula sozinho. Preço fica FORA daqui de
+   propósito (decisão HC 10/08): o passo apresenta o guia, quem vende é a página. O link
+   entra em /ebook-premium sem carimbo de origem: o middleware sorteia LP x VSL na borda
+   como já faz pro banner da edição, e o `vdn_source` da jornada continua sendo o canal
+   que trouxe a pessoa. Quem veio pelo wizard se lê pela interseção de journey_id com o
+   step `ebook` no lp_page_views, mesmo método da porta do quiz. */
+const EB = {
+  url: "/ebook-premium",
+  titulo: "Café de Balcão no Coador de Casa",
+  linha: "As oito variáveis que fazem o coador de papel da sua cozinha repetir a xícara do balcão, sem a máquina de R$ 2 mil.",
+  capa: "/ebook-web/capa-notas-do-cafe.webp",
+};
 
 const CC_CSS = `
 .cc-main{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:26px 20px 56px;text-align:center;background:var(--cc-bg);color:var(--cc-text);font-family:var(--cc-fb)}
@@ -95,13 +111,16 @@ const CC_CSS = `
 .cc-reccard:not(.sel){opacity:.5}
 .cc-btnP:disabled{opacity:.4;cursor:default}
 .cc-recerr{font-size:12px;color:var(--cc-muted);text-align:center;margin:10px 0 0}
+/* vdn-ebook-css */
+.cc-ebhero{display:flex;justify-content:center;margin:4px 0 18px}
+.cc-ebhero img{width:158px;max-width:52%;height:auto;display:block;border-radius:7px;box-shadow:0 18px 38px rgba(0,0,0,.6);transform:perspective(760px) rotateY(-7deg);animation:ccPop .6s cubic-bezier(.16,1,.3,1) both}
 @media (prefers-reduced-motion: reduce){
-  .cc-orb,.cc-seal img,.cc-step,.cc-reveal{animation:none}
+  .cc-orb,.cc-seal img,.cc-step,.cc-reveal,.cc-ebhero img{animation:none}
   .cc-bar i{transition:none}
 }`;
 
-type StepKey = "rec" | "email" | "whatsapp" | "pesquisa" | "edicoes";
-const ORDER: StepKey[] = ["rec", "email", "whatsapp", "pesquisa", "edicoes"];
+type StepKey = "rec" | "email" | "whatsapp" | "pesquisa" | "ebook" | "edicoes";
+const ORDER: StepKey[] = ["rec", "email", "whatsapp", "pesquisa", "ebook", "edicoes"];
 const TOTAL = ORDER.length + 1; // cadastro conta como passo 1 concluído (goal gradient)
 const SS = (k: string): string | null => { try { return sessionStorage.getItem(k); } catch { return null; } };
 const SET = (k: string, v: string) => { try { sessionStorage.setItem(k, v); } catch {} };
@@ -143,6 +162,7 @@ export default function OnboardingWizard({
       try { em = localStorage.getItem("vdn_lead_email"); } catch {}
       if (!em) return true;
     }
+    if (k === "ebook" && !EB.url) return true; // news sem LP de venda: passo nao existe
     if (k === "pesquisa") return !!SS("vdn_pesquisa");
     return !!SS(`vdn_ob_${k}`);
   }, []);
@@ -178,6 +198,24 @@ export default function OnboardingWizard({
   }, [isHandled]);
 
   const skip = (k: StepKey) => { SET(`vdn_ob_${k}`, "skip"); advance(); };
+
+  /* Aba nova só herda o sessionStorage quando o navegador copia o contexto, e com
+     noopener/noreferrer não copia. Sem a jornada do outro lado, a venda chegaria no
+     Supabase como visita nova e o passo viraria um link sem dono. Journey e origem
+     viajam na URL; o captureSource do outro lado só adota o que não existir. */
+  const ebHref = () => {
+    try {
+      const p = new URLSearchParams();
+      const j = sessionStorage.getItem("vdn_journey");
+      const s = sessionStorage.getItem("vdn_source");
+      if (j) p.set("j", j);
+      if (s) p.set("src", s);
+      const q = p.toString();
+      return q ? `${EB.url}?${q}` : EB.url;
+    } catch {
+      return EB.url;
+    }
+  };
 
   const toggleRec = (s: string) =>
     setRecSel((cur) => { const n = new Set(cur); if (n.has(s)) n.delete(s); else n.add(s); return n; });
@@ -376,6 +414,21 @@ export default function OnboardingWizard({
                   </div>
                 )}
                 {idx === 4 && (
+                  <div className="cc-step" key="ebook">
+                    <div className="cc-n">{`Passo ${stepNo} de ${TOTAL} · guia completo`}</div>
+                    <div className="cc-ebhero">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={EB.capa} alt={EB.titulo} onError={(e) => { e.currentTarget.style.display = "none"; }} />
+                    </div>
+                    <h2>{EB.titulo}</h2>
+                    <p>{EB.linha}</p>
+                    <a className="cc-btnP" href={ebHref()} target="_blank" rel="noopener"
+                      onClick={() => { SET("vdn_ob_ebook", "done"); sendBeacon(SLUG, "ebook", { eventType: "converteu" }); setTimeout(advance, 150); }}
+                    >Conhecer o guia →</a>
+                    <button className="cc-btnG" onClick={() => skip("ebook")}>Agora não</button>
+                  </div>
+                )}
+                {idx === 5 && (
                   <div className="cc-step" key="edicoes">
                     <div className="cc-n">{`Passo ${stepNo} de ${TOTAL} · enquanto espera`}</div>
                     <h2>Leia enquanto espera</h2>

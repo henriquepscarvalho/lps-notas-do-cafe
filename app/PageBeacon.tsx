@@ -74,8 +74,12 @@ export function captureSource(defaultSource?: string): void {
     } else if (defaultSource && !sessionStorage.getItem("vdn_source")) {
       sessionStorage.setItem("vdn_source", defaultSource);
     }
+    // `?j=` (passo do guia no wizard): aba nova aberta com noopener não herda o
+    // sessionStorage, então a jornada viaja no link. Só adota quando a aba ainda não
+    // tem jornada própria, e nunca sobrescreve a de quem já está navegando.
+    const jp = (new URLSearchParams(window.location.search).get("j") || "").trim().slice(0, 60);
     if (!sessionStorage.getItem("vdn_journey")) {
-      sessionStorage.setItem("vdn_journey", genId());
+      sessionStorage.setItem("vdn_journey", jp || genId());
     }
   } catch {
     /* storage bloqueado — beacon ainda manda source=direct */
