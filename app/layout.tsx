@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 import { Eczar, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { TrackingPixels } from "./components/tracking-pixels";
@@ -54,11 +53,10 @@ export default function RootLayout({
     >
       <head>
         {/* Verificacao de propriedade AdSense: site-wide, igual ao Crime Aberto. */}
-        <Script
+        <script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9899991510788633"
           crossOrigin="anonymous"
-          strategy="beforeInteractive"
         />
       </head>
       <body>
