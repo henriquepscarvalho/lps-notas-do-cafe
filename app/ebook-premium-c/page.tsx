@@ -349,8 +349,11 @@ export default function EbookPremium() {
             ))}
           </div>
           <div className="rodape-calc">
-            <a href={CHECKOUT} className="btn" onClick={ctaClick}>
-              {total > 0 ? `Ajustar ${total} de 8 →` : "Abrir as oito variáveis →"}
+            {/* HC 10/08: aqui a pessoa ainda não viu que existe um guia. O botão da
+                calculadora desce pra vitrine (capa, título, o que é); a compra fica
+                nos CTAs de baixo, depois de saber o que está comprando. */}
+            <a href="#vitrine" className="btn">
+              {total > 0 ? `Ajustar ${total} de 8 ↓` : "Abrir as oito variáveis ↓"}
             </a>
             <p className="calc-micro">{PRECO_DE && <><s>{PRECO_DE}</s> </>}<b>{PRECO}</b> uma vez · acesso imediato</p>
           </div>
@@ -359,7 +362,7 @@ export default function EbookPremium() {
       </section>
 
       {/* Vitrine: o ebook como objeto central (V2, burst 18/07), agora 2ª seção */}
-      <section className="vitrine">
+      <section className="vitrine" id="vitrine">
         <div className="spot" aria-hidden="true" />
         <p className="reveal kicker">{EBOOK.kicker}</p>
         <h2 className={"reveal vt-title" + (EBOOK.manchete ? " vt-frase" : "")}><span className="peso">{EBOOK.manchete || EBOOK.titulo}</span></h2>
@@ -775,6 +778,8 @@ a{color:inherit;text-decoration:none}
           .obj .frente{width:min(300px,64vw)}
         }
         @media(max-width:560px){.vitrine{display:block}}
+        /* o botão da calculadora desce até aqui, e o nav é sticky de 66px */
+        #vitrine{scroll-margin-top:66px}
       `}</style>
     </>
   );

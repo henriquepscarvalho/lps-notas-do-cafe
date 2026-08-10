@@ -8,6 +8,8 @@ import PageBeacon from "../../PageBeacon";
    ============================================================ */
 const EBOOK = {
   "slug": "notas-do-cafe",
+  "capa": "/ebook-web/capa-notas-do-cafe.webp",
+  "capaAlt": "Capa do guia Café de Balcão no Coador de Casa",
   "titulo": "Café de Balcão no Coador de Casa",
   "kicker": "Guia Notas do Café",
   "preco": "R$ 27",
@@ -124,6 +126,12 @@ export default function EbookCheckout() {
 
       <main className="ck-page">
         <header className="ck-head">
+          {/* HC 10/08: quem chega pela variante C não viu capa nenhuma até aqui.
+              O objeto entra antes do título pra pessoa saber que compra um guia. */}
+          <div className="ck-obj">
+            <span className="ck-lomb" aria-hidden="true" />
+            <img src={EBOOK.capa} alt={EBOOK.capaAlt} />
+          </div>
           <p className="kicker">{EBOOK.kicker}</p>
           <h1>{EBOOK.titulo}</h1>
           <p className="ck-resumo">
@@ -195,6 +203,9 @@ a{color:inherit;text-decoration:none}
         .voltar:hover{color:var(--bright)}
         .ck-page{max-width:560px;margin:0 auto;padding:3rem 1.25rem 4rem}
         .ck-head{text-align:center;margin-bottom:1.8rem}
+        .ck-obj{position:relative;width:136px;margin:0 auto 1.6rem}
+        .ck-obj img{display:block;width:100%;height:auto;border-radius:8px;box-shadow:0 24px 54px rgba(0,0,0,.6),0 0 70px rgba(225,114,35,.16)}
+        .ck-lomb{position:absolute;top:2%;bottom:2%;left:-5px;width:6px;border-radius:4px 0 0 4px;background:linear-gradient(90deg,rgba(0,0,0,.85),rgba(255,255,255,.10))}
         .ck-head .kicker{display:block;margin-bottom:.9rem}
         .ck-head h1{font-family:var(--serif);font-style:italic;font-weight:900;font-size:clamp(1.8rem,5vw,2.6rem);color:#fff;letter-spacing:-.02em;margin-bottom:.7rem}
         .ck-resumo{font-size:15px;color:var(--text);line-height:1.6}
