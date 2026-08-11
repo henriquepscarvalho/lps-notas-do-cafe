@@ -150,7 +150,7 @@ export default function OnboardingWizard({
   const [sec, setSec] = useState("");
   const [secWord, setSecWord] = useState(false);
   const [reduce, setReduce] = useState(false);
-  const [recSel, setRecSel] = useState<Set<string>>(() => new Set(REC_POOL.map((n) => n.slug)));
+  const [recSel, setRecSel] = useState<Set<string>>(() => new Set(REC_POOL.slice(0, 1).map((n) => n.slug)));
   const [recBusy, setRecBusy] = useState(false);
   const [recErr, setRecErr] = useState(false);
 
@@ -344,7 +344,7 @@ export default function OnboardingWizard({
                   <div className="cc-step" key="rec">
                     <div className="cc-n">Você foi convidado</div>
                     <h2>Quem lê a {NAME} também lê <em>estas 4</em></h2>
-                    <p>Escolhemos outras 4 news que mais combinam com a {NAME}. Todas já prontas no seu combo de leitura. Escolha como quiser e confirme.</p>
+                    <p>Escolhemos outras 4 news que mais combinam com a {NAME}. Deixamos a primeira marcada. Marque as outras que você quiser receber e confirme.</p>
                     <div className="cc-recgrid">
                       {REC_POOL.map((n) => {
                         const sel = recSel.has(n.slug);
