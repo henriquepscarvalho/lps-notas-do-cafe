@@ -3,9 +3,10 @@ import { NextRequest, NextResponse } from "next/server";
 /**
  * Porta de venda do ebook: dois sorteios independentes na borda.
  *
- *  EXP-031 (ticket 37 do quiz-vsl-ebooks) — cookie `lp_v`, 50/50:
- *    V → /vsl (a VSL direta, sem teste na frente)   N → a LP de vendas de sempre
- *  EXP-027 — cookie `lp_eb`, 50/50 entre as LPs, só para quem caiu no N:
+ *  EXP-031 (ticket 37 do quiz-vsl-ebooks) — ENCERRADO em 15/08/26, o braço V
+ *    perdeu. Detalhe no corte lá embaixo; o cookie `lp_v` só sobrevive pra escrever
+ *    N por cima de quem ficou preso no V.
+ *  EXP-027 — cookie `lp_eb`, 50/50 entre as LPs, agora com todo o tráfego:
  *    A → /ebook-premium   B → /ebook-premium-b
  *
  * CORTE 15/08/26 (decisão do HC): o braço C (calculadora do vazamento) saiu do
@@ -56,10 +57,19 @@ export function middleware(req: NextRequest) {
   const f = (searchParams.get("v") || "").toUpperCase();
   const routeV = pathname === "/ebook-premium-b" ? "B" : null;
 
-  const vRaw = req.cookies.get(VCOOKIE)?.value;
-  const sorteio = vRaw === "V" || vRaw === "N" ? vRaw : Math.random() < 0.5 ? "V" : "N";
-  // porta: ?v= (revisão) > rota direta -b > sorteio do EXP-031
-  const vsl = f === "V" ? true : valid(f) || routeV ? false : sorteio === "V";
+  // CORTE 15/08/26 (ticket 15 do c4-b5-b6-b7): o EXP-031 acabou e o braço V perdeu.
+  // Em 12 de 12 origens pareadas a LP de vendas bateu a VSL: 438 entradas viraram 10
+  // checkouts (2,3%) contra 431 virando 69 (16,0%), 7 vezes de diferença. Nem quem
+  // apertou o play escapou: 6,0% contra 15,2% da LP, nas 3 news que medem play. O
+  // sorteio morre e todo mundo entra pela LP de vendas. Gravar "N" por cima ainda
+  // resgata quem tinha caído no V e ficaria preso nele por um ano de cookie. A /vsl
+  // segue viva fora do matcher, pro /teste (tráfego frio), pro link do WhatsApp e
+  // pro ?v=V de revisão.
+  const sorteio = "N";
+  // porta: só o ?v=V de revisão manda pra VSL. Com o sorteio morto isto é o que
+  // sobrou de `f === "V" ? true : valid(f) || routeV ? false : sorteio === "V"`,
+  // e escrever a comparação com o literal "N" reprovaria no typecheck (TS2367).
+  const vsl = f === "V";
 
   // variante da LP: vale para quem não caiu na VSL, e sobrevive ao sorteio da porta
   const variant =
