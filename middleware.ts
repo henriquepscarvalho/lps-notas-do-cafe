@@ -5,8 +5,17 @@ import { NextRequest, NextResponse } from "next/server";
  *
  *  EXP-031 (ticket 37 do quiz-vsl-ebooks) — cookie `lp_v`, 50/50:
  *    V → /vsl (a VSL direta, sem teste na frente)   N → a LP de vendas de sempre
- *  EXP-027 — cookie `lp_eb`, 1/3 entre as LPs, só para quem caiu no N:
- *    A → /ebook-premium   B → /ebook-premium-b   C → /ebook-premium-c
+ *  EXP-027 — cookie `lp_eb`, 50/50 entre as LPs, só para quem caiu no N:
+ *    A → /ebook-premium   B → /ebook-premium-b
+ *
+ * CORTE 15/08/26 (decisão do HC): o braço C (calculadora do vazamento) saiu do
+ * sorteio. Puxava mais gente pro checkout que todo mundo (20,0% contra 11,4% do A)
+ * e fechava quase ninguém lá dentro (2,3% contra 9,1% do A e 9,2% do B), então
+ * gerou R$ 81,00 contra R$ 364,50 do B no mesmo período. Pela regra de braço
+ * perdedor do EXP-027, `/ebook-premium-c` fica no matcher e passa a redirecionar
+ * pro braço vivo, então link velho compartilhado não morre nem volta a mostrar a
+ * calculadora. Quem tinha `lp_eb=C` re-sorteia entre A e B no primeiro hit, porque
+ * `valid()` não aceita mais C.
  *
  * A bifurcação mora AQUI, na porta, e não na copy: o banner da edição diária e a
  * automação de monetização continuam apontando pro mesmo /ebook-premium, então as
@@ -25,7 +34,7 @@ import { NextRequest, NextResponse } from "next/server";
  * variante de LP que já tinha.
  *
  * Sorteio antes de qualquer render/beacon; cookies de 1 ano; redirect 307. Hit
- * direto em -b/-c (link compartilhado) não sorteia. `?v=a|b|c|v` força pra revisão
+ * direto em -b (link compartilhado) não sorteia. `?v=a|b|v` força pra revisão
  * sem gravar o sorteio forçado.
  */
 
@@ -34,29 +43,28 @@ const VCOOKIE = "lp_v";
 const ROUTE: Record<string, string> = {
   A: "/ebook-premium",
   B: "/ebook-premium-b",
-  C: "/ebook-premium-c",
 };
 const VROUTE = "/vsl";
 
-function valid(v: string | undefined | null): "A" | "B" | "C" | null {
-  return v === "A" || v === "B" || v === "C" ? v : null;
+function valid(v: string | undefined | null): "A" | "B" | null {
+  return v === "A" || v === "B" ? v : null;
 }
 
 export function middleware(req: NextRequest) {
   const { pathname, searchParams } = req.nextUrl;
 
   const f = (searchParams.get("v") || "").toUpperCase();
-  const routeV = pathname === "/ebook-premium-b" ? "B" : pathname === "/ebook-premium-c" ? "C" : null;
+  const routeV = pathname === "/ebook-premium-b" ? "B" : null;
 
   const vRaw = req.cookies.get(VCOOKIE)?.value;
   const sorteio = vRaw === "V" || vRaw === "N" ? vRaw : Math.random() < 0.5 ? "V" : "N";
-  // porta: ?v= (revisão) > rota direta -b/-c > sorteio do EXP-031
+  // porta: ?v= (revisão) > rota direta -b > sorteio do EXP-031
   const vsl = f === "V" ? true : valid(f) || routeV ? false : sorteio === "V";
 
   // variante da LP: vale para quem não caiu na VSL, e sobrevive ao sorteio da porta
   const variant =
     valid(f) ?? routeV ?? valid(req.cookies.get(COOKIE)?.value)
-    ?? (["A", "B", "C"] as const)[Math.floor(Math.random() * 3)];
+    ?? (Math.random() < 0.5 ? "A" : "B");
 
   const canonical = vsl ? VROUTE : ROUTE[variant];
   let res: NextResponse;
