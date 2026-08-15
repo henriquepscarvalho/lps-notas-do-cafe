@@ -72,7 +72,10 @@ export async function POST(req: Request) {
   const journey = curto(body?.journey);
   const src = curto(body?.src);
   if (journey) params["metadata[journey]"] = journey;
-  if (src) params["metadata[src]"] = src;
+  // Porta da página (ticket 13): sem ?src= na jornada, quem carimba a origem é a
+  // própria porta que abriu o checkout. Sessão nunca nasce anônima, e "direto e
+  // solto" deixa de ser o balde de tudo que o beacon não pegou.
+  params["metadata[src]"] = src || "lp-ebook";
 
   // Sem description o email de venda e a lista do Dashboard mostram so o valor
   // (metadata nao aparece la). Suffix: fatura do cartao vira "NEWSLETTER* EBOOK <SC>"
