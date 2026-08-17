@@ -14,9 +14,14 @@ export type UtmPayload = {
   gclid?: string;
   referrer?: string;
   landing?: string;
+  ref?: string;
 };
 
 const KEY = "vdn_utm";
+// ref de indicação (?ref=<sub_hash[:12]>): chave PRÓPRIA, fora do objeto vdn_utm,
+// porque um touch posterior com utm_* mas sem ref substituiria o objeto e apagaria
+// a atribuição da indicação. Mesmo contrato de TTL e last-touch do vdn_utm.
+const REF_KEY = "vdn_ref";
 const TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 dias
 
 const pick = (p: URLSearchParams, k: string): string | undefined => {
@@ -28,6 +33,10 @@ export function captureUtm(): void {
   if (typeof window === "undefined") return;
   try {
     const p = new URLSearchParams(window.location.search);
+    const ref = pick(p, "ref");
+    if (ref && /^[0-9a-f]{8,16}$/i.test(ref)) {
+      localStorage.setItem(REF_KEY, JSON.stringify({ code: ref.toLowerCase(), ts: Date.now() }));
+    }
     const fresh: UtmPayload = {
       source: pick(p, "utm_source"),
       medium: pick(p, "utm_medium"),
@@ -66,5 +75,14 @@ export function getUtm(): UtmPayload {
       out.referrer = document.referrer;
     }
   } catch {}
+  try {
+    const raw = localStorage.getItem(REF_KEY);
+    if (raw) {
+      const r = JSON.parse(raw) as { code?: string; ts?: number };
+      if (r?.code && (!r.ts || Date.now() - r.ts <= TTL_MS)) out.ref = r.code;
+    }
+  } catch {
+    /* storage bloqueado: cadastro segue sem atribuição de indicação */
+  }
   return out;
 }

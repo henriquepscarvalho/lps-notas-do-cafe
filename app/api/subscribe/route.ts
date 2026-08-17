@@ -1,5 +1,72 @@
 import { NextResponse } from "next/server";
 import crypto from "node:crypto";
+import { validateEmail } from "../../lib/validate-email";
+
+// ── referral interno (gamificacao-do-leitor/10) ─────────────────────────────
+// Com ?ref= presente o cadastro passa a render prêmio: o email valida (descartável/
+// typo/denylist) ANTES do Beehiiv e a indicação vira linha em referral_signups (SOT;
+// hash server-side, email cru nunca gravado). Falha do INSERT nunca derruba o
+// cadastro; dedupe = unique (slug, indicado_hash), primeiro ref vence.
+const REFERRAL_SLUG = "notas-do-cafe";
+
+const sha256hex = (s: string) =>
+  crypto.createHash("sha256").update(s.trim().toLowerCase()).digest("hex");
+
+async function emailDenied(email: string): Promise<boolean> {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) return false;
+  try {
+    const res = await fetch(`${url}/rest/v1/rpc/is_email_denied`, {
+      method: "POST",
+      headers: { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ p_email: email }),
+    });
+    if (!res.ok) return false; // fail-open: hiccup nunca perde lead
+    return (await res.json()) === true;
+  } catch {
+    return false;
+  }
+}
+
+async function recordReferral(opts: {
+  refCode: string;
+  email: string;
+  req: Request;
+  journeyId?: string;
+}) {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) return;
+  // IP real do visitante (1º hop do XFF): o enrich do banco só veria o IP da Vercel
+  const ip = (opts.req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
+  try {
+    const res = await fetch(`${url}/rest/v1/referral_signups`, {
+      method: "POST",
+      headers: {
+        apikey: key,
+        Authorization: `Bearer ${key}`,
+        "Content-Type": "application/json",
+        Prefer: "return=minimal",
+      },
+      body: JSON.stringify({
+        slug: REFERRAL_SLUG,
+        ref_code: opts.refCode,
+        indicado_hash: sha256hex(opts.email),
+        ip: ip || null,
+        user_agent: opts.req.headers.get("user-agent"),
+        journey_id: opts.journeyId ?? null,
+      }),
+    });
+    // 409 = mesmo indicado já registrado nesta news (primeiro ref vence): benigno
+    if (!res.ok && res.status !== 409) {
+      console.error("referral insert error:", res.status, await res.text());
+    }
+  } catch (e) {
+    console.error("referral insert exception:", e);
+  }
+}
+
 
 // CAPI server-side: dispara o evento Lead na Conversions API da Meta depois do
 // cadastro confirmado. Dedup com o pixel do navegador via event_id (Meta conta 1x).
@@ -90,6 +157,23 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Email inválido" }, { status: 400 });
   }
 
+  const rawRef = (body?.utm as Record<string, unknown> | undefined)?.ref;
+  const refCode =
+    typeof rawRef === "string" && /^[0-9a-f]{8,16}$/i.test(rawRef.trim())
+      ? rawRef.trim().toLowerCase()
+      : undefined;
+
+  if (refCode) {
+    // caminho com prêmio: higiene dura ANTES do Beehiiv (fail-open só em hiccup)
+    const v = await validateEmail(email);
+    if (!v.ok) {
+      return NextResponse.json({ error: "Email inválido", reason: v.reason }, { status: 400 });
+    }
+    if (await emailDenied(email)) {
+      return NextResponse.json({ error: "Email inválido", reason: "denylist" }, { status: 400 });
+    }
+  }
+
   const apiKey = process.env.BEEHIIV_API_KEY;
   const pubId = process.env.BEEHIIV_PUBLICATION_ID;
   const autoId = body?.automationId || process.env.BEEHIIV_AUTOMATION_ID;
@@ -120,7 +204,15 @@ export async function POST(req: Request) {
     utm_medium = utm_medium ?? "cpc";
   }
 
-  const utm_campaign = clean(c.campaign) ?? r.campaign ?? "";
+  // indicação: rastro secundário no Beehiiv (a SOT é referral_signups; gotcha
+  // conhecido: subscription de email já existente ignora utm)
+  if (refCode) {
+    utm_source = "referral";
+    utm_medium = "indicacao";
+  }
+  const utm_campaign = refCode
+    ? `ref-${refCode}`
+    : clean(c.campaign) ?? r.campaign ?? "";
   const referring_site = clean(c.referrer) ?? (ref || undefined);
 
   // Atribuição fina vai como custom_field (Beehiiv não tem campo nativo).
@@ -211,6 +303,16 @@ export async function POST(req: Request) {
   }
 
   // CAPI Lead server-side (dedup via event_id com o pixel). Nunca quebra o cadastro.
+  // cadastro real criado: a indicação vira linha na SOT (nunca derruba o cadastro)
+  if (refCode) {
+    await recordReferral({
+      refCode,
+      email,
+      req,
+      journeyId: clean(body?.journey_id),
+    });
+  }
+
   await sendCapiLead({
     email,
     eventId: clean(body?.eventId),
