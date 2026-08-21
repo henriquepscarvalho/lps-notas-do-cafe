@@ -179,9 +179,10 @@ export default function PageBeacon({
   // storage: revisita e sinal legitimo de intencao.
   useEffect(() => {
     const ev =
-      step === "ebook-premium-checkout" ? "InitiateCheckout"
-      : step === "ebook-premium" ? "ViewContent"
-      : null;
+      !step.startsWith("ebook-premium") ? null
+      : step.endsWith("-checkout") ? "InitiateCheckout"
+      : /-(obrigado|cta)$/.test(step) ? null
+      : "ViewContent";
     if (!ev) return;
     let tries = 0;
     const fire = () => {
