@@ -76,6 +76,18 @@ export async function POST(req: Request) {
   // própria porta que abriu o checkout. Sessão nunca nasce anônima, e "direto e
   // solto" deixa de ser o balde de tudo que o beacon não pegou.
   params["metadata[src]"] = src || "lp-ebook";
+  // funil-pixel (build-ebooks-premium 36): fbp, fbc, IP e user agent pra CAPI do
+  // Pharos casar a venda com o clique do anuncio. Chave so quando tem valor.
+  const cookies = req.headers.get("cookie") || "";
+  const cookie = (k: string) => cookies.match(new RegExp(`(?:^|;\\s*)${k}=([^;]+)`))?.[1] || "";
+  const fbp = cookie("_fbp").slice(0, 120);
+  const fbc = cookie("_fbc").slice(0, 200);
+  const ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim().slice(0, 64);
+  const ua = (req.headers.get("user-agent") || "").slice(0, 500);
+  if (fbp) params["metadata[fbp]"] = fbp;
+  if (fbc) params["metadata[fbc]"] = fbc;
+  if (ip) params["metadata[ip]"] = ip;
+  if (ua) params["metadata[ua]"] = ua;
 
   // Sem description o email de venda e a lista do Dashboard mostram so o valor
   // (metadata nao aparece la). Suffix: fatura do cartao vira "NEWSLETTER* EBOOK <SC>"

@@ -173,5 +173,31 @@ export default function PageBeacon({
     sendBeacon(slug, step, { eventType: eventType || "apareceu" });
   }, [slug, step, source, eventType]);
 
+  // funil-pixel (build-ebooks-premium 35/36): ViewContent na LP de venda e
+  // InitiateCheckout no checkout, mesmo contrato do lp-router. Espera o fbq do
+  // snippet afterInteractive, igual ao Purchase da /obrigado. Sem guard de
+  // storage: revisita e sinal legitimo de intencao.
+  useEffect(() => {
+    const ev =
+      step === "ebook-premium-checkout" ? "InitiateCheckout"
+      : step === "ebook-premium" ? "ViewContent"
+      : null;
+    if (!ev) return;
+    let tries = 0;
+    const fire = () => {
+      try {
+        const fbq = (window as unknown as { fbq?: (...a: unknown[]) => void }).fbq;
+        if (typeof fbq === "function") {
+          fbq("track", ev, { content_name: `Ebook Premium ${slug}`, value: 27, currency: "BRL" });
+          return;
+        }
+      } catch {
+        /* pixel opcional */
+      }
+      if (tries++ < 20) setTimeout(fire, 250);
+    };
+    fire();
+  }, [slug, step]);
+
   return null;
 }
