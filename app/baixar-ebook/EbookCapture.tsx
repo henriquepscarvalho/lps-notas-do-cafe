@@ -103,10 +103,15 @@ export default function EbookCapture() {
     setFieldErr(null);
     setStatus("sending");
     try {
+      // eventId compartilhado com a CAPI do /api/subscribe: a Meta recebe dos dois
+      // lados e conta um Lead so (o ebook nunca teve Lead de navegador ate 21/08/26).
+      const eventId =
+        (crypto as Crypto)?.randomUUID?.() ??
+        `${Date.now()}-${Math.random().toString(16).slice(2)}`;
       const res = await fetch("/api/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, automationId: AUTOMATION_ID, utm: getUtm() }),
+        body: JSON.stringify({ email, automationId: AUTOMATION_ID, utm: getUtm(), eventId }),
       });
       if (!res.ok) {
         // source=="bh" no corpo = falha veio do Beehiiv -> sufixo bh<status>
@@ -115,6 +120,10 @@ export default function EbookCapture() {
         throw new Error(_sfx);
       }
       setStatus("success");
+      try {
+        const w = window as unknown as { fbq?: (...a: unknown[]) => void };
+        if (w.fbq) w.fbq("track", "Lead", { content_name: "notas-do-cafe" }, { eventID: eventId });
+      } catch { /* pixel ausente nao segura o cadastro */ }
       try { localStorage.setItem("vdn_lead_email", email); } catch {}
       setTimeout(() => {
         window.location.href = "/baixar-ebook-confirmado";
