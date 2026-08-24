@@ -20,7 +20,9 @@ const WHATS = "https://sndflw.com/i/3bRJTg1vXSQL9pyKp5nE";
 const HORA = "08:08";
 const SLUG = "notas-do-cafe";
 const NAME = "Notas do Café";
-const ARQUIVO = "https://notasdocafe.com.br";
+// ponytail: acervo de verdade e o arquivo beehiiv, nao o apex (que serve a LP
+// de captura). O botao do passo de edicoes promete edicoes anteriores.
+const ARQUIVO = "https://edicoes.notasdocafe.com.br";
 const SHARE_URL = "https://api.whatsapp.com/send/?text=A%20Notas%20do%20Caf%C3%A9%20traz%20o%20gr%C3%A3o%2C%20o%20m%C3%A9todo%20e%20a%20curadoria%20pra%20sua%20x%C3%ADcara%20render%20mais.%20https%3A%2F%2Flp.notasdocafe.com.br%2Fcadastro";
 
 /* vdn-rec-step: passo REC (combo cross-rede), baked pelo rollout_rec_step.py.
