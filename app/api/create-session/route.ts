@@ -38,7 +38,9 @@ export async function POST(req: Request) {
   // ebook_purchases.variant (atribuição de venda por braço, ticket 10).
   const variant = (req.headers.get("cookie") || "").match(/(?:^|;\s*)lp_eb=([ABC])(?:;|$)/)?.[1];
 
-  // Cartão salvo em TODO checkout (GO do HC 10/08). O split 50/50 do ticket 02.2 morreu
+  // Cartão salvo desarmado em 24/08/26 pra o PIX voltar (nota logo abaixo dos params).
+  // Histórico: o GO de 10/08 ligou o cartão salvo em todo checkout, e antes dele o
+  // split 50/50 do ticket 02.2 morreu
   // com zero venda no braço S em 24h: sem dado no braço tratado o teste não media nada.
   // metadata[cs] fica pra série da Stripe não perder o eixo, e o Set-Cookie lá embaixo
   // sobrescreve o lp_cs=N de quem foi sorteado ontem.
@@ -57,10 +59,11 @@ export async function POST(req: Request) {
   };
   if (variant) params["metadata[variant]"] = variant;
   params["metadata[cs]"] = cs; // braço do cartão salvo: leitura por session na Stripe
-  if (cs === "S") {
-    params["payment_intent_data[setup_future_usage]"] = "off_session";
-    params["customer_creation"] = "always";
-  }
+  // ponytail: braço S desarmado em 24/08/26 (decisão HC). setup_future_usage=off_session
+  // fazia a Stripe tirar o PIX da session inteira, porque PIX não pode ser cobrado depois.
+  // Pra re-armar o teste do 1 clique, devolver aqui:
+  //   if (cs === "S") { params["payment_intent_data[setup_future_usage]"] = "off_session";
+  //                     params["customer_creation"] = "always"; }
   if (bump) params["metadata[bump]"] = BUMP_SC;
   // Jornada e origem (decisão HC 05/08): o webhook central persiste em
   // ebook_purchases.journey_id/src e aí cada real fica colado no caminho (teste, VSL
