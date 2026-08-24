@@ -9,6 +9,18 @@ const SENDER = `leia@${DOMAIN}`;
 const LS_KEY = "nc_reeng_missoes";
 const TOTAL = 5;
 
+// Ouro do reengajamento (ticket 107): todo número do bloco vem desta rota (106), nunca daqui.
+const OURO_API = `https://q.${DOMAIN}/api/xp/reengajar/notas-do-cafe`;
+
+type OuroRende = { open: number; click: number; vote: number };
+type OuroSt = {
+  // novo = crédito caiu agora · ja = já tinha recebido · desc = descoberta (sem identidade ou rota fora)
+  fase: "novo" | "ja" | "desc";
+  vale: number;
+  rende: OuroRende | null;
+  idq: string;
+};
+
 const webmails = [
   {
     label: "Abrir no Gmail",
@@ -112,6 +124,54 @@ function loadDone(): string[] {
 export default function Reengajamento() {
   const [done, setDone] = useState<string[]>([]);
   const [copiado, setCopiado] = useState(false);
+  const [ouro, setOuro] = useState<OuroSt | null>(null);
+  const [conta, setConta] = useState(0);
+  // tracker mini na nav: só aparece quando o tracker do hero sai da tela (nunca os dois juntos)
+  const [heroTrackerVisivel, setHeroTrackerVisivel] = useState(true);
+
+  // crédito na chegada (decisão do 107): POST idempotente da rota; a fase e os números saem
+  // da resposta. Sem identidade (ou rota fora), o GET de erro ainda traz vale/rende e o bloco
+  // vira descoberta, sem promessa de crédito.
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search);
+    const h = q.get("h");
+    const e = q.get("e");
+    const idq = e ? `?e=${encodeURIComponent(e)}` : h ? `?h=${h}` : "";
+    (async () => {
+      try {
+        if (idq) {
+          const r = await fetch(OURO_API + idq, { method: "POST" });
+          const j = await r.json().catch(() => null);
+          if (j?.ok && j.estado?.disponivel) {
+            setOuro({ fase: j.repetido ? "ja" : "novo", vale: j.estado.vale, rende: j.estado.rende ?? null, idq });
+            return;
+          }
+        }
+        const r = await fetch(OURO_API + idq);
+        const j = await r.json();
+        const eco = j?.estado ?? j ?? {};
+        setOuro({ fase: "desc", vale: eco.vale ?? 0, rende: eco.rende ?? null, idq });
+      } catch {
+        setOuro({ fase: "desc", vale: 0, rende: null, idq });
+      }
+    })();
+  }, []);
+
+  // contador da cerimônia; reduced-motion pula direto pro final
+  useEffect(() => {
+    if (!ouro) return;
+    if (ouro.fase !== "novo" || matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setConta(ouro.vale);
+      return;
+    }
+    let n = 0;
+    const t = setInterval(() => {
+      n += 1;
+      setConta(n);
+      if (n >= ouro.vale) clearInterval(t);
+    }, 85);
+    return () => clearInterval(t);
+  }, [ouro]);
 
   useEffect(() => {
     setDone(loadDone());
@@ -124,7 +184,19 @@ export default function Reengajamento() {
       { threshold: 0.12, rootMargin: "0px 0px -40px 0px" }
     );
     document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
+    const alvoTracker = document.querySelector(".bc-tracker");
+    let obsTracker: IntersectionObserver | undefined;
+    if (alvoTracker) {
+      obsTracker = new IntersectionObserver(
+        (entries) => setHeroTrackerVisivel(entries[0].isIntersecting),
+        { threshold: 0 }
+      );
+      obsTracker.observe(alvoTracker);
+    }
+    return () => {
+      observer.disconnect();
+      obsTracker?.disconnect();
+    };
   }, []);
 
   const complete = useCallback((id: string) => {
@@ -216,6 +288,29 @@ export default function Reengajamento() {
           border: 1px solid rgba(200,150,62,0.3); color: var(--text-muted);
         }
         .bc-slot.done { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+        .bc-nav-tracker { display: flex; gap: 4px; margin-left: auto; opacity: 1; transition: opacity 0.35s; }
+        .bc-nav-tracker.oculto { opacity: 0; pointer-events: none; }
+        @media (prefers-reduced-motion: reduce) { .bc-nav-tracker { transition: none; } }
+        .bc-nav-slot {
+          width: 22px; height: 22px;
+          display: flex; align-items: center; justify-content: center;
+          font-family: var(--font-heading); font-size: 0.7rem;
+          border: 1px solid rgba(200,150,62,0.3); color: #D4C4AE;
+        }
+        .bc-nav-slot.done { background: #C8963E; border-color: #C8963E; color: #2C1810; }
+        .ouro-kicker { font-family: var(--font-heading); font-size: 0.8rem; font-weight: 600; letter-spacing: 0.28em; text-transform: uppercase; color: #D4A93C; margin-bottom: 1.1rem; }
+        .ouro-fileira { display: flex; gap: 9px; flex-wrap: wrap; justify-content: center; margin: 0 0 1.2rem; min-height: 26px; }
+        .ouro-gem { display: inline-block; width: 24px; height: 24px; flex: none; border-radius: 50% 7px 50% 7px; background-color: #D4A93C; border: 1.5px solid #4f3f16; background-image: linear-gradient(135deg,#f1dfa4 0%,#f1dfa4 38%,#D4A93C 38%,#D4A93C 72%,#4f3f16 72%,#4f3f16 100%); }
+        .ouro-gem.mini { width: 12px; height: 12px; border-radius: 50% 3px 50% 3px; border-width: 1px; vertical-align: -2px; }
+        .ouro-gem.drop { animation: ouro-drop 0.5s cubic-bezier(0.2,1.4,0.4,1) backwards; }
+        @keyframes ouro-drop { from { transform: translateY(-16px) scale(0.55); opacity: 0; } }
+        @media (prefers-reduced-motion: reduce) { .ouro-gem.drop { animation: none; } }
+        .ouro-hero { font-family: var(--font-heading); font-size: clamp(1.9rem, 8vw, 2.6rem); letter-spacing: 0.06em; text-transform: uppercase; color: #D4A93C; line-height: 1; display: block; margin-bottom: 0.5rem; }
+        .ouro-conceitos { list-style: none; max-width: 340px; margin: 1.5rem auto 1.8rem; padding: 0; text-align: left; display: grid; gap: 0.7rem; }
+        .ouro-conceitos li { display: flex; gap: 0.7rem; align-items: baseline; font-size: 0.92rem; color: #D4C4AE; line-height: 1.6; }
+        .ouro-conceitos li strong { color: #F5EDE0; font-weight: 500; }
+        .ouro-glifo { flex: none; min-width: 22px; text-align: center; }
+        .ouro-glifo.romano { font-family: var(--font-heading); color: #D4A93C; font-size: 0.82rem; border: 1px solid rgba(212,169,60,0.45); padding: 2px 4px; border-radius: 2px; letter-spacing: 0.05em; white-space: nowrap; }
       `}</style>
 
       <nav className="nav-nc">
@@ -224,6 +319,16 @@ export default function Reengajamento() {
             <Image src="/images/logo/simbolo.png" alt="Notas do Café" width={25} height={28} />
             <span>Notas do Café</span>
           </a>
+          <div
+            className={`bc-nav-tracker${heroTrackerVisivel ? " oculto" : ""}`}
+            aria-hidden={heroTrackerVisivel}
+          >
+            {["m1", "m2", "m3", "m4", "m5"].map((id, i) => (
+              <div key={id} className={`bc-nav-slot${feito(id) ? " done" : ""}`}>
+                {feito(id) ? "✓" : i + 1}
+              </div>
+            ))}
+          </div>
         </div>
       </nav>
 
@@ -498,6 +603,82 @@ export default function Reengajamento() {
           </div>
         </div>
       </section>
+
+      {/* Bloco de Ouro (golden 107, forma D: cerimônia das pepitas) */}
+      {ouro && (
+        <section
+          id="ouro"
+          style={{
+            padding: "5rem 1.5rem",
+            background: "#2C1810",
+            borderTop: "1px solid rgba(200,150,62,0.08)",
+            textAlign: "center",
+          }}
+        >
+          <div style={{ maxWidth: "480px", margin: "0 auto" }}>
+            <p className="ouro-kicker">
+              {ouro.fase === "novo"
+                ? "O café reconhece quem volta"
+                : ouro.fase === "ja"
+                  ? "Ouro guardado"
+                  : "Leitura vira ouro"}
+            </p>
+            <div className="ouro-fileira">
+              {Array.from({ length: ouro.fase === "desc" ? 3 : ouro.vale }, (_, i) => (
+                <span
+                  key={i}
+                  className={`ouro-gem${ouro.fase === "novo" ? " drop" : ""}`}
+                  style={ouro.fase === "novo" ? { animationDelay: `${i * 70}ms` } : undefined}
+                />
+              ))}
+            </div>
+            <span className="ouro-hero">
+              {ouro.fase === "desc" ? "Cada leitura vira ouro" : `+${conta} de ouro`}
+            </span>
+            <p style={{ ...body, fontSize: "0.95rem", marginBottom: "0.4rem" }}>
+              {ouro.fase === "novo"
+                ? "Pela sua volta. Guardado na sua carteira."
+                : ouro.fase === "ja"
+                  ? "Sua volta já foi paga. O ouro está na carteira."
+                  : ouro.rende
+                    ? `Abrir a edição rende +${ouro.rende.open}. Clicar, +${ouro.rende.click}.`
+                    : "Abrir a edição de hoje já começa a render."}
+            </p>
+            <ul className="ouro-conceitos">
+              {ouro.fase !== "desc" && ouro.rende && (
+                <li>
+                  <span className="ouro-glifo"><span className="ouro-gem mini" /></span>
+                  <span>
+                    <strong>Toda edição aberta rende +{ouro.rende.open} de ouro.</strong> Cada
+                    clique no que te interessa: +{ouro.rende.click}.
+                  </span>
+                </li>
+              )}
+              <li>
+                <span className="ouro-glifo romano">Ⅰ→Ⅱ</span>
+                <span>
+                  Leitura constante sobe sua <strong>patente de Barista</strong>.
+                </span>
+              </li>
+              <li>
+                <span className="ouro-glifo">🔥</span>
+                <span>
+                  Dias seguidos lendo mantêm sua <strong>ofensiva</strong> viva.
+                </span>
+              </li>
+            </ul>
+            <a
+              href={`https://q.${DOMAIN}/xp${ouro.idq}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={ctaSolid}
+              onClick={() => sendBeacon("notas-do-cafe", "reengajamento-ouro", { eventType: "converteu" })}
+            >
+              {ouro.idq ? "Abrir minha carteira" : "Conhecer minha carteira"}
+            </a>
+          </div>
+        </section>
+      )}
 
       {/* Footer */}
       <footer
