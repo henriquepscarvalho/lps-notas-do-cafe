@@ -223,7 +223,11 @@ export default function OnboardingWizard({
     setRecSel((cur) => { const n = new Set(cur); if (n.has(s)) n.delete(s); else n.add(s); return n; });
 
   const confirmRec = async () => {
-    if (recBusy || recSel.size === 0) return;
+    if (recBusy) return;
+    // Zero marcado = "nenhuma destas", nao um beco: o primario avanca igual ao Agora nao.
+    // Botao primario desabilitado engolia o clique (o evento chega no document, a tela
+    // nao muda) e era o unico rage click da rede no pull de 25/08 (fornax/47).
+    if (recSel.size === 0) { skip("rec"); return; }
     let email: string | null = null;
     try { email = localStorage.getItem("vdn_lead_email"); } catch {}
     if (!email) { skip("rec"); return; }
@@ -369,8 +373,8 @@ export default function OnboardingWizard({
                         );
                       })}
                     </div>
-                    <button className="cc-btnP" disabled={recSel.size === 0 || recBusy} onClick={confirmRec}>
-                      {recBusy ? "Enviando..." : recSel.size === 0 ? "Selecione pelo menos uma" : recSel.size === 1 ? "Receber esta também" : `Receber estas ${recSel.size} também`}
+                    <button className="cc-btnP" disabled={recBusy} onClick={confirmRec}>
+                      {recBusy ? "Enviando..." : recSel.size === 0 ? "Continuar" : recSel.size === 1 ? "Receber esta também" : `Receber estas ${recSel.size} também`}
                     </button>
                     {recErr && <p className="cc-recerr">Não deu certo. Tente de novo ou toque em Agora não.</p>}
                     <button className="cc-btnG" onClick={() => skip("rec")}>Agora não</button>
