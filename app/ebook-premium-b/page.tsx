@@ -244,6 +244,80 @@ const EBOOK = {
         "x": "A diferença por xícara é a conta do livro inteiro. A de casa sai do pacote dividido pelas xícaras que rende."
       }
     ]
+  },
+  "prova": {
+    "on": true,
+    "leitores": "2,4 mil",
+    "barra": "Do time da news Notas do Café · 2,4 mil leitores todo dia às 8h08 · Garantia de 7 dias",
+    "curta": "2,4 mil leitores todo dia · garantia de 7 dias",
+    "fonte": "subs-snapshot 2026-08-26"
+  },
+  "sumario": {
+    "kicker": "O mapa completo",
+    "titulo": "As 19 seções do guia, nomeadas",
+    "intro": "Nenhum capítulo escondido atrás de promessa. O índice inteiro, na ordem em que você lê.",
+    "colunas": [
+      {
+        "nome": "Antes de começar",
+        "num": false,
+        "itens": [
+          "O coador que já está na sua cozinha",
+          "Como ler a sua xícara em 3 minutos",
+          "As quatro famílias da coada",
+          "A xícara do Rafael, antes"
+        ]
+      },
+      {
+        "nome": "As oito variáveis",
+        "num": true,
+        "itens": [
+          "O grão e a torra",
+          "A moagem",
+          "A proporção",
+          "A água e a temperatura",
+          "O pré-molho",
+          "A técnica de despejo",
+          "O tempo total",
+          "A limpeza e o armazenamento"
+        ]
+      },
+      {
+        "nome": "O fecho",
+        "num": false,
+        "itens": [
+          "A ficha da coada",
+          "O caso, depois",
+          "As falas prontas",
+          "Quando a xícara não colabora",
+          "A manutenção",
+          "Glossário",
+          "O fecho"
+        ]
+      }
+    ]
+  },
+  "depoimentos": {
+    "on": true,
+    "kicker": "Da caixa de entrada da news",
+    "titulo": "Quem lê, responde",
+    "intro": "Votos e respostas reais de quem já recebe a news todo dia. O guia sai da mesma pena.",
+    "itens": [
+      {
+        "x": "Estou aprendendo muito e as informações me tornam cada vez mais seguro para escolher um café de qualidade. Grato a todos.",
+        "who": "r****@gmail.com · voto de edição",
+        "stars": true
+      },
+      {
+        "x": "A quantidade de coisas novas sobre café que aprendi hoje. Muito bom o texto. Venho bebendo cafés \"apagados\" há tempos.",
+        "who": "Marco · resposta por email",
+        "stars": true
+      },
+      {
+        "x": "Além de aprender sobre mais uma região que produz café de qualidade, também aprendi detalhes de um método de extração para tirar o melhor desse café. Sensacional!",
+        "who": "f****@yahoo.com.br · voto de edição",
+        "stars": true
+      }
+    ]
   }
 };
 
@@ -257,6 +331,10 @@ const CHECKOUT = "/ebook-premium/checkout";
 
 function ctaClick() {
   sendBeacon(EBOOK.slug, "ebook-premium-cta", { eventType: "converteu" });
+}
+
+function Stars() {
+  return <span className="stars" aria-label="voto ótima, nota máxima">★★★★★</span>;
 }
 
 export default function EbookPremium() {
@@ -294,6 +372,14 @@ export default function EbookPremium() {
       <PageBeacon slug={EBOOK.slug} step="ebook-premium" source="ebook-premium" />
       <div className="grain" aria-hidden="true" />
 
+      {/* micro-barra de prova (m1, ticket 25): mono, SEMPRE 1 linha; mobile usa a curta */}
+      {EBOOK.prova.on && (
+        <div className="provabar">
+          <span className="pb-full">{EBOOK.prova.barra}</span>
+          <span className="pb-curto">{EBOOK.prova.curta}</span>
+        </div>
+      )}
+
       <nav>
         <div className="wrap nav-inner">
           <a href="/" className="brand" aria-label="Home">
@@ -327,11 +413,42 @@ export default function EbookPremium() {
             <div className="lombada" aria-hidden="true" />
             <img className="frente" src={EBOOK.capa} alt={EBOOK.capaAlt} loading="eager" />
             <div className="reflexo" aria-hidden="true"><img src={EBOOK.capa} alt="" /></div>
+            {EBOOK.prova.leitores && (
+              <div className="sticker" aria-hidden="true">
+                <b>{EBOOK.prova.leitores}</b>
+                <span>leitores</span>
+                <span>todo dia</span>
+              </div>
+            )}
           </div>
         </div>
         <div className="reveal specs">
           {EBOOK.specs.map((s) => (
             <span key={s.l}><b>{s.n}</b> {s.l}</span>
+          ))}
+        </div>
+      </section>
+
+      {/* Sumário completo (m3, ticket 25): índice inteiro exposto, padrão do golden D */}
+      <section className="sumario">
+        <div className="head">
+          <p className="reveal kicker">{EBOOK.sumario.kicker}</p>
+          <h2 className="reveal">{EBOOK.sumario.titulo}</h2>
+          <p className="reveal sec-intro">{EBOOK.sumario.intro}</p>
+        </div>
+        <div className="sum-grid">
+          {EBOOK.sumario.colunas.map((c: { nome: string; num: boolean; itens: string[] }) => (
+            <div key={c.nome} className="reveal sum-col">
+              <div className="sum-nome">{c.nome}</div>
+              <ul>
+                {c.itens.map((it: string, i: number) => (
+                  <li key={c.nome + i}>
+                    {c.num && <span className="sum-num">{String(i + 1).padStart(2, "0")}</span>}
+                    {it}
+                  </li>
+                ))}
+              </ul>
+            </div>
           ))}
         </div>
       </section>
@@ -418,6 +535,26 @@ export default function EbookPremium() {
           <blockquote>{EBOOK.spine.texto}</blockquote>
         </div>
       </section>
+
+      {/* Depoimentos reais da caixa da news (ticket 26): só com 2+, sem placeholder */}
+      {EBOOK.depoimentos.on && EBOOK.depoimentos.itens.length >= 2 && (
+        <section className="depos">
+          <div className="head">
+            <p className="reveal kicker">{EBOOK.depoimentos.kicker}</p>
+            <h2 className="reveal">{EBOOK.depoimentos.titulo}</h2>
+            <p className="reveal sec-intro">{EBOOK.depoimentos.intro}</p>
+          </div>
+          <div className={"dep-grid" + (EBOOK.depoimentos.itens.length === 2 ? " dois" : "")}>
+            {EBOOK.depoimentos.itens.map((d: { x: string; who: string; stars: boolean }, i: number) => (
+              <figure key={i} className="reveal dep">
+                {d.stars && <Stars />}
+                <blockquote>&ldquo;{d.x}&rdquo;</blockquote>
+                <figcaption>{d.who}</figcaption>
+              </figure>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* A caixa: o que vem com o guia */}
       <section className="caixa">
@@ -526,7 +663,7 @@ a{color:inherit;text-decoration:none}
         @keyframes pesoIn{from{opacity:0;letter-spacing:.04em;transform:translateY(10px)}to{opacity:1;letter-spacing:-.025em;transform:none}}
         .vt-sub{font-family:var(--serif);font-size:clamp(1.05rem,2vw,1.3rem);color:var(--text);line-height:1.65;max-width:560px;margin:0 auto 3.2rem}
         .palco{position:relative;display:flex;justify-content:center;perspective:1500px;margin-bottom:1rem}
-        .obj{position:relative;transform-style:preserve-3d;animation:orbita 11s ease-in-out infinite;will-change:transform;cursor:zoom-in}
+        .obj{position:relative;transform-style:preserve-3d;animation:orbita 11s ease-in-out infinite;will-change:transform}
         @keyframes orbita{0%,100%{transform:rotateY(-14deg) rotateX(3deg)}50%{transform:rotateY(14deg) rotateX(1.5deg)}}
         .obj .frente{width:min(380px,72vw);border-radius:10px;box-shadow:0 42px 90px rgba(0,0,0,.62),0 0 120px rgba(225,114,35,.20)}
         .obj .lombada{position:absolute;top:1.4%;bottom:1.4%;left:-11px;width:11px;border-radius:4px 0 0 4px;background:linear-gradient(90deg,#100904,#342012);transform:rotateY(-74deg);transform-origin:right}
@@ -554,13 +691,7 @@ a{color:inherit;text-decoration:none}
         .sp.reveal{transform:translateY(26px)}
         .sp.reveal.visible{transform:none}
         .sp.reveal.visible:nth-child(even){transform:translateY(44px)}
-        .sp .ph{border-radius:12px;border:1px solid var(--hair);overflow:hidden;box-shadow:0 22px 55px rgba(0,0,0,.55);transition:transform .3s ease,box-shadow .3s ease;cursor:zoom-in}
-        .zoomdlg{border:0;padding:0;margin:auto;background:transparent;max-width:min(560px,92vw)}
-        .zoomdlg::backdrop{background:rgba(10,8,7,.82);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
-        .zoom-in{position:relative;background:var(--bg-deep);border:1px solid var(--hair);border-radius:14px;padding:16px 16px 20px;text-align:center}
-        .zoom-in img{width:100%;max-height:70vh;object-fit:contain;border-radius:8px;display:block}
-        .zoom-in p{font-size:13px;color:var(--text-dim);margin:10px 0 14px;line-height:1.5}
-        .zoom-x{position:absolute;top:10px;right:10px;width:32px;height:32px;border-radius:8px;border:1px solid var(--hair);background:rgba(15,13,13,.6);color:var(--text);font-size:14px;cursor:pointer;line-height:1}
+        .sp .ph{border-radius:12px;border:1px solid var(--hair);overflow:hidden;box-shadow:0 22px 55px rgba(0,0,0,.55);transition:transform .3s ease,box-shadow .3s ease}
         .sp .ph img{width:100%;aspect-ratio:900/1200;object-fit:cover;object-position:top}
         .sp:hover .ph{transform:translateY(-5px);box-shadow:0 30px 66px rgba(0,0,0,.62),0 0 46px var(--hair-accent)}
         .sp figcaption{margin-top:16px;max-width:400px}
@@ -667,6 +798,43 @@ a{color:inherit;text-decoration:none}
           .vt-o-palco{grid-area:palco;align-self:center;margin:0}
           .specs{grid-area:specs;margin-top:4.2rem}
         }
+/* ===== B extras (tickets 25/26): barra de prova, sumário, depoimentos ===== */
+        .provabar{font-family:var(--mono);font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--text-dim);text-align:center;padding:9px 14px;border-bottom:1px solid var(--hair);background:var(--bg-deep);white-space:nowrap;overflow:hidden}
+        .pb-curto{display:none}
+        .sticker{position:absolute;right:-30px;bottom:24px;width:112px;height:112px;border-radius:50%;background:var(--bright);color:var(--bg-deep);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.12;transform:rotate(8deg);box-shadow:0 10px 26px rgba(0,0,0,.5);border:2px solid rgba(255,255,255,.3)}
+        .sticker b{font-family:var(--serif);font-weight:900;font-size:24px;letter-spacing:-.02em}
+        .sticker span{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase}
+        .sumario{padding:5rem 1.5rem 4.6rem;background:var(--bg-deep);border-top:1px solid var(--hair)}
+        .sumario .head,.depos .head{max-width:820px;margin:0 auto 2.6rem;text-align:center}
+        .sumario h2,.depos h2{font-family:var(--serif);font-weight:700;font-size:clamp(1.7rem,3.4vw,2.5rem);color:#fff;letter-spacing:-.015em}
+        .sumario .kicker,.depos .kicker{display:block;margin-bottom:.9rem}
+        .sec-intro{font-size:15px;color:var(--text);margin:12px auto 0;line-height:1.6;max-width:640px}
+        .sum-grid{max-width:1040px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:38px;align-items:start}
+        .sum-col{border-top:2px solid var(--hair-accent);padding-top:18px}
+        .sum-nome{font-family:var(--serif);font-weight:700;font-size:19px;color:#fff;margin-bottom:14px}
+        .sum-col ul{list-style:none;margin:0;padding:0}
+        .sum-col li{font-size:14.5px;color:var(--text);padding:8px 0;border-bottom:1px solid var(--hair);line-height:1.45;display:flex;gap:12px;align-items:baseline}
+        .sum-num{font-family:var(--mono);font-size:12px;color:var(--bright);font-weight:500}
+        .depos{padding:5rem 1.5rem;background:var(--bg);border-top:1px solid var(--hair)}
+        .dep-grid{max-width:1040px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+        .dep-grid.dois{grid-template-columns:repeat(2,1fr);max-width:760px}
+        .dep{margin:0;border:1px solid var(--hair);border-radius:14px;background:var(--bg-deep);padding:26px 26px 22px}
+        .dep .stars{display:block;color:var(--bright);font-size:13px;letter-spacing:.14em;margin-bottom:12px}
+        .dep blockquote{font-family:var(--serif);font-style:italic;font-size:16.5px;line-height:1.55;color:#fff;margin:0}
+        .dep figcaption{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-top:14px}
+        @media(max-width:860px){
+          .provabar{font-size:9.5px;letter-spacing:.09em;padding:8px 10px}
+          .pb-full{display:none}
+          .pb-curto{display:inline}
+          .sum-grid{grid-template-columns:1fr;gap:30px}
+          .dep-grid,.dep-grid.dois{grid-template-columns:1fr;max-width:480px}
+        }
+        @media(max-width:560px){
+          .sticker{width:84px;height:84px;right:-12px;bottom:12px}
+          .sticker b{font-size:17px}
+          .sticker span{font-size:8.5px}
+        }
+        /* ===== /B extras ===== */
 .faq{padding:5.5rem 1.5rem;background:var(--bg);border-top:1px solid var(--hair)}
         .faq h2{font-family:var(--serif);font-weight:700;font-size:clamp(1.7rem,3.4vw,2.5rem);color:#fff;letter-spacing:-.015em;text-align:center;margin-bottom:2.6rem}
         .faq-list{max-width:820px;margin:0 auto;display:grid;gap:14px}
