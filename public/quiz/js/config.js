@@ -15,7 +15,7 @@ window.NC_CONFIG = {
   // continua na /vsl, no checkout e no obrigado. A chave anon e publica por
   // desenho (RLS da tabela so permite INSERT); vazia = quiz nao mede nada.
   supabaseUrl: "https://ecmveymyzdqiehvtqxms.supabase.co",
-  supabaseAnonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjbXZleW15emRxaWVodnRxeG1zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk3MTA0MTAsImV4cCI6MjA4NTI4NjQxMH0.Po6pTYlWVwBpPn1PsKhwF4zYj5XMva9n9alLHskuqbE",
+  supabaseAnonKey: "sb_publishable_0rVyKQMVG6Vfq5fjRmEi9A_xOgoDPNZ",
   beaconSlug: "notas-do-cafe",
 
   // Segundo de PLAY do vídeo em que a oferta aparece na página da VSL.
