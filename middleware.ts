@@ -1,68 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 
 /**
- * Porta de venda do ebook: os dois experimentos da porta ESTÃO ENCERRADOS.
+ * Porta de venda do ebook: D única (EXP-036, vencedora em 31/08/26).
  *
- *  EXP-031 — encerrado em 15/08/26, o braço V (VSL) perdeu. O cookie `lp_v` só
- *    sobrevive pra escrever N por cima de quem ficou preso no V.
- *  EXP-027 — encerrado em 17/08/26, a variante B (editorial quente) VENCEU:
- *    +62% relativo em LP→checkout sobre a A (17,4% contra 10,7%, p=0,00008,
- *    839/856 visitas por braço) sem queda no guardrail checkout→venda (8,7%
- *    contra 8,9%). Parada antecipada decidida pelo HC em 16/08, antes da
- *    leitura pré-registrada de 31/08 e abaixo do mínimo de 2.000 visitas por
- *    braço; registro completo no experiments.json. O sorteio morre e TODO o
- *    tráfego da porta cai na /ebook-premium-b.
+ * A variante D (molde golden ALQ/EE de 11/08/26) vendeu 2,72% por visita contra
+ * 0,64% do A/B/C pooled (+2,08 pp, p=0,000, P(D>ABC)=100%) e R$ 0,61 por visita
+ * contra R$ 0,20. Decisão do HC em 31/08/26: D vira a LP única de venda em toda
+ * a rede (ticket 40 do build-ebooks-premium). Molde gerado pelo
+ * build_lp_ebook_d.py / push_deploy_d.py, o mesmo em todas as news.
  *
- * Pela regra de propagação do EXP-027, /ebook-premium e /ebook-premium-c ficam
- * no matcher redirecionando pro braço vencedor: link velho compartilhado, o
- * banner da edição diária e a automação de monetização continuam apontando pro
- * mesmo /ebook-premium e chegam na B sem reescrever nenhum email nem reassar
- * nenhuma edição. Gravar `lp_eb=B` por cima resgata quem tinha caído no A e
- * ficaria preso nele por um ano de cookie.
- *
- * ALQ e EE não usam este molde: servem a variante D única desde 11/08, com
- * middleware próprio, e o rollout_porta_quiz.py as pula pelo marcador
- * `ebook-premium-d`.
- *
- * Escotilhas de revisão, nenhuma grava cookie de braço forçado: `?v=A` abre a
- * página A antiga e `?v=V` abre a VSL (viva fora do matcher pro /teste, tráfego
- * frio, e pro link do WhatsApp). Redirect 307; cookies de 1 ano.
+ * /ebook-premium, -b e -c levam pra /ebook-premium-d com 307 preservando a
+ * query (?src, ?internal, ?jump, utm_*): link compartilhado das variantes velhas
+ * não morre e o banner da edição diária continua apontando pro mesmo
+ * /ebook-premium sem reassar nada. Nenhum cookie de sorteio (lp_eb, lp_v) grava
+ * mais; o cookie antigo de quem ficou preso em A/B/C perde efeito porque a porta
+ * não lê cookie. /vsl segue vivo como link direto (tráfego frio via /teste), fora
+ * do matcher; as páginas A/B/C ficam no repo só como histórico.
  */
 
-const COOKIE = "lp_eb";
-const VCOOKIE = "lp_v";
-const LP_B = "/ebook-premium-b";
-const LP_A = "/ebook-premium"; // só a escotilha ?v=A chega aqui
-const VROUTE = "/vsl";
-
 export function middleware(req: NextRequest) {
-  const { pathname, searchParams } = req.nextUrl;
-
-  const f = (searchParams.get("v") || "").toUpperCase();
-  // só o ?v=V de revisão manda pra VSL: o sorteio do EXP-031 morreu em 15/08/26
-  const vsl = f === "V";
-
-  const canonical = vsl ? VROUTE : f === "A" ? LP_A : LP_B;
-  let res: NextResponse;
-  if (pathname !== canonical) {
-    const url = req.nextUrl.clone(); // preserva query (?internal, ?jump, ?v)
-    // carimbo de origem quando a jornada chega sem ?src=; sem ele a visita da
-    // automação trocaria de origem só por cair na VSL, e a régua de canal do
-    // report perderia o pé
-    // com utm_campaign na URL o email já vem carimbado; anexar o default aqui
-    // sobrescreveria o carimbo (src explícito vence utm no beacon)
-    if (vsl && !searchParams.get("src") && !searchParams.get("utm_campaign"))
-      url.searchParams.set("src", "ebook-premium");
-    url.pathname = canonical;
-    res = NextResponse.redirect(url, 307);
-  } else {
-    res = NextResponse.next();
-  }
-
-  const ano = { path: "/", maxAge: 60 * 60 * 24 * 365, sameSite: "lax" as const };
-  res.cookies.set(COOKIE, "B", ano); // braço vencedor por cima: resgata preso no A
-  res.cookies.set(VCOOKIE, "N", ano); // idem no EXP-031: resgata preso no V
-  return res;
+  const url = req.nextUrl.clone(); // preserva query
+  url.pathname = "/ebook-premium-d";
+  return NextResponse.redirect(url, 307);
 }
 
 export const config = {
