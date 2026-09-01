@@ -17,7 +17,7 @@ const EBOOK = {
   "capaAlt": "Capa do guia Café de Balcão no Coador de Casa",
   "ctaMicro": "Acesso imediato. Prove a diferença na segunda coada.",
   "manchete": "Depois desse guia, o coador da cozinha vira xícara de balcão que você faz sozinho.",
-  "subApoio": "As oito variáveis da coada, uma por uma, com o ajuste que muda a xícara já na próxima manhã.",
+  "subApoio": "O mesmo controle que o barista tem na máquina, traduzido pro papel e a água quente da sua manhã: R$ 27, uma vez só.",
   "prova": {
     "leitores": "2,4 mil",
     "barra": "Do time da news Notas do Café · 2,4 mil leitores todo dia às 8h08 · Garantia de 7 dias",
