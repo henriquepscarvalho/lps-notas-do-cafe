@@ -5,11 +5,11 @@ import { NextResponse } from "next/server";
    do ticket 12 do build-ebooks-premium)
    ============================================================ */
 const SC = "NC";
-const PRICE_CHEIO = "price_1TukzgLXu3X73K7LaGbdeElv"; // R$ 27 (live)
+const PRICE_CHEIO = "price_1UAtYd40q2kXDh5BA5GWzAQr"; // R$ 27 (live)
 const TITULO = "Café de Balcão no Coador de Casa";
 // Bump = ebook irmão SELADO (bump-pareamento.json, HC 19/07): WS → BZ
 const BUMP_SC = "BC";
-const BUMP_PRICE = "price_1TukzeLXu3X73K7LdM980r2a"; // bump BC R$ 13,50 (live)
+const BUMP_PRICE = "price_1UAtYY40q2kXDh5B4mJIOaq7"; // bump BC R$ 13,50 (live)
 const BUMP_TITULO = "Brasa Pronta em 20 Minutos";
 
 // Valor em centavos, espelho dos prices live. O create-session e o unico que sabe se
