@@ -13,7 +13,9 @@ const EBOOK = {
   "titulo": "Café de Balcão no Coador de Casa",
   "kicker": "Guia Notas do Café",
   "preco": "R$ 27",
-  "precoDe": "R$ 47",
+  // riscado removido junto com a âncora da LP D (critique 01/09): sem base
+  // declarada; o render já é condicional, token vazio = sem <s>
+  "precoDe": "",
   "bump": {
     "titulo": "Brasa Pronta em 20 Minutos",
     "news": "Brasa Certa",

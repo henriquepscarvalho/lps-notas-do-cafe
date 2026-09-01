@@ -20,10 +20,10 @@ const EBOOK = {
   "subApoio": "O mesmo controle que o barista tem na máquina, traduzido pro papel e a água quente da sua manhã: R$ 27, uma vez só.",
   "prova": {
     "leitores": "2,4 mil",
-    "barra": "Do time da news Notas do Café · 2,4 mil leitores todo dia às 8h08 · Garantia de 7 dias",
-    "curta": "2,4 mil leitores todo dia · garantia de 7 dias"
+    "barra": "Do time da news Notas do Café · 2,4 mil leitores todo dia às 8h08",
+    "curta": "2,4 mil leitores todo dia às 8h08"
   },
-  "blurbs": [{"x": "Estou aprendendo muito e as informações me tornam cada vez mais seguro para escolher um café de qualidade. Grato a todos.", "who": "r****@gmail.com · voto de edição", "stars": true}, {"x": "A quantidade de coisas novas sobre café que aprendi hoje. Muito bom o texto. Venho bebendo cafés \"apagados\" há tempos.", "who": "Marco · resposta por email", "stars": true}] as Quote[],
+  "blurbs": [{"x": "A quantidade de coisas novas sobre café que aprendi hoje. Muito bom o texto. Venho bebendo cafés \"apagados\" há tempos.", "who": "Marco · resposta por email", "stars": true}, {"x": "Estou aprendendo muito e as informações me tornam cada vez mais seguro para escolher um café de qualidade. Grato a todos.", "who": "voto de leitor(a) na edição diária", "stars": true}] as Quote[],
   "specs": [
     {
       "n": "1",
@@ -266,9 +266,9 @@ const EBOOK = {
     "on": true,
     "kicker": "Da caixa de entrada da news",
     "titulo": "Quem lê, responde",
-    "intro": "Voto de edição real, deixado por quem já recebe a news todo dia. O guia sai da mesma pena."
+    "intro": "Voto real deixado por leitor(a) na edição diária da news. O guia sai da mesma pena."
  ,
-    "pull": {"x": "Além de aprender sobre mais uma região que produz café de qualidade, também aprendi detalhes de um método de extração para tirar o melhor desse café. Sensacional!", "who": "f****@yahoo.com.br · voto de edição", "stars": true} as Quote | null
+    "pull": {"x": "Além de aprender sobre mais uma região que produz café de qualidade, também aprendi detalhes de um método de extração para tirar o melhor desse café. Sensacional!", "who": "voto de leitor(a) na edição diária", "stars": true} as Quote | null
   },
   "kit": [
     {
@@ -327,7 +327,8 @@ const EBOOK = {
 };
 
 const PRECO = "R$ 27";
-const PRECO_DE = "R$ 47";
+// riscado R$ 47 removido (critique 01/09): âncora sem base declarada; a página
+// vende R$ 27 seco. Voltar só com condição real (preço de tabela + prazo).
 // botão nunca carrega preço (HC 11/08): seta pra direita, preço reforça AO REDOR
 const CTA_LABEL = "Quero o guia →";
 const CHECKOUT = "/ebook-premium/checkout";
@@ -343,6 +344,20 @@ function Stars() {
 export default function EbookPremiumD() {
   const [amOpen, setAmOpen] = useState(false);
   const [faqOpen, setFaqOpen] = useState<number | null>(0);
+  // sticky de compra mobile (critique 01/09): o miolo tem ~5 mil px sem botão de
+  // compra no fluxo; a barra aparece quando o CTA do herói sai pra cima e morre
+  // no desktop pelo CSS
+  const [sticky, setSticky] = useState(false);
+  useEffect(() => {
+    const el = document.querySelector(".hero-cta");
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([e]) => setSticky(!e.isIntersecting && e.boundingClientRect.top < 0),
+      { threshold: 0 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
   useEffect(() => {
     const els = document.querySelectorAll(".reveal");
     const jump = new URLSearchParams(location.search).get("jump");
@@ -435,9 +450,8 @@ export default function EbookPremiumD() {
         <div className="reveal hero-cta">
           <a href={CHECKOUT} className="btn btn-hero" onClick={ctaClick}>{CTA_LABEL}</a>
           <div className="hero-preco">
-            <span className="de">{PRECO_DE}</span>
             <span className="por">{PRECO}</span>
-            <span className="uni">pagamento único</span>
+            <span className="uni">pagamento único · pix ou cartão</span>
           </div>
           <p className="hero-micro">{EBOOK.ctaMicro}</p>
         </div>
@@ -478,9 +492,8 @@ export default function EbookPremiumD() {
         <div className="faixa-inner">
           <a href={CHECKOUT} className="btn btn-faixa" onClick={ctaClick}>{CTA_LABEL}</a>
           <div className="faixa-preco">
-            <span className="de">{PRECO_DE}</span>
             <span className="por">{PRECO}</span>
-            <span className="uni">pagamento único</span>
+            <span className="uni">pagamento único · pix ou cartão</span>
           </div>
           <p className="faixa-micro">{EBOOK.ctaMicro}</p>
           <div className="faixa-gar">{EBOOK.garantiaNome}</div>
@@ -530,7 +543,18 @@ export default function EbookPremiumD() {
                 )}
               </div>
               {amOpen ? (
-                <a href={CHECKOUT} className="btn am-cta" onClick={ctaClick}>{CTA_LABEL}</a>
+                <>
+                  <a href={CHECKOUT} className="btn am-cta" onClick={ctaClick}>{CTA_LABEL}</a>
+                  <button
+                    className="am-toggle am-fechar"
+                    onClick={() => {
+                      setAmOpen(false);
+                      document.querySelector(".amostra")?.scrollIntoView({ behavior: "smooth" });
+                    }}
+                  >
+                    Recolher a amostra ↑
+                  </button>
+                </>
               ) : (
                 <>
                   <div className="am-fade" aria-hidden="true" />
@@ -587,9 +611,8 @@ export default function EbookPremiumD() {
             </a>
             <a href={CHECKOUT} className="btn btn-caixa" onClick={ctaClick}>{CTA_LABEL}</a>
             <div className="hero-preco">
-              <span className="de">{PRECO_DE}</span>
               <span className="por">{PRECO}</span>
-              <span className="uni">pagamento único</span>
+              <span className="uni">pagamento único · pix ou cartão</span>
             </div>
           </div>
           <div>
@@ -644,7 +667,19 @@ export default function EbookPremiumD() {
 
       <footer>
         <p>{EBOOK.despedida}</p>
+        <p className="foot-links">
+          <a href="/privacidade">Política de Privacidade</a> · <a href="/contato">Contato</a>
+        </p>
       </footer>
+
+      {/* sticky de compra mobile: só depois que o CTA do herói some pra cima */}
+      <div className={"dsticky" + (sticky ? " show" : "")} aria-hidden={!sticky}>
+        <div className="ds-preco">
+          <span className="por">{PRECO}</span>
+          <span className="uni">pagamento único</span>
+        </div>
+        <a href={CHECKOUT} className="btn ds-btn" onClick={ctaClick} tabIndex={sticky ? 0 : -1}>{CTA_LABEL}</a>
+      </div>
       </div>
 
       <style>{`
@@ -670,6 +705,10 @@ export default function EbookPremiumD() {
 .lpd nav{display:block;padding:0;left:auto;right:auto}
 .lpd footer{transition:none}
 html{scroll-behavior:smooth}
+/* identidade da rota: o grid e o grain do globals da casa saem (a D tem o próprio
+   grain) e o foco de teclado usa o acento da news, não o da LP de cadastro */
+body::before,body::after{content:none}
+.lpd *:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
 body{font-family:var(--sans);background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 .lpd a{color:inherit;text-decoration:none}
 .lpd .wrap{width:100%;max-width:1140px;margin:0 auto;padding:0 28px}
@@ -679,7 +718,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);line-height:
 .lpd .stars{color:var(--acc-text);font-size:15px;letter-spacing:.16em;display:block}
 .lpd .grain{position:fixed;inset:0;z-index:60;pointer-events:none;opacity:.05;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.6'/%3E%3C/svg%3E")}
 
-.lpd .provabar{font-family:var(--mono);font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--dim);text-align:center;padding:9px 14px;border-bottom:1px solid var(--hair);background:var(--bg-deep);white-space:nowrap;overflow:hidden}
+.lpd .provabar{font-family:var(--mono);font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--dim);text-align:center;padding:9px 14px;border-bottom:1px solid var(--hair);background:var(--bg-deep);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .lpd .pb-curto{display:none}
 .lpd nav{position:sticky;top:0;z-index:50;background:rgba(var(--bg-rgb),.82);backdrop-filter:saturate(140%) blur(8px);-webkit-backdrop-filter:saturate(140%) blur(8px);border-bottom:1px solid var(--hair)}
 .lpd .nav-inner{display:flex;align-items:center;justify-content:space-between;height:64px}
@@ -702,7 +741,6 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);line-height:
 .lpd .hero-cta{display:flex;flex-direction:column;align-items:center;gap:9px;margin-top:1.5rem}
 .lpd .btn-hero{padding:16px 40px;font-size:17.5px}
 .lpd .hero-preco{display:flex;align-items:baseline;gap:10px;color:#fff}
-.lpd .hero-preco .de{font-family:var(--serif);font-size:15px;text-decoration:line-through;opacity:.55}
 .lpd .hero-preco .por{font-family:var(--serif);font-weight:900;font-size:23px;font-variant-numeric:tabular-nums}
 .lpd .hero-preco .uni{font-size:12.5px;color:var(--dim)}
 .lpd .hero-micro{font-size:12.5px;color:var(--dim)}
@@ -733,14 +771,13 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);line-height:
 .lpd .faixa .btn:hover{background:#FFFFFF}
 .lpd .btn-faixa{padding:16px 40px;font-size:17.5px}
 .lpd .faixa-preco{display:flex;align-items:baseline;gap:10px;color:var(--acc-tint)}
-.lpd .faixa-preco .de{font-family:var(--serif);font-size:16px;text-decoration:line-through;opacity:.7}
 .lpd .faixa-preco .por{font-family:var(--serif);font-weight:900;font-size:26px;font-variant-numeric:tabular-nums}
 .lpd .faixa-preco .uni{font-size:13px}
 .lpd .faixa-micro{font-size:12.5px;color:var(--acc-tint)}
-.lpd .faixa-gar{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--acc-tint);border:1px solid rgba(255,255,255,.45);border-radius:20px;padding:7px 14px;white-space:nowrap;margin-top:4px}
+.lpd .faixa-gar{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--acc-tint);border:1px solid rgba(255,255,255,.45);border-radius:20px;padding:7px 14px;white-space:nowrap;margin-top:4px;max-width:100%;overflow:hidden;text-overflow:ellipsis}
 
 .lpd .specs-strip{display:flex;justify-content:center;gap:0;padding:1.5rem 1rem;font-family:var(--mono);font-size:13px;color:var(--text);flex-wrap:wrap;background:var(--bg)}
-.lpd .specs-strip span{padding:0 22px;border-right:1px solid var(--hair);white-space:nowrap;line-height:2}
+.lpd .specs-strip span{padding:0 22px;border-right:1px solid var(--hair);white-space:nowrap;line-height:2;max-width:100%;overflow:hidden;text-overflow:ellipsis}
 .lpd .specs-strip span:last-child{border-right:0}
 .lpd .specs-strip b{color:var(--acc-text);font-weight:500}
 
@@ -787,6 +824,8 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);line-height:
 .lpd .am-fade{position:absolute;left:0;right:0;bottom:0;height:160px;background:linear-gradient(rgba(247,245,237,0),#F7F5ED 76%)}
 .lpd .am-toggle{position:absolute;left:50%;transform:translateX(-50%);bottom:1.5rem;z-index:2;font-family:var(--sans);font-weight:600;font-size:14px;padding:10px 22px;border-radius:6px;border:1px solid #20211C;background:#F7F5ED;color:#20211C;cursor:pointer}
 .lpd .am-toggle:hover{background:#20211C;color:#F7F5ED}
+/* recolher da amostra aberta: mesmo desenho do toggle, mas no fluxo */
+.lpd .am-fechar{position:static;transform:none;display:block;margin:14px auto 0}
 
 .lpd .metodo{padding:5rem 1.5rem 4rem;background:var(--bg)}
 .lpd .met-grid{max-width:1040px;margin:2.4rem auto 0;display:grid;grid-template-columns:repeat(3,1fr);gap:38px}
@@ -833,6 +872,16 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);line-height:
 
 .lpd footer{padding:3rem 1.5rem;text-align:center;border-top:1px solid var(--hair);background:var(--bg-deep)}
 .lpd footer p{font-family:var(--serif);font-style:italic;font-size:1rem;color:var(--sage)}
+.lpd .foot-links{font-family:var(--sans);font-style:normal;font-size:12px;color:var(--dim);margin-top:10px}
+.lpd .foot-links a{text-decoration:underline;text-underline-offset:3px}
+
+/* sticky de compra mobile */
+.lpd .dsticky{position:fixed;left:0;right:0;bottom:0;z-index:55;display:none;align-items:center;justify-content:space-between;gap:12px;padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:rgba(var(--bg-rgb),.94);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-top:1px solid var(--hair);transform:translateY(100%);transition:transform .25s ease}
+.lpd .dsticky.show{transform:none}
+.lpd .ds-preco{display:flex;align-items:baseline;gap:8px;color:var(--text)}
+.lpd .ds-preco .por{font-family:var(--serif);font-weight:900;font-size:20px;font-variant-numeric:tabular-nums}
+.lpd .ds-preco .uni{font-size:11px;color:var(--dim)}
+.lpd .ds-btn{padding:12px 20px;font-size:15px}
 
 @media(max-width:960px){
   .lpd .triptico{grid-template-columns:1fr auto 1fr;gap:22px}
@@ -873,8 +922,12 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);line-height:
   .lpd .pb-curto{display:inline}
   .lpd .specs-strip{padding:1.2rem .5rem}
   .lpd .specs-strip span{padding:0 14px}
+  .lpd .dsticky{display:flex}
 }
 @media(max-width:380px){
+  /* aparelho estreito (Fold 344): botão encolhe pra fechar em 1 linha */
+  .lpd .btn{padding:12px 18px;font-size:14.5px}
+  .lpd .btn-hero,.lpd .btn-faixa{padding:14px 24px;font-size:16px}
   .lpd .obj .frente{width:min(190px,52vw)}
   .lpd .sticker{width:84px;height:84px;right:-10px}
   .lpd .sticker b{font-size:16px}
