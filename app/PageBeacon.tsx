@@ -77,6 +77,12 @@ export function captureSource(defaultSource?: string): void {
     } else if (defaultSource && !sessionStorage.getItem("vdn_source")) {
       sessionStorage.setItem("vdn_source", defaultSource);
     }
+    // onda mensal (c4-20k/11): ?oferta=metade&ate=<epoch> do o3 viaja até o checkout
+    const oferta = (q.get("oferta") || "").trim().slice(0, 20);
+    if (oferta && !sessionStorage.getItem("vdn_oferta")) {
+      sessionStorage.setItem("vdn_oferta", oferta);
+      sessionStorage.setItem("vdn_ate", (q.get("ate") || "").trim().slice(0, 12));
+    }
     // `?j=` (passo do guia no wizard): aba nova aberta com noopener não herda o
     // sessionStorage, então a jornada viaja no link. Só adota quando a aba ainda não
     // tem jornada própria, e nunca sobrescreve a de quem já está navegando.

@@ -55,14 +55,22 @@ function jornada() {
     return {
       journey: sessionStorage.getItem("vdn_journey") || "",
       src: sessionStorage.getItem("vdn_source") || "",
+      // onda mensal (c4-20k/11): janela de 24h a R$ 13,50, carimbada pelo PageBeacon
+      oferta: sessionStorage.getItem("vdn_oferta") || "",
+      ate: sessionStorage.getItem("vdn_ate") || "",
     };
   } catch {
-    return {};
+    return { journey: "", src: "", oferta: "", ate: "" };
   }
 }
 
 export default function EbookCheckout() {
   const [bump, setBump] = useState(false);
+  const [metade, setMetade] = useState(false); // c4-20k/11: só o rótulo; o preço real é da rota
+  useEffect(() => {
+    const j = jornada();
+    setMetade(j.oferta === "metade" && Number(j.ate) > Date.now() / 1000);
+  }, []);
   const [stripeOk, setStripeOk] = useState(false);
   const [montado, setMontado] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
@@ -150,8 +158,8 @@ export default function EbookCheckout() {
           <p className="kicker">{EBOOK.kicker}</p>
           <h1>{EBOOK.titulo}</h1>
           <p className="ck-resumo">
-            {!bump && EBOOK.precoDe && <s>{EBOOK.precoDe}</s>}
-            <b>{bump ? "R$ 40,50" : EBOOK.preco}</b>, pagamento único.
+            {!bump && (metade ? <s>R$ 27</s> : EBOOK.precoDe && <s>{EBOOK.precoDe}</s>)}
+            <b>{metade ? (bump ? "R$ 27,00" : "R$ 13,50") : bump ? "R$ 40,50" : EBOOK.preco}</b>, pagamento único.
             {bump ? " Guia + irmão da vertical." : " Sem assinatura, sem mensalidade."}
           </p>
         </header>

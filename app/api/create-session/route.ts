@@ -16,6 +16,13 @@ const BUMP_TITULO = "Brasa Pronta em 20 Minutos";
 // teve bump, entao carimba o total no return_url e a /obrigado dispara o Purchase certo.
 const VALOR_CHEIO = 2700;
 const VALOR_BUMP = 1350;
+// Onda mensal (c4-20k/11): o o3 abre a janela de 24h a R$ 13,50 com
+// ?oferta=metade&ate=<epoch> no link. O PageBeacon guarda os dois em sessionStorage,
+// a página manda no body, e aqui só vale ENQUANTO a janela está aberta (ate no
+// futuro); fora dela a session nasce a preço cheio. price = R$ 13,50 do PRÓPRIO
+// guia na conta NM (ebook-delivery.json, price_bump_nm).
+const PRICE_METADE = "price_1UAtYd40q2kXDh5BCjnPkn83"; // R$ 13,50 (live)
+const VALOR_METADE = 1350;
 
 export async function POST(req: Request) {
   const apiKey = process.env.STRIPE_API_KEY;
@@ -32,6 +39,8 @@ export async function POST(req: Request) {
 
   const body = await req.json().catch(() => ({}) as Record<string, unknown>);
   const bump = body?.bump === true;
+  const metade = body?.oferta === "metade" && Number(body?.ate) > Date.now() / 1000;
+  const valorBase = metade ? VALOR_METADE : VALOR_CHEIO;
 
   // Variante do split A/B/C (EXP-027): sai do cookie lp_eb que o middleware setou
   // na borda. Carimba em metadata.variant → o webhook central persiste em
@@ -53,7 +62,7 @@ export async function POST(req: Request) {
     locale: "pt-BR", // leitor BR sempre vê o checkout em português, browser que for
 
     return_url: `${origin}/ebook-premium/obrigado?session_id={CHECKOUT_SESSION_ID}&v=${
-      bump ? VALOR_CHEIO + VALOR_BUMP : VALOR_CHEIO
+      bump ? valorBase + VALOR_BUMP : valorBase
     }`,
     "metadata[sc]": SC, // contrato do webhook central (ticket 11): resolve o ebook pelo sc
   };
@@ -65,6 +74,7 @@ export async function POST(req: Request) {
   //   if (cs === "S") { params["payment_intent_data[setup_future_usage]"] = "off_session";
   //                     params["customer_creation"] = "always"; }
   if (bump) params["metadata[bump]"] = BUMP_SC;
+  if (metade) params["metadata[oferta]"] = "metade";
   // Jornada e origem (decisão HC 05/08): o webhook central persiste em
   // ebook_purchases.journey_id/src e aí cada real fica colado no caminho (teste, VSL
   // direta, LP) e no canal que trouxe a venda. Sem isso, receita por caminho é só o
@@ -96,14 +106,14 @@ export async function POST(req: Request) {
   // (metadata nao aparece la). Suffix: fatura do cartao vira "NEWSLETTER* EBOOK <SC>"
   // (prefix 10 + "* " + suffix <= 10 = teto de 22 do cartao; boleto ignora).
   params["payment_intent_data[description]"] =
-    `Ebook ${TITULO} (${SC})` + (bump ? ` + bump ${BUMP_SC}` : "");
+    `Ebook ${TITULO} (${SC})` + (metade ? " metade" : "") + (bump ? ` + bump ${BUMP_SC}` : "");
   params["payment_intent_data[statement_descriptor_suffix]"] = `EBOOK ${SC}`;
 
   // ponytail: price IDs live não existem em test mode; sk_test_ usa price_data
   // inline com os mesmos valores. Flip pra live = trocar a env key, código intacto.
   if (isTestKey) {
     params["line_items[0][price_data][currency]"] = "brl";
-    params["line_items[0][price_data][unit_amount]"] = String(VALOR_CHEIO);
+    params["line_items[0][price_data][unit_amount]"] = String(valorBase);
     params["line_items[0][price_data][product_data][name]"] = `Ebook ${TITULO}`;
     params["line_items[0][quantity]"] = "1";
     if (bump) {
@@ -113,7 +123,7 @@ export async function POST(req: Request) {
       params["line_items[1][quantity]"] = "1";
     }
   } else {
-    params["line_items[0][price]"] = PRICE_CHEIO;
+    params["line_items[0][price]"] = metade ? PRICE_METADE : PRICE_CHEIO;
     params["line_items[0][quantity]"] = "1";
     if (bump) {
       params["line_items[1][price]"] = BUMP_PRICE;
