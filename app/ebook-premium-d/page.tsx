@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import PageBeacon, { sendBeacon } from "../PageBeacon";
+import LpWidgets, { fichaDoEbook } from "../LpWidgets";
 
 /* ============================================================
    VARIANTE D · molde selado no golden ALQ/EE (HC 11/08/2026), vencedora do
@@ -323,7 +324,9 @@ const EBOOK = {
   "fecho": "Sem frescura.",
   "fechoAncora": "R$ 27 pra tirar do coador o que a máquina cara promete. Pagamento único, sem assinatura.",
   "custoEspera": "Toda manhã sem o ajuste é a mesma xícara mediana de novo.",
-  "despedida": "Bom café. Até sábado."
+  "despedida": "Bom café. Até sábado.",
+  "kicker": "Café de Balcão no Coador de Casa · Guia Notas do Café",
+  "titulo": "Café de Balcão no Coador de Casa"
 };
 
 const PRECO = "R$ 27";
@@ -680,6 +683,18 @@ export default function EbookPremiumD() {
         </div>
         <a href={CHECKOUT} className="btn ds-btn" onClick={ctaClick} tabIndex={sticky ? 0 : -1}>{CTA_LABEL}</a>
       </div>
+
+      {/* vitrine (02/09/26): chat de dúvidas no canto direito + prova social no esquerdo;
+          molde em templates/LpWidgets.tsx, copiado pela fábrica pra app/LpWidgets.tsx */}
+      <LpWidgets
+        slug={EBOOK.slug}
+        produto="ebook"
+        cor="var(--acc)"
+        corTexto="var(--btn-text)"
+        cta={CTA_LABEL}
+        ficha={fichaDoEbook(EBOOK, "Notas do Café", PRECO, CTA_LABEL)}
+        depoimentos={[...EBOOK.blurbs, ...(EBOOK.depoimentos.pull ? [EBOOK.depoimentos.pull] : [])]}
+      />
       </div>
 
       <style>{`

@@ -67,7 +67,10 @@ export function captureSource(defaultSource?: string): void {
     // carimbados pelo funil (ex.: monetizacao-s1-abre nos 12 da Monetização), que antes
     // caíam no beacon como visita anônima.
     const q = new URLSearchParams(window.location.search);
-    const param = q.get("src") || q.get("utm_campaign");
+    const utm = (q.get("utm_content") || "").trim().slice(0, 56);
+    // anúncio identificado vence o carimbo genérico (regra M03 da VSL): sem o "ad:",
+    // a visita paga entra no funil com o src da sequência de email que virou anúncio
+    const param = utm ? "ad:" + utm : q.get("src") || q.get("utm_campaign");
     const src = (param || "").trim().slice(0, 60);
     if (src && !sessionStorage.getItem("vdn_source")) {
       sessionStorage.setItem("vdn_source", src);
