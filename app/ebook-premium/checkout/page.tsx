@@ -26,6 +26,16 @@ const EBOOK = {
   "despedida": "Bom café. Até sábado."
 };
 
+/* Faixa de confiança acima do formulário (ticket 46). A primeira linha é a única
+   que muda quando o Pix ligar na conta da NM (02/09/26: a capability não existe,
+   a session volta com card e boleto): vira "Pix, cartão ou boleto". */
+const CONFIANCA = [
+  "Cartão ou boleto",
+  "Pagamento pela Stripe",
+  "7 dias de garantia",
+  "Entrega imediata por email",
+];
+
 const PK = process.env.NEXT_PUBLIC_STRIPE_PK;
 
 type CheckoutHandle = { mount: (sel: string) => void; destroy: () => void };
@@ -54,6 +64,7 @@ function jornada() {
 export default function EbookCheckout() {
   const [bump, setBump] = useState(false);
   const [stripeOk, setStripeOk] = useState(false);
+  const [montado, setMontado] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
 
   // carrega o stripe.js por script tag (zero dependência npm, igual nos 30 repos)
@@ -76,6 +87,7 @@ export default function EbookCheckout() {
     let handle: CheckoutHandle | null = null;
     let vivo = true;
     setErro(null);
+    setMontado(false); // trocar o bump remonta a session: o esqueleto volta junto
     window
       .Stripe(PK)
       .initEmbeddedCheckout({
@@ -102,6 +114,7 @@ export default function EbookCheckout() {
         }
         handle = c;
         c.mount("#checkout-box");
+        setMontado(true);
       })
       .catch((e: Error) => setErro(e.message));
     return () => {
@@ -143,9 +156,37 @@ export default function EbookCheckout() {
           </p>
         </header>
 
-        <div className="ck-box">
+        <ul className="ck-conf">
+          {CONFIANCA.map((linha) => (
+            <li key={linha}>{linha}</li>
+          ))}
+        </ul>
+
+        <div className={`ck-box${configurado && !montado && !erro ? " carregando" : ""}`}>
           {configurado ? (
-            <div id="checkout-box" />
+            <>
+              <div id="checkout-box" />
+              {/* Esqueleto por cima do container enquanto o embedded checkout monta:
+                  sem ele a caixa branca fica vazia até a Stripe pintar (medido: 0,7 a
+                  1,7 s), e a sessão média no checkout é de 19 s (Clarity, ago/26). */}
+              {!montado && !erro && (
+                <div className="ck-skel" role="status" aria-label="Abrindo o pagamento">
+                  <div className="sk-bars" aria-hidden="true">
+                    <span className="sk-l sk-rot" />
+                    <span className="sk-l sk-campo" />
+                    <span className="sk-l sk-rot sk-curto" />
+                    <span className="sk-l sk-campo" />
+                    <span className="sk-dupla">
+                      <span className="sk-l sk-campo" />
+                      <span className="sk-l sk-campo" />
+                    </span>
+                    <span className="sk-l sk-rot sk-curto" />
+                    <span className="sk-l sk-campo" />
+                    <span className="sk-l sk-botao" />
+                  </div>
+                </div>
+              )}
+            </>
           ) : (
             <div className="ck-pend">
               <p><b>Checkout em preparação.</b></p>
@@ -173,10 +214,6 @@ export default function EbookCheckout() {
           </span>
         </label>
 
-        <div className="selos">
-          <span>Pagamento seguro via Stripe</span>
-          <span>Garantia de 7 dias</span>
-        </div>
       </main>
 
       <footer className="ck-foot">
@@ -213,7 +250,22 @@ a{color:inherit;text-decoration:none}
         .ck-resumo{font-size:15px;color:var(--text);line-height:1.6}
         .ck-resumo b{color:#fff;font-variant-numeric:tabular-nums}
         .ck-resumo s{color:var(--text-dim);font-variant-numeric:tabular-nums;margin-right:6px}
-        .ck-box{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.5),0 0 60px rgba(225,114,35,.10);min-height:120px}
+        .ck-conf{list-style:none;display:flex;flex-wrap:wrap;justify-content:center;gap:7px 18px;margin:0 -60px 15px;padding:0}
+        .ck-conf li{display:flex;align-items:center;gap:6px;font-size:12px;white-space:nowrap;color:var(--text-dim);letter-spacing:-.01em}
+        @media (max-width:640px){.ck-conf{margin:0 0 15px;gap:7px 22px}}
+        .ck-conf li::before{content:"✓";font-size:11px;font-weight:700;color:var(--bright)}
+        .ck-box{position:relative;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.5),0 0 60px rgba(225,114,35,.10);min-height:120px}
+        .ck-box.carregando{min-height:400px}
+        .ck-skel{position:absolute;inset:0;padding:22px 20px 24px;pointer-events:none;background:#fff}
+        .sk-bars{display:flex;flex-direction:column;gap:9px}
+        .sk-l{display:block;border-radius:6px;background:linear-gradient(100deg,#EDE7E9 0%,#F7F3F4 45%,#EDE7E9 90%);background-size:220% 100%;animation:sk 1.5s linear infinite}
+        .sk-rot{width:96px;height:9px;margin-top:5px}
+        .sk-curto{width:74px}
+        .sk-campo{width:100%;height:42px}
+        .sk-dupla{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+        .sk-botao{margin-top:12px;width:100%;height:46px;background:linear-gradient(100deg,color-mix(in srgb,var(--bright) 30%,#fff) 0%,color-mix(in srgb,var(--bright) 14%,#fff) 45%,color-mix(in srgb,var(--bright) 30%,#fff) 90%);background-size:220% 100%}
+        @keyframes sk{from{background-position:130% 0}to{background-position:-30% 0}}
+        @media (prefers-reduced-motion:reduce){.sk-l{animation:none}}
         .ck-pend{padding:2.2rem 1.6rem;font-family:var(--sans,inherit);color:#26302B}
         .ck-pend p{font-size:14.5px;line-height:1.6;margin:0 0 .5rem}
         .ck-pend b{color:#0D0F0E}
@@ -228,7 +280,6 @@ a{color:inherit;text-decoration:none}
         .bpreco s{color:var(--text-dim);font-weight:400;margin-right:4px}
         .bnome{display:block;font-family:var(--serif);font-weight:700;font-size:16.5px;color:#fff;margin:6px 0 4px}
         .bdesc{display:block;font-size:13.5px;color:var(--text);line-height:1.55}
-        .selos{display:flex;justify-content:center;gap:22px;margin-top:22px;font-size:12.5px;color:var(--text-dim)}
         .ck-foot{padding:2.5rem 1.5rem;text-align:center;border-top:1px solid var(--hair);background:var(--bg-deep)}
         .ck-foot p{font-family:var(--serif);font-style:italic;font-size:1rem;color:var(--sage)}
       `}</style>
