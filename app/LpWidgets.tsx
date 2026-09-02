@@ -8,7 +8,9 @@ import { sendBeacon } from "./PageBeacon";
    - canto inferior direito: chat de dúvidas (Haiku, via Pharos /api/lp/chat),
      que chama o visitante depois de 60 s sem interação;
    - canto inferior esquerdo: prova social (compras ou visitantes via
-     /api/lp/prova) + depoimentos selados da news em carrossel.
+     /api/lp/prova) + depoimentos da news em carrossel: os VIVOS que a rota
+     devolver (curadoria do HC em lp_depoimentos, ticket 48) e, sem eles, os
+     selados que a página passa por prop.
    Classes com prefixo lpw- pra não colidir com o globals.css da casa
    (.btn, .hero). Cor de acento entra por prop; o resto herda --bg/--text/
    --dim/--hair da página (com fallback). A EE é o golden e a fábrica copia
@@ -36,7 +38,7 @@ export type Ficha = {
   garantia?: string;
 };
 type Msg = { role: "user" | "assistant"; content: string };
-type Prova = { compras?: string; visitantes?: string };
+type Prova = { compras?: string; visitantes?: string; depoimentos?: Depo[] };
 
 type EbookLike = {
   kicker?: string;
@@ -128,6 +130,8 @@ export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", cta, 
   const [provaOn, setProvaOn] = useState(true);
   // começa pelo último selado: no herói da D os dois primeiros já estão no tríptico
   const [idx, setIdx] = useState(Math.max(depoimentos.length - 1, 0));
+  // vivos da rota mandam; os selados da prop são a reserva (ticket 48)
+  const [vivos, setVivos] = useState<Depo[]>([]);
   const [rolou, setRolou] = useState(false);
   const [celular, setCelular] = useState(false);
   // a D tem barra de compra fixa no celular (.dsticky); a vitrine sobe pra não cobri-la
@@ -149,6 +153,10 @@ export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", cta, 
         .then((r) => (r.ok ? r.json() : null))
         .then((j: Prova | null) => {
           if (j && (j.compras || j.visitantes)) setProva(j);
+          if (j?.depoimentos?.length) {
+            setVivos(j.depoimentos);
+            setIdx(0);
+          }
         })
         .catch(() => {
           /* sem prova, sem placeholder */
@@ -181,11 +189,12 @@ export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", cta, 
   }, [celular, rolou]);
 
   // carrossel de depoimentos
+  const frases = vivos.length ? vivos : depoimentos;
   useEffect(() => {
-    if (depoimentos.length < 2) return;
-    const t = setInterval(() => setIdx((i) => (i + 1) % depoimentos.length), GIRO_MS);
+    if (frases.length < 2) return;
+    const t = setInterval(() => setIdx((i) => (i + 1) % frases.length), GIRO_MS);
     return () => clearInterval(t);
-  }, [depoimentos.length]);
+  }, [frases.length]);
 
   // chamada por ócio: 60 s sem toque, rolagem ou tecla, uma vez por sessão
   useEffect(() => {
@@ -274,8 +283,8 @@ export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", cta, 
     setOcupado(false);
   }
 
-  const temProva = provaOn && (!celular || rolou) && (prova !== null || depoimentos.length > 0);
-  const depo = depoimentos.length ? depoimentos[idx % depoimentos.length] : null;
+  const temProva = provaOn && (!celular || rolou) && (prova !== null || frases.length > 0);
+  const depo = frases.length ? frases[idx % frases.length] : null;
 
   return (
     <div className={"lpw" + (comSticky ? " lpw-com-sticky" : "")} style={{ ["--lpw-acc" as string]: cor, ["--lpw-acc-text" as string]: corTexto }}>
