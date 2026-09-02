@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import crypto from "node:crypto";
 import { validateEmail } from "../../lib/validate-email";
 
+export const maxDuration = 70;   // espera do 429 até o ratelimit-reset (fornax/214)
+
 // ── referral interno (gamificacao-do-leitor/10) ─────────────────────────────
 // Com ?ref= presente o cadastro passa a render prêmio: o email valida (descartável/
 // typo/denylist) ANTES do Beehiiv e a indicação vira linha em referral_signups (SOT;
@@ -239,15 +241,24 @@ export async function POST(req: Request) {
   // vdn-retry-429: rate limit do Beehiiv é por CONTA (key compartilhada entre
   // news); batch interno rodando na mesma key não pode perder cadastro de
   // leitor (incidente RF 30/07/26: 6 subscribes perdidos em rajada de 1 min).
-  // Retry só no 429: até 2 tentativas extras (1.5s, 3s), devolve a última.
+  // Retry só no 429: até 3 tentativas extras, cada uma esperando o reset do balde.
   const bhPost = async (url: string, body: unknown) => {
     let res = await fetch(url, {
       method: "POST",
       headers,
       body: JSON.stringify(body),
     });
-    for (const ms of [1500, 3000]) {
-      if (res.status !== 429) break;
+    // vdn-retry-429-reset (fornax/214, 01/09/26): o balde e da CONTA (180/min pras
+    // 91 pubs desde a workspace única de 25/08/26) e o 429 do Beehiiv traz
+    // `ratelimit-reset` (epoch s), nunca Retry-After. Dormir 1,5s/3s gastava as 3
+    // tentativas DENTRO do mesmo minuto do balde: 39 leads perdidos em 13 news num
+    // dia só. Aqui a espera vai até o reset (teto de 20s por tentativa: o leitor
+    // está parado na frente do form).
+    for (let i = 0; i < 3 && res.status === 429; i++) {
+      const reset = Number(res.headers.get("ratelimit-reset"));
+      const ms = Number.isFinite(reset) && reset > 0
+        ? Math.min(Math.max(reset * 1000 - Date.now() + 1000, 1000), 20000)
+        : 2000 * (i + 1);
       await new Promise((r) => setTimeout(r, ms));
       res = await fetch(url, {
         method: "POST",
