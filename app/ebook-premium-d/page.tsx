@@ -689,6 +689,7 @@ export default function EbookPremiumD() {
       <LpWidgets
         slug={EBOOK.slug}
         produto="ebook"
+        checkout={CHECKOUT}
         cor="var(--acc)"
         corTexto="var(--btn-text)"
         cta={CTA_LABEL}

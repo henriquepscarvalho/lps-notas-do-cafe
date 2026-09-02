@@ -107,11 +107,13 @@ type Props = {
   cor: string;
   corTexto?: string;
   cta: string;
+  /** href do checkout: o botão de compra vive dentro do chat (HC 02/09: chat vende, não dá suporte) */
+  checkout?: string;
   ficha: Ficha;
   depoimentos: Depo[];
 };
 
-export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", cta, ficha, depoimentos }: Props) {
+export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", cta, checkout, ficha, depoimentos }: Props) {
   const step = produto === "app" ? "app-lp" : "ebook-premium-d";
   const objeto = produto === "app" ? "o app" : "o guia";
   const sugestoes =
@@ -397,7 +399,17 @@ export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", cta, 
               ➤
             </button>
           </form>
-          <p className="lpw-pe">Resposta automática. O botão &ldquo;{cta.replace(" →", "")}&rdquo; abre o checkout.</p>
+          {checkout && (
+            <a
+              className="lpw-cta"
+              href={checkout}
+              onClick={() => sendBeacon(slug, `${step}-cta`, { eventType: "converteu" })}
+            >
+              {cta.replace(" →", "")}
+              <span>{ficha.preco} · abre o checkout</span>
+            </a>
+          )}
+          <p className="lpw-pe">Resposta automática.</p>
         </section>
       )}
 
@@ -435,6 +447,8 @@ export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", cta, 
 .lpw-form input:focus{outline:2px solid var(--lpw-acc);outline-offset:1px}
 .lpw-form button{width:42px;border-radius:10px;border:0;background:var(--lpw-acc);color:var(--lpw-acc-text);font-size:16px;cursor:pointer}
 .lpw-form button:disabled{opacity:.45;cursor:default}
+.lpw-cta{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 12px 8px;padding:11px 14px;border-radius:10px;background:var(--lpw-acc);color:var(--lpw-acc-text);font-weight:700;font-size:14px;text-decoration:none}
+.lpw-cta span{font-weight:500;font-size:12px;opacity:.85}
 .lpw-pe{margin:0;padding:0 14px 10px;font-size:11px;color:var(--dim,#999)}
 .lpw-prova{position:fixed;left:18px;bottom:18px;z-index:69;width:300px;max-width:calc(100vw - 110px);background:var(--bg,#111);color:var(--text,#eee);border:1px solid var(--hair,rgba(255,255,255,.14));border-radius:14px;padding:12px 34px 12px 14px;box-shadow:0 12px 32px rgba(0,0,0,.35);animation:lpw-pop .3s ease}
 .lpw-x{position:absolute;top:6px;right:8px;background:none;border:0;color:var(--dim,#999);font-size:18px;line-height:1;cursor:pointer;padding:4px}
