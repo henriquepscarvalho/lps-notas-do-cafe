@@ -327,10 +327,13 @@ export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", cta, 
         {aberto ? (
           <span className="lpw-fx">×</span>
         ) : (
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M21 12a8 8 0 0 1-8 8H8l-5 3 1.2-4.2A8 8 0 1 1 21 12z" />
-            <path d="M8 11h8M8 14h5" />
-          </svg>
+          <>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M4 5h16v11H9l-5 4V5Z" />
+              <path d="M8 9h8M8 12.5h5" />
+            </svg>
+            <span className="lpw-on" aria-hidden="true" />
+          </>
         )}
       </button>
 
@@ -407,6 +410,9 @@ export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", cta, 
 .lpw-fx{font-size:28px;line-height:1}
 .lpw-balao{position:fixed;right:84px;bottom:26px;z-index:70;max-width:250px;background:var(--bg,#111);color:var(--text,#eee);border:1px solid var(--lpw-acc);border-radius:14px 14px 4px 14px;padding:10px 14px;font-size:13.5px;font-weight:500;line-height:1.4;text-align:left;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.35);animation:lpw-pop .3s ease}
 @keyframes lpw-pop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.lpw-on{position:absolute;top:2px;right:2px;width:12px;height:12px;border-radius:50%;background:#3BD66E;border:2px solid var(--lpw-acc);animation:lpw-on 1.6s ease-out infinite}
+@keyframes lpw-on{0%{box-shadow:0 0 0 0 rgba(59,214,110,.6)}100%{box-shadow:0 0 0 10px rgba(59,214,110,0)}}
+@media(prefers-reduced-motion:reduce){.lpw-on{animation:none}}
 .lpw-chat{position:fixed;right:18px;bottom:86px;z-index:71;width:360px;max-width:calc(100vw - 36px);height:520px;max-height:calc(100vh - 110px);display:flex;flex-direction:column;background:var(--bg,#111);color:var(--text,#eee);border:1px solid var(--hair,rgba(255,255,255,.14));border-radius:16px;box-shadow:0 18px 48px rgba(0,0,0,.45);overflow:hidden;animation:lpw-pop .2s ease}
 .lpw-h{padding:12px 14px 12px 16px;border-bottom:1px solid var(--hair,rgba(255,255,255,.14));display:flex;align-items:center;justify-content:space-between;gap:10px}
 .lpw-h div{display:flex;flex-direction:column;gap:1px}
