@@ -13,6 +13,8 @@ const EBOOK = {
   "titulo": "Café de Balcão no Coador de Casa",
   "kicker": "Guia Notas do Café",
   "preco": "R$ 27",
+  "resumo": "Guia completo, web + PDF.",
+  "garantiaNome": "7 dias de garantia.",
   // riscado removido junto com a âncora da LP D (critique 01/09): sem base
   // declarada; o render já é condicional, token vazio = sem <s>
   "precoDe": "",
@@ -157,11 +159,15 @@ export default function EbookCheckout() {
           </div>
           <p className="kicker">{EBOOK.kicker}</p>
           <h1>{EBOOK.titulo}</h1>
+          {/* oraculum lp-vendas m02 (HC 02/09): quem entra pela recuperação não viu a LP;
+              o cabeçalho diz o que vem, quanto custa, quando chega e a garantia. */}
           <p className="ck-resumo">
+            {EBOOK.resumo}{" "}
             {!bump && (metade ? <s>R$ 27</s> : EBOOK.precoDe && <s>{EBOOK.precoDe}</s>)}
             <b>{metade ? (bump ? "R$ 27,00" : "R$ 13,50") : bump ? "R$ 40,50" : EBOOK.preco}</b>, pagamento único.
-            {bump ? " Guia + irmão da vertical." : " Sem assinatura, sem mensalidade."}
+            {bump ? " Guia + o guia irmão." : ""}
           </p>
+          <p className="ck-resumo">O link chega no email assim que o pagamento confirma. {EBOOK.garantiaNome}</p>
         </header>
 
         <ul className="ck-conf">
