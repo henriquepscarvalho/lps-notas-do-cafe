@@ -429,12 +429,12 @@ export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", cta, 
 .lpw-fab:hover{transform:translateY(-1px)}
 .lpw-fab svg{width:26px;height:26px}
 .lpw-fx{font-size:28px;line-height:1}
-.lpw-balao{position:fixed;right:84px;bottom:26px;z-index:70;max-width:250px;background:var(--bg,#111);color:var(--text,#eee);border:1px solid var(--lpw-acc);border-radius:14px 14px 4px 14px;padding:10px 14px;font-size:13.5px;font-weight:500;line-height:1.4;text-align:left;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.35);animation:lpw-pop .3s ease}
+.lpw-balao{position:fixed;right:84px;bottom:26px;z-index:70;max-width:250px;background:var(--bg,#111);color:var(--text,var(--ink,#eee));border:1px solid var(--lpw-acc);border-radius:14px 14px 4px 14px;padding:10px 14px;font-size:13.5px;font-weight:500;line-height:1.4;text-align:left;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.35);animation:lpw-pop .3s ease}
 @keyframes lpw-pop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 .lpw-on{position:absolute;top:2px;right:2px;width:12px;height:12px;border-radius:50%;background:#3BD66E;border:2px solid var(--lpw-acc);animation:lpw-on 1.6s ease-out infinite}
 @keyframes lpw-on{0%{box-shadow:0 0 0 0 rgba(59,214,110,.6)}100%{box-shadow:0 0 0 10px rgba(59,214,110,0)}}
 @media(prefers-reduced-motion:reduce){.lpw-on{animation:none}}
-.lpw-chat{position:fixed;right:18px;bottom:86px;z-index:71;width:360px;max-width:calc(100vw - 36px);height:520px;max-height:calc(100vh - 110px);display:flex;flex-direction:column;background:var(--bg,#111);color:var(--text,#eee);border:1px solid var(--hair,rgba(255,255,255,.14));border-radius:16px;box-shadow:0 18px 48px rgba(0,0,0,.45);overflow:hidden;animation:lpw-pop .2s ease}
+.lpw-chat{position:fixed;right:18px;bottom:86px;z-index:71;width:360px;max-width:calc(100vw - 36px);height:520px;max-height:calc(100vh - 110px);display:flex;flex-direction:column;background:var(--bg,#111);color:var(--text,var(--ink,#eee));border:1px solid var(--hair,rgba(255,255,255,.14));border-radius:16px;box-shadow:0 18px 48px rgba(0,0,0,.45);overflow:hidden;animation:lpw-pop .2s ease}
 .lpw-h{padding:12px 14px 12px 16px;border-bottom:1px solid var(--hair,rgba(255,255,255,.14));display:flex;align-items:center;justify-content:space-between;gap:10px}
 .lpw-h div{display:flex;flex-direction:column;gap:1px}
 .lpw-h b{font-size:15px}.lpw-h span{font-size:12px;color:var(--dim,#999)}
@@ -459,12 +459,12 @@ export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", cta, 
 .lpw-cta{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 12px 8px;padding:11px 14px;border-radius:10px;background:var(--lpw-acc);color:var(--lpw-acc-text);font-weight:700;font-size:14px;text-decoration:none}
 .lpw-cta span{font-weight:500;font-size:12px;opacity:.85}
 .lpw-pe{margin:0;padding:0 14px 10px;font-size:11px;color:var(--dim,#999)}
-.lpw-prova{position:fixed;left:18px;bottom:18px;z-index:69;width:300px;max-width:calc(100vw - 110px);background:var(--bg,#111);color:var(--text,#eee);border:1px solid var(--hair,rgba(255,255,255,.14));border-radius:14px;padding:12px 34px 12px 14px;box-shadow:0 12px 32px rgba(0,0,0,.35);animation:lpw-pop .3s ease}
+.lpw-prova{position:fixed;left:18px;bottom:18px;z-index:69;width:300px;max-width:calc(100vw - 110px);background:var(--bg,#111);color:var(--text,var(--ink,#eee));border:1px solid var(--hair,rgba(255,255,255,.14));border-radius:14px;padding:12px 34px 12px 14px;box-shadow:0 12px 32px rgba(0,0,0,.35);animation:lpw-pop .3s ease}
 .lpw-x{position:absolute;top:6px;right:8px;background:none;border:0;color:var(--dim,#999);font-size:18px;line-height:1;cursor:pointer;padding:4px}
 .lpw-n{margin:0 0 6px;font-size:12.5px;font-weight:600;line-height:1.35}
 .lpw-n i{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--lpw-acc);margin-right:6px;vertical-align:1px}
 .lpw-depo{margin:0;animation:lpw-fade .5s ease}
-.lpw-depo blockquote{margin:0;font-family:var(--serif,Georgia,serif);font-style:italic;font-size:13px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.lpw-depo blockquote{margin:0;font-family:var(--sans,Inter,system-ui,sans-serif);font-size:14px;line-height:1.5;color:var(--text,#eee);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .lpw-depo figcaption{margin-top:4px;font-size:11px;color:var(--dim,#999)}
 @keyframes lpw-fade{from{opacity:0}to{opacity:1}}
 @media(max-width:760px){
@@ -475,7 +475,7 @@ export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", cta, 
   .lpw-com-sticky .lpw-fab{bottom:84px}
   .lpw-com-sticky .lpw-balao{bottom:142px}
   .lpw-com-sticky .lpw-prova{bottom:84px}
-  .lpw-depo blockquote{-webkit-line-clamp:2;font-size:12.5px}
+  .lpw-depo blockquote{-webkit-line-clamp:2;font-size:13.5px}
 }
 @media(prefers-reduced-motion:reduce){.lpw *{animation:none!important;transition:none!important}}
 `}</style>
