@@ -434,12 +434,12 @@ export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", cta, 
 .lpw-on{position:absolute;top:2px;right:2px;width:12px;height:12px;border-radius:50%;background:#3BD66E;border:2px solid var(--lpw-acc);animation:lpw-on 1.6s ease-out infinite}
 @keyframes lpw-on{0%{box-shadow:0 0 0 0 rgba(59,214,110,.6)}100%{box-shadow:0 0 0 10px rgba(59,214,110,0)}}
 @media(prefers-reduced-motion:reduce){.lpw-on{animation:none}}
-.lpw-chat{position:fixed;right:18px;bottom:86px;z-index:71;width:360px;max-width:calc(100vw - 36px);height:520px;max-height:calc(100vh - 110px);display:flex;flex-direction:column;background:var(--bg,#111);color:var(--text,var(--ink,#eee));border:1px solid var(--hair,rgba(255,255,255,.14));border-radius:16px;box-shadow:0 18px 48px rgba(0,0,0,.45);overflow:hidden;animation:lpw-pop .2s ease}
+.lpw-chat{position:fixed;right:18px;bottom:86px;z-index:71;width:360px;max-width:calc(100vw - 36px);height:auto;max-height:min(520px,calc(100vh - 110px));display:flex;flex-direction:column;background:var(--bg,#111);color:var(--text,var(--ink,#eee));border:1px solid var(--hair,rgba(255,255,255,.14));border-radius:16px;box-shadow:0 18px 48px rgba(0,0,0,.45);overflow:hidden;animation:lpw-pop .2s ease}
 .lpw-h{padding:12px 14px 12px 16px;border-bottom:1px solid var(--hair,rgba(255,255,255,.14));display:flex;align-items:center;justify-content:space-between;gap:10px}
 .lpw-h div{display:flex;flex-direction:column;gap:1px}
 .lpw-h b{font-size:15px}.lpw-h span{font-size:12px;color:var(--dim,#999)}
 .lpw-close{background:none;border:0;color:var(--dim,#999);font-size:24px;line-height:1;cursor:pointer;padding:2px 6px}
-.lpw-lista{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px}
+.lpw-lista{flex:1 1 auto;min-height:0;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px}
 .lpw-m{max-width:88%;padding:9px 12px;border-radius:14px;font-size:14px;line-height:1.45;white-space:pre-wrap;word-break:break-word}
 .lpw-bot{align-self:flex-start;background:rgba(127,127,127,.14);border-bottom-left-radius:4px}
 .lpw-eu{align-self:flex-end;background:var(--lpw-acc);color:var(--lpw-acc-text);border-bottom-right-radius:4px}
@@ -470,7 +470,7 @@ export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", cta, 
 @media(max-width:760px){
   .lpw-fab{right:12px;bottom:18px;width:50px;height:50px}
   .lpw-balao{right:12px;bottom:76px;max-width:240px;border-radius:14px 14px 14px 4px}
-  .lpw-chat{right:0;left:0;bottom:0;width:auto;max-width:none;height:72vh;max-height:none;border-radius:16px 16px 0 0}
+  .lpw-chat{right:0;left:0;bottom:0;width:auto;max-width:none;height:auto;max-height:72vh;border-radius:16px 16px 0 0}
   .lpw-prova{left:12px;right:74px;bottom:18px;width:auto;max-width:none;padding:10px 30px 10px 12px}
   .lpw-com-sticky .lpw-fab{bottom:84px}
   .lpw-com-sticky .lpw-balao{bottom:142px}
