@@ -114,7 +114,7 @@ const CC_CSS = `
 .cc-btnP:disabled{opacity:.4;cursor:default}
 .cc-recerr{font-size:12px;color:var(--cc-muted);text-align:center;margin:10px 0 0}
 /* vdn-ebook-css */
-.cc-ebhero{display:flex;justify-content:center;margin:4px 0 18px}
+.cc-ebhero{display:flex;justify-content:center;margin:4px 0 18px;cursor:pointer;text-decoration:none}
 .cc-ebhero img{width:158px;max-width:52%;height:auto;display:block;border-radius:7px;box-shadow:0 18px 38px rgba(0,0,0,.6);transform:perspective(760px) rotateY(-7deg);animation:ccPop .6s cubic-bezier(.16,1,.3,1) both}
 @media (prefers-reduced-motion: reduce){
   .cc-orb,.cc-seal img,.cc-step,.cc-reveal,.cc-ebhero img{animation:none}
@@ -217,6 +217,18 @@ export default function OnboardingWizard({
     } catch {
       return EB.url;
     }
+  };
+
+  /* fnx/271: a capa e o botao abrem o guia pelo MESMO gesto. A capa era <img> inerte
+     de 158x211 com sombra e giro 3D, o objeto mais tocavel da tela, e o toque nela nao
+     fazia nada: /cadastro-confirmado da rede saiu de 3,5% de sessao com clique morto
+     (jul) pra 10,3% depois que o passo do guia entrou (10/08), e a Crime Aberto bateu
+     33,3% em 05/09. Mesmo conserto do fnx/48 na Arte do Dia: o que parece objeto vira
+     <a href> de verdade. */
+  const abrirGuia = () => {
+    SET("vdn_ob_ebook", "done");
+    sendBeacon(SLUG, "ebook", { eventType: "converteu" });
+    setTimeout(advance, 150);
   };
 
   const toggleRec = (s: string) =>
@@ -422,14 +434,16 @@ export default function OnboardingWizard({
                 {idx === 4 && (
                   <div className="cc-step" key="ebook">
                     <div className="cc-n">{`Passo ${stepNo} de ${TOTAL} · guia completo`}</div>
-                    <div className="cc-ebhero">
+                    <a className="cc-ebhero" href={ebHref()} target="_blank" rel="noopener"
+                      aria-label={`Conhecer o guia ${EB.titulo}`} onClick={abrirGuia}
+                    >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={EB.capa} alt={EB.titulo} onError={(e) => { e.currentTarget.style.display = "none"; }} />
-                    </div>
+                    </a>
                     <h2>{EB.titulo}</h2>
                     <p>{EB.linha}</p>
                     <a className="cc-btnP" href={ebHref()} target="_blank" rel="noopener"
-                      onClick={() => { SET("vdn_ob_ebook", "done"); sendBeacon(SLUG, "ebook", { eventType: "converteu" }); setTimeout(advance, 150); }}
+                      onClick={abrirGuia}
                     >Conhecer o guia →</a>
                     <button className="cc-btnG" onClick={() => skip("ebook")}>Agora não</button>
                   </div>
