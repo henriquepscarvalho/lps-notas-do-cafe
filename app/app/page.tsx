@@ -11,7 +11,7 @@ import { CSS, HTML, JS } from "./ouro";
 const PRECO = "R$ 97";
 const CTA_LABEL = "Quero o ebook + app →";
 const CHECKOUT = "/app/checkout";
-const DEPOIMENTOS = [
+const DEPOIMENTOS: { x: string; who: string }[] = [
   {
     "x": "Estou aprendendo muito e as informações me tornam cada vez mais seguro para escolher um café de qualidade. Grato a todos.",
     "who": "voto de leitor(a) na edição diária"
@@ -165,7 +165,16 @@ export default function AppLp() {
     }
     const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('a[href="' + CHECKOUT + '"]'));
     links.forEach((a) => a.addEventListener("click", ctaClick));
-    return () => links.forEach((a) => a.removeEventListener("click", ctaClick));
+    // exit-intent do golden (c4-20k/19): o modal dispara CustomEvents, a ponte grava os beacons
+    const exitViu = () => sendBeacon(APP.slug, "app-lp-exit");
+    const exitCta = () => sendBeacon(APP.slug, "app-lp-exit-cta", { eventType: "converteu" });
+    document.addEventListener("app-lp-exit", exitViu);
+    document.addEventListener("app-lp-exit-cta", exitCta);
+    return () => {
+      links.forEach((a) => a.removeEventListener("click", ctaClick));
+      document.removeEventListener("app-lp-exit", exitViu);
+      document.removeEventListener("app-lp-exit-cta", exitCta);
+    };
   }, []);
 
   // ViewContent do app (value 97): o PageBeacon só dispara o do ebook nos steps ebook-premium*.

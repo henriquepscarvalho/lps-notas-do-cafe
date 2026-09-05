@@ -24,7 +24,7 @@ const APP = {
   downsell: {
     kicker: "Antes de ir",
     titulo: "Prefere começar menor?",
-    texto: "O mesmo guia em ebook: versão web + PDF, com As 8 variáveis da coada pra imprimir, por R$ 27.",
+    texto: "O mesmo guia em ebook: versão web + PDF, com as 8 variáveis da coada pra imprimir, por R$ 27.",
     cta: "Começar pelo ebook de R$ 27",
     href: "/ebook-premium?src=downsell-app-checkout",
   },
