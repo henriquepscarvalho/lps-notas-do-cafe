@@ -18,12 +18,17 @@ const EBOOK = {
   // riscado removido junto com a âncora da LP D (critique 01/09): sem base
   // declarada; o render já é condicional, token vazio = sem <s>
   "precoDe": "",
-  "bump": {
-    "titulo": "Brasa Pronta em 20 Minutos",
-    "news": "Brasa Certa",
-    "preco": "R$ 13,50",
-    "de": "R$ 27",
-    "desc": "O guia irmão: o protocolo de fogo que entrega a brasa pronta em 20 minutos e acaba com o churrasco atrasado e o carvão desperdiçado. Metade do preço, só aqui."
+  "app": {
+    "capa": "/app-ouro/telas/NC/capa-app.webp",
+    "capaAlt": "Capa do app do guia Café de Balcão no Coador de Casa",
+    "preco": "R$ 48,50",
+    "de": "R$ 97",
+    "linhas": [
+      "O guia inteiro no celular, pronto pra abrir em qualquer fila.",
+      "Destaques e notas que ficam guardados no seu exemplar.",
+      "Plano de leitura que marca onde você parou e o que falta."
+    ],
+    "nota": "Metade do preço, só neste pedido. Abre no celular e no computador, sem instalar nada."
   },
   "despedida": "Bom café. Até sábado."
 };
@@ -67,6 +72,8 @@ function jornada() {
 }
 
 export default function EbookCheckout() {
+  // Bump = o app do próprio guia pela metade (c4-20k/20, HC 04/09): a rota recebe
+  // `bump: "app"`; o guia irmão a R$ 13,50 saiu do checkout e vive na Escada.
   const [bump, setBump] = useState(false);
   const [metade, setMetade] = useState(false); // c4-20k/11: só o rótulo; o preço real é da rota
   useEffect(() => {
@@ -109,7 +116,7 @@ export default function EbookCheckout() {
             // sem saber por qual caminho (teste, VSL direta, LP) nem por qual canal ela
             // veio, e a receita por caminho fica só no piso do beacon da /obrigado.
             // sessionStorage é onde o PageBeacon guarda os dois desde a 1ª página.
-            body: JSON.stringify({ bump, ...jornada() }),
+            body: JSON.stringify({ bump: bump ? "app" : false, ...jornada() }),
           })
             .then((r) => r.json())
             .then((d) => {
@@ -164,8 +171,8 @@ export default function EbookCheckout() {
           <p className="ck-resumo">
             {EBOOK.resumo}{" "}
             {!bump && (metade ? <s>R$ 27</s> : EBOOK.precoDe && <s>{EBOOK.precoDe}</s>)}
-            <b>{metade ? (bump ? "R$ 27,00" : "R$ 13,50") : bump ? "R$ 40,50" : EBOOK.preco}</b>, pagamento único.
-            {bump ? " Guia + o guia irmão." : ""}
+            <b>{metade ? (bump ? "R$ 62,00" : "R$ 13,50") : bump ? "R$ 75,50" : EBOOK.preco}</b>, uma vez só.
+            {bump ? " Guia + o app do guia." : ""}
           </p>
           <p className="ck-resumo">O link chega no email assim que o pagamento confirma. {EBOOK.garantiaNome}</p>
         </header>
@@ -221,10 +228,19 @@ export default function EbookCheckout() {
           <span className="btexto">
             <span className="blinha">
               <span className="btag">Adicione ao pedido</span>
-              <span className="bpreco"><s>{EBOOK.bump.de}</s> {EBOOK.bump.preco}</span>
+              <span className="bpreco"><s>{EBOOK.app.de}</s> {EBOOK.app.preco}</span>
             </span>
-            <span className="bnome">{EBOOK.bump.titulo} · {EBOOK.bump.news}</span>
-            <span className="bdesc">{EBOOK.bump.desc}</span>
+            <span className="bnome">O app do guia</span>
+            <ul className="blista">
+              {EBOOK.app.linhas.map((l) => (
+                <li key={l}>{l}</li>
+              ))}
+            </ul>
+            <span className="bdesc">{EBOOK.app.nota}</span>
+          </span>
+          {/* a capa do app, no mesmo frame de celular da LP /app (.fone-p do golden ouro) */}
+          <span className="bfone" aria-hidden="true">
+            <img src={EBOOK.app.capa} alt={EBOOK.app.capaAlt} width={390} height={844} loading="lazy" />
           </span>
         </label>
 
@@ -283,7 +299,7 @@ a{color:inherit;text-decoration:none}
         .ck-pend{padding:2.2rem 1.6rem;font-family:var(--sans,inherit);color:#26302B}
         .ck-pend p{font-size:14.5px;line-height:1.6;margin:0 0 .5rem}
         .ck-pend b{color:#0D0F0E}
-        .bumpcard{display:grid;grid-template-columns:26px 1fr;gap:14px;align-items:start;margin-top:18px;padding:18px 20px;border:1px solid var(--hair);border-radius:14px;background:var(--bg-deep);cursor:pointer;transition:border-color .2s ease,background .2s ease}
+        .bumpcard{display:grid;grid-template-columns:26px 1fr 74px;gap:14px;align-items:start;margin-top:18px;padding:18px 20px;border:1px solid var(--hair);border-radius:14px;background:var(--bg-deep);cursor:pointer;transition:border-color .2s ease,background .2s ease}
         .bumpcard.on{border-color:var(--bright);background:rgba(225,114,35,.07)}
         .bumpcard input{position:absolute;opacity:0;width:0;height:0}
         .bx{width:22px;height:22px;margin-top:2px;border-radius:6px;border:2px solid var(--bright);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#140B04;background:transparent;transition:background .2s ease}
@@ -293,7 +309,13 @@ a{color:inherit;text-decoration:none}
         .bpreco{font-size:14px;font-weight:700;color:var(--bright);white-space:nowrap}
         .bpreco s{color:var(--text-dim);font-weight:400;margin-right:4px}
         .bnome{display:block;font-family:var(--serif);font-weight:700;font-size:16.5px;color:#fff;margin:6px 0 4px}
-        .bdesc{display:block;font-size:13.5px;color:var(--text);line-height:1.55}
+        .bdesc{display:block;font-size:12.5px;color:var(--text-dim);line-height:1.5}
+        .blista{list-style:none;margin:0 0 8px;padding:0;display:flex;flex-direction:column;gap:4px}
+        .blista li{font-size:13.5px;color:var(--text);line-height:1.5;padding-left:14px;position:relative}
+        .blista li::before{content:"✓";position:absolute;left:0;top:0;font-size:11px;font-weight:700;color:var(--bright)}
+        .bfone{display:block;width:74px;aspect-ratio:390/844;margin-top:2px;padding:2%;border-radius:9.5% / 4.4%;background:#0b0b0b;box-shadow:0 18px 30px -14px rgba(0,0,0,.85),inset 0 0 0 2px #2a2a2a}
+        .bfone img{display:block;width:100%;height:100%;object-fit:cover;object-position:top;border-radius:7.5% / 3.5%}
+        @media (max-width:430px){.bumpcard{grid-template-columns:22px 1fr 62px;gap:10px;padding:16px 14px}.bfone{width:62px}.bx{width:20px;height:20px;font-size:12px}}
         .ck-foot{padding:2.5rem 1.5rem;text-align:center;border-top:1px solid var(--hair);background:var(--bg-deep)}
         .ck-foot p{font-family:var(--serif);font-style:italic;font-size:1rem;color:var(--sage)}
       `}</style>

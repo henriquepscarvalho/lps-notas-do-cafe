@@ -23,6 +23,11 @@ const VALOR_BUMP = 1350;
 // guia na conta NM (ebook-delivery.json, price_bump_nm).
 const PRICE_METADE = "price_1UAtYd40q2kXDh5BCjnPkn83"; // R$ 13,50 (live)
 const VALOR_METADE = 1350;
+// Bump = o app do PRÓPRIO guia pela metade (c4-20k/20, HC 04/09): price_app_leitor da
+// casa no ebook-delivery.json (R$ 48,50, conta NM, o mesmo da recuperação D2 e do
+// oferta=dono). `bump: "app"` no body; o irmão (`bump: true`) fica pras casas sem app.
+const APP_PRICE = "price_1UCLTr40q2kXDh5BsAem5o8F"; // app NC R$ 48,50 (live, NM)
+const VALOR_APP = 4850;
 
 export async function POST(req: Request) {
   const apiKey = process.env.STRIPE_API_KEY;
@@ -38,7 +43,9 @@ export async function POST(req: Request) {
   }
 
   const body = await req.json().catch(() => ({}) as Record<string, unknown>);
-  const bump = body?.bump === true;
+  const bumpApp = body?.bump === "app";
+  const bump = body?.bump === true; // guia irmão (casas sem app)
+  const extra = bumpApp ? VALOR_APP : bump ? VALOR_BUMP : 0;
   const metade = body?.oferta === "metade" && Number(body?.ate) > Date.now() / 1000;
   const valorBase = metade ? VALOR_METADE : VALOR_CHEIO;
 
@@ -61,9 +68,10 @@ export async function POST(req: Request) {
     mode: "payment",
     locale: "pt-BR", // leitor BR sempre vê o checkout em português, browser que for
 
+    // `app=1` no retorno: a /obrigado mostra o botão "Abrir seu app" sem depender da rota do carrinho.
     return_url: `${origin}/ebook-premium/obrigado?session_id={CHECKOUT_SESSION_ID}&v=${
-      bump ? valorBase + VALOR_BUMP : valorBase
-    }`,
+      valorBase + extra
+    }${bumpApp ? "&app=1" : ""}`,
     "metadata[sc]": SC, // contrato do webhook central (ticket 11): resolve o ebook pelo sc
   };
   if (variant) params["metadata[variant]"] = variant;
@@ -74,6 +82,7 @@ export async function POST(req: Request) {
   //   if (cs === "S") { params["payment_intent_data[setup_future_usage]"] = "off_session";
   //                     params["customer_creation"] = "always"; }
   if (bump) params["metadata[bump]"] = BUMP_SC;
+  if (bumpApp) params["metadata[bump]"] = "app";
   if (metade) params["metadata[oferta]"] = "metade";
   // Jornada e origem (decisão HC 05/08): o webhook central persiste em
   // ebook_purchases.journey_id/src e aí cada real fica colado no caminho (teste, VSL
@@ -106,7 +115,7 @@ export async function POST(req: Request) {
   // (metadata nao aparece la). Suffix: fatura do cartao vira "NEWSLETTER* EBOOK <SC>"
   // (prefix 10 + "* " + suffix <= 10 = teto de 22 do cartao; boleto ignora).
   params["payment_intent_data[description]"] =
-    `Ebook ${TITULO} (${SC})` + (metade ? " metade" : "") + (bump ? ` + bump ${BUMP_SC}` : "");
+    `Ebook ${TITULO} (${SC})` + (metade ? " metade" : "") + (bumpApp ? " + app" : bump ? ` + bump ${BUMP_SC}` : "");
   params["payment_intent_data[statement_descriptor_suffix]"] = `EBOOK ${SC}`;
 
   // ponytail: price IDs live não existem em test mode; sk_test_ usa price_data
@@ -116,17 +125,17 @@ export async function POST(req: Request) {
     params["line_items[0][price_data][unit_amount]"] = String(valorBase);
     params["line_items[0][price_data][product_data][name]"] = `Ebook ${TITULO}`;
     params["line_items[0][quantity]"] = "1";
-    if (bump) {
+    if (bump || bumpApp) {
       params["line_items[1][price_data][currency]"] = "brl";
-      params["line_items[1][price_data][unit_amount]"] = String(VALOR_BUMP);
-      params["line_items[1][price_data][product_data][name]"] = `Ebook ${BUMP_TITULO}`;
+      params["line_items[1][price_data][unit_amount]"] = String(extra);
+      params["line_items[1][price_data][product_data][name]"] = bumpApp ? `App ${TITULO}` : `Ebook ${BUMP_TITULO}`;
       params["line_items[1][quantity]"] = "1";
     }
   } else {
     params["line_items[0][price]"] = metade ? PRICE_METADE : PRICE_CHEIO;
     params["line_items[0][quantity]"] = "1";
-    if (bump) {
-      params["line_items[1][price]"] = BUMP_PRICE;
+    if (bump || bumpApp) {
+      params["line_items[1][price]"] = bumpApp ? APP_PRICE : BUMP_PRICE;
       params["line_items[1][quantity]"] = "1";
     }
   }

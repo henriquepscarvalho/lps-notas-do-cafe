@@ -10,6 +10,7 @@ const EBOOK = {
   "slug": "notas-do-cafe",
   "titulo": "Café de Balcão no Coador de Casa",
   "kicker": "Guia Notas do Café",
+  "appUrl": "/app/d25d111a",
   "despedida": "Bom café. Até sábado."
 };
 
@@ -89,11 +90,14 @@ export default function EbookObrigado() {
   const [erro, setErro] = useState<string | null>(null);
   const [liberada, setLiberada] = useState(false);
   const [sessionId, setSessionId] = useState("");
+  // Bump = app do guia (c4-20k/20): o create-session carimba app=1 no return_url.
+  const [temApp, setTemApp] = useState(false);
 
   useEffect(() => {
     const q = new URLSearchParams(window.location.search);
     const sid = q.get("session_id") || "";
     setSessionId(sid);
+    setTemApp(q.get("app") === "1");
     // Volta do checkout do fallback (boleto/3DS): a compra já foi feita lá.
     if (q.get("biblioteca") === "ok") setLiberada(true);
     if (!sid) return;
@@ -162,11 +166,22 @@ export default function EbookObrigado() {
           {levados.map((nome) => (
             <li key={nome}>{nome}</li>
           ))}
+          {temApp && <li>O app do guia</li>}
         </ul>
         <p className="ob-texto">
           {levados.length > 1 ? "Os dois chegam" : "Chega"} no seu email em alguns
           minutos: o link permanente da versão web e o PDF pra guardar.
         </p>
+
+        {temApp && (
+          <section className="ob-app">
+            <a className="ob-abrir" href={EBOOK.appUrl}>Abrir seu app →</a>
+            <p className="ob-app-t">
+              Entre com o email desta compra: é ele que destranca o guia no app. O mesmo
+              link chega no seu email, com o passo a passo pra deixar na tela inicial.
+            </p>
+          </section>
+        )}
 
         {mostraBiblioteca && oferta && (
           <section className="bib bib-ok">
@@ -264,6 +279,10 @@ a{color:inherit;text-decoration:none}
         .ob-itens li::before{content:"✓";color:var(--bright);font-weight:700;margin-right:8px}
         .ob-texto{font-size:15px;color:var(--text);line-height:1.65;margin-bottom:1.6rem}
         .ob-nota{font-size:13px;color:var(--text-dim);line-height:1.6;margin-top:1.8rem}
+        .ob-app{margin:0 0 1.2rem}
+        .ob-abrir{display:block;max-width:340px;margin:0 auto .9rem;padding:16px 22px;border-radius:12px;background:var(--bright);color:#140B04;font-weight:800;font-size:17px;letter-spacing:-.01em;box-shadow:0 18px 44px rgba(225,114,35,.25);transition:filter .15s ease,transform .15s ease}
+        .ob-abrir:hover{filter:brightness(1.08);transform:translateY(-1px)}
+        .ob-app-t{font-size:13.5px;color:var(--text);line-height:1.6;max-width:420px;margin:0 auto}
         .ob-despedida{font-family:var(--serif);font-style:italic;font-size:1.05rem;color:var(--sage,var(--text-dim));margin-top:2.4rem}
 
         .bib{text-align:left;margin:1.8rem 0 .4rem;padding:22px 22px 24px;border:1px solid var(--bright);border-radius:14px;background:rgba(225,114,35,.12)}
