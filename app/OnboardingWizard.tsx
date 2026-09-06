@@ -40,10 +40,10 @@ const REC_POOL = [
    promessa embaixo. Tokens saem de app/ebook-premium/page.tsx (EBOOK.titulo/sub/capa).
    `url` vazio = news sem LP de venda e o passo pula sozinho. Preço fica FORA daqui de
    propósito (decisão HC 10/08): o passo apresenta o guia, quem vende é a página. O link
-   entra em /ebook-premium sem carimbo de origem: o middleware sorteia LP x VSL na borda
-   como já faz pro banner da edição, e o `vdn_source` da jornada continua sendo o canal
-   que trouxe a pessoa. Quem veio pelo wizard se lê pela interseção de journey_id com o
-   step `ebook` no lp_page_views, mesmo método da porta do quiz. */
+   entra em /ebook-premium com `src=cadastro` (c4-20k/29, decisão HC 06/09 que revoga a
+   de 10/08): `src` diz a porta da venda, e o canal que trouxe a pessoa segue ligado pelo
+   `j` (journey) no lp_page_views. Medido no censo (c4-20k/24): das 272 jornadas por mês
+   que saem do passo pra LP, só 20 chegavam carimbadas; o resto ficava no anúncio. */
 const EB = {
   url: "/ebook-premium",
   titulo: "Café de Balcão no Coador de Casa",
@@ -206,17 +206,17 @@ export default function OnboardingWizard({
      Supabase como visita nova e o passo viraria um link sem dono. Journey e origem
      viajam na URL; o captureSource do outro lado só adota o que não existir. */
   const ebHref = () => {
+    // c4-20k/29 (HC 06/09, revoga a decisão de 10/08): `src` diz a porta da venda, e a
+    // porta aqui é o wizard. O canal que trouxe o cadastro segue ligado pelo `j`. O
+    // carimbo sai fixo, fora do try: sessão sem sessionStorage também chega carimbada.
+    const p = new URLSearchParams({ src: "cadastro" });
     try {
-      const p = new URLSearchParams();
       const j = sessionStorage.getItem("vdn_journey");
-      const s = sessionStorage.getItem("vdn_source");
       if (j) p.set("j", j);
-      if (s) p.set("src", s);
-      const q = p.toString();
-      return q ? `${EB.url}?${q}` : EB.url;
     } catch {
-      return EB.url;
+      /* storage bloqueado: vai sem jornada, mas com a porta */
     }
+    return `${EB.url}?${p.toString()}`;
   };
 
   /* fnx/271: a capa e o botao abrem o guia pelo MESMO gesto. A capa era <img> inerte
