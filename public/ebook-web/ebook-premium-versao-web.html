@@ -173,6 +173,10 @@ ol.steps li::before{content:counter(st);position:absolute;left:0;top:1px;font-fa
 }
 @media(max-width:680px){
   .page{padding:38px 24px 60px;margin:0}
+  /* linha de preenchimento longa ("____________________") é um token só e não quebra:
+     na CSP ela empurrava a tabela pra 395px e furava o gate de 390. Só abaixo de 680px,
+     então o A4 do PDF não muda. */
+  td,th{overflow-wrap:anywhere}
   h2{font-size:25px}.lead{font-size:18.5px}.item .n{font-size:30px;min-width:44px}
   .figure{flex-direction:column;align-items:flex-start;gap:10px}
   .caso .linha{flex-direction:column;gap:4px}
@@ -187,6 +191,20 @@ ol.steps li::before{content:counter(st);position:absolute;left:0;top:1px;font-fa
 /* glossário denso: 13 termos */
 .gloss .g{padding:7px 0}
 .gloss .g .trad{font-size:15.5px}
+/* ═══ seu guia no app (c4-20k/22): última página do PDF e fim da versão web ═══ */
+.appcta{display:grid;grid-template-columns:230px 1fr;gap:38px;align-items:start}
+.appcta .lead{margin-bottom:0}
+.appcta .ph{width:230px;aspect-ratio:390/844;border:7px solid #070505;border-radius:30px;background:#000;overflow:hidden;box-shadow:0 22px 44px -18px rgba(0,0,0,.6),0 0 0 1px rgba(0,0,0,.08);justify-self:start}
+.appcta .ph img{display:block;width:100%;height:100%;object-fit:cover}
+.appcta ul{list-style:none;padding:0;margin:18px 0 18px}
+.appcta li{position:relative;padding:7px 0 7px 26px;font-size:16.5px;border-bottom:1px solid var(--line2)}
+.appcta li:last-child{border-bottom:0}
+.appcta li::before{content:"";position:absolute;left:2px;top:16px;width:9px;height:9px;border-radius:50%;background:var(--em)}
+.appcta .preco{font-family:Inter,sans-serif;font-size:14px;color:var(--soft);margin:0 0 14px}
+.appcta .preco b{font-family:Fraunces,serif;font-size:26px;color:var(--ink);font-weight:700;margin-right:6px}
+.appcta .btn{display:inline-block;font-family:Inter,sans-serif;font-weight:700;font-size:15px;color:var(--paper);background:var(--em2);border-radius:10px;padding:13px 22px;text-decoration:none}
+.appcta .url{font-family:Inter,sans-serif;font-size:11.5px;color:var(--soft);margin:12px 0 0;word-break:break-all}
+@media(max-width:680px){.appcta{grid-template-columns:1fr;gap:22px}.appcta .ph{width:200px;justify-self:center}}
 </style>
 </head>
 <body>
@@ -959,7 +977,7 @@ ol.steps li::before{content:counter(st);position:absolute;left:0;top:1px;font-fa
       <tr class="tot"><td>Economia por mês trocando o balcão pelo coador</td><td class="num"><span class="em">R$ ______</span></td><td class="num">91 a 255</td></tr>
     </tbody>
   </table>
-  <div class="calc webonly" id="calc" data-unit="R$" data-total="Economia por mês trocando o balcão pelo coador (R$)"><div class="t">Ficha da coada · preencha e a soma fecha sozinha</div></div>
+  <div class="calc webonly" id="calc" data-unit="R$" data-unitpos="pre" data-total="Economia por mês trocando o balcão pelo coador (R$)"><div class="t">Ficha da coada · preencha e a soma fecha sozinha</div></div>
   <p>Não persiga as oito de uma vez. Marque uma variável por coada, na ordem, e prove a xícara antes de mudar a próxima. Com as oito no lugar, a economia sobe sozinha para o fim da tabela.</p>
   <p class="small printonly">Na versão web deste guia, a ficha soma sozinha: <strong>lp.notasdocafe.com.br/ebook-premium-versao-web</strong></p>
   <span class="pgnum"></span>
@@ -1088,25 +1106,51 @@ ol.steps li::before{content:counter(st);position:absolute;left:0;top:1px;font-fa
   <span class="pgnum"></span>
 </section>
 
+<!-- ===================== SEU GUIA NO APP (c4-20k/22) ===================== -->
+<section class="page">
+  <div class="appcta">
+    <div class="ph"><img src="/ebook-web/capa-app-notas-do-cafe.webp" alt="Capa do app Notas do Café"></div>
+    <div>
+      <p class="kick">Seu guia no app</p>
+      <h2>Café de Balcão no Coador de Casa no seu celular</h2>
+      <p class="lead">Você já tem o guia. O app é o mesmo guia pronto pra abrir em qualquer fila, com o plano que marca onde você parou.</p>
+      <ul>
+    <li>O guia inteiro no celular, pronto pra abrir em qualquer fila.</li>
+    <li>Destaques e notas que ficam guardados no seu exemplar.</li>
+    <li>Plano de leitura que marca onde você parou e o que falta.</li>
+      </ul>
+      <p class="preco"><b>R$ 48,50</b> <s>R$ 97</s> · metade do preço, uma vez só, por ter o guia</p>
+      <a class="btn" href="https://lp.notasdocafe.com.br/app/checkout?oferta=leitor&src=ebook-web-app">Quero o guia no app</a>
+      <p class="url printonly">lp.notasdocafe.com.br/app/checkout?oferta=leitor&src=ebook-web-app</p>
+    </div>
+  </div>
+  <span class="pgnum"></span>
+</section>
 
-<style id="ebook-web-mode">@media screen{.webonly{display:revert!important}.printonly{display:none!important}}</style>
+
+
+<style id="ebook-web-mode">@media screen{.webonly{display:revert!important}.printonly{display:none!important}}@media screen and (max-width:680px){td,th{overflow-wrap:anywhere}}</style>
 <script>
 (function(){
   var calc=document.getElementById('calc');
   if(calc && !calc.querySelector('input') && document.querySelector('tr[data-campo]')){
-    var unit=calc.dataset.unit||'R$',totLabel=calc.dataset.total||'Total por ano';
+    var unit=calc.dataset.unit||'R$',upos=calc.dataset.unitpos||'pre',totLabel=calc.dataset.total||'Total por ano';
+    // moeda vem antes do número, medida vem depois ("R$ 1.250" x "130 g")
+    var fmt=function(n){var v=n.toLocaleString('pt-BR');return upos==='pos'?v+' '+unit:unit+' '+v};
     document.querySelectorAll('tr[data-campo]').forEach(function(tr){
       var row=document.createElement('div');row.className='row';var id='c_'+tr.dataset.campo;
-      row.innerHTML='<label for="'+id+'">'+tr.dataset.label+' <span style="color:var(--soft)">(faixa '+tr.dataset.min+' a '+tr.dataset.max+')</span></label>'+
-        '<input id="'+id+'" type="number" min="0" step="10" placeholder="0">';
+      var peso=tr.dataset.peso===undefined?1:Number(tr.dataset.peso);
+      var nota=peso===0?' · fora da soma':(peso<0?' · desconta do total':'');
+      row.innerHTML='<label for="'+id+'">'+tr.dataset.label+' <span style="color:var(--soft)">(faixa '+tr.dataset.min+' a '+tr.dataset.max+nota+')</span></label>'+
+        '<input id="'+id+'" type="number" min="0" step="10" placeholder="0" data-peso="'+peso+'">';
       calc.appendChild(row);
     });
     var tot=document.createElement('div');tot.className='tot';
-    tot.innerHTML='<span class="l">'+totLabel+'</span><span class="v" id="calcTot">'+unit+' 0</span>';
+    tot.innerHTML='<span class="l">'+totLabel+'</span><span class="v" id="calcTot">'+fmt(0)+'</span>';
     calc.appendChild(tot);
     calc.addEventListener('input',function(){
-      var s=0;calc.querySelectorAll('input').forEach(function(i){s+=Number(i.value)||0});
-      document.getElementById('calcTot').textContent=unit+' '+s.toLocaleString('pt-BR');
+      var s=0;calc.querySelectorAll('input').forEach(function(i){s+=(Number(i.value)||0)*Number(i.dataset.peso)});
+      document.getElementById('calcTot').textContent=fmt(s);
     });
   }
   document.querySelectorAll('.script p[data-script]').forEach(function(p){
