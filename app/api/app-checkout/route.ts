@@ -36,9 +36,11 @@ export async function POST(req: Request) {
   }
 
   const body = await req.json().catch(() => ({}) as Record<string, unknown>);
-  const oferta = body?.oferta === "bonus" || body?.oferta === "metade" ? String(body.oferta) : "";
+  // c4-20k/23: `leitor` = CTA dentro do ebook (versao web e PDF). Mesmo price da metade,
+  // carimbo proprio, sem conferencia de posse: o link so existe dentro do produto pago.
+  const oferta = ["bonus", "metade", "leitor"].includes(String(body?.oferta)) ? String(body.oferta) : "";
   const bump = body?.bump === true && oferta !== "bonus";
-  const valorApp = oferta === "metade" ? VALOR_METADE : VALOR_APP;
+  const valorApp = oferta === "metade" || oferta === "leitor" ? VALOR_METADE : VALOR_APP;
 
   const origin = new URL(req.url).origin;
   const params: Record<string, string> = {
@@ -78,7 +80,7 @@ export async function POST(req: Request) {
 
   params["payment_intent_data[description]"] =
     `App ${TITULO} (${SC})` +
-    (oferta === "metade" ? " metade" : "") +
+    (oferta === "metade" ? " metade" : oferta === "leitor" ? " leitor do ebook" : "") +
     (oferta === "bonus" ? ` + bônus ${BUMP_SC} no app` : bump ? ` + bump ${BUMP_SC} no app` : "");
   params["payment_intent_data[statement_descriptor_suffix]"] = `APP ${SC}`;
 
@@ -96,7 +98,8 @@ export async function POST(req: Request) {
       params["line_items[1][quantity]"] = "1";
     }
   } else {
-    params["line_items[0][price]"] = oferta === "metade" ? PRICE_METADE : PRICE_APP;
+    params["line_items[0][price]"] =
+      oferta === "metade" || oferta === "leitor" ? PRICE_METADE : PRICE_APP;
     params["line_items[0][quantity]"] = "1";
     if (bump) {
       params["line_items[1][price]"] = BUMP_PRICE;

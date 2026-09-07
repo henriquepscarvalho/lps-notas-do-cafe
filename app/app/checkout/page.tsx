@@ -63,7 +63,7 @@ export default function AppCheckout() {
   useEffect(() => {
     try {
       const o = new URLSearchParams(window.location.search).get("oferta");
-      if (o === "bonus" || o === "metade") setOferta(o);
+      if (o === "bonus" || o === "metade" || o === "leitor") setOferta(o);
     } catch {
       /* sem query */
     }
@@ -181,7 +181,13 @@ export default function AppCheckout() {
           <p className="kicker">{APP.kicker}</p>
           <h1>{APP.titulo}</h1>
           <p className="ck-resumo">
-            <b>{oferta === "metade" ? (bump ? "R$ 97" : "R$ 48,50") : bump ? "R$ 145,50" : APP.preco}</b>, pagamento único.
+            <b>{oferta === "metade" || oferta === "leitor"
+              ? bump
+                ? "R$ 97"
+                : "R$ 48,50"
+              : bump
+                ? "R$ 145,50"
+                : APP.preco}</b>, pagamento único.
             {oferta === "bonus"
               ? ` App + ${APP.bump.titulo} desbloqueado de bônus.`
               : bump
