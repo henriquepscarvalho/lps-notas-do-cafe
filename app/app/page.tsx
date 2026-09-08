@@ -165,6 +165,10 @@ export default function AppLp() {
     }
     const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('a[href="' + CHECKOUT + '"]'));
     links.forEach((a) => a.addEventListener("click", ctaClick));
+    // c4-20k/37 (HC 08/09/26): a campanha chega na LP com ?oferta e ?src; os dois seguem pro checkout.
+    // Sem estado aqui: um re-render reescreve o innerHTML do golden e apaga hrefs e listeners.
+    const qs = window.location.search;
+    if (qs) links.forEach((a) => { a.href = CHECKOUT + qs; });
     // exit-intent do golden (c4-20k/19): o modal dispara CustomEvents, a ponte grava os beacons
     const exitViu = () => sendBeacon(APP.slug, "app-lp-exit");
     const exitCta = () => sendBeacon(APP.slug, "app-lp-exit-cta", { eventType: "converteu" });
