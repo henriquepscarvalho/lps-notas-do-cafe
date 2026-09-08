@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import PageBeacon from "../../PageBeacon";
+import ExitIntent from "./ExitIntent";
 
 /* ============================================================
    TOKENS DA NEWS (a fábrica troca por news; layout idêntico nas 30)
@@ -145,6 +146,9 @@ export default function EbookCheckout() {
   return (
     <>
       <PageBeacon slug={EBOOK.slug} step="ebook-premium-checkout" source="ebook-premium" />
+
+      {/* saída do checkout (c4-20k/40): capítulo 1 na versão web, uma vez por sessão, só no gesto de sair */}
+      <ExitIntent slug={EBOOK.slug} titulo={EBOOK.titulo} />
 
       <nav>
         <div className="wrap nav-inner">

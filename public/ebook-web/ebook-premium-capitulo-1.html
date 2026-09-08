@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Capítulo 1 · Café de Balcão no Coador de Casa · Notas do Café</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#14170F;--body:#2C3128;--soft:#6A7060;--line:#E2E0D4;--line2:#EDEBE0;
+  --paper:#FBFAF4;--paper2:#F3F1E6;--card:#F1EFE3;
+  --em:#8B4513;--em2:#824112;--emlite:#F1EAE0;--emline:#DCC7B5;
+  --dark:#14110C;--dark2:#19170F;--darkink:#E9EAE3;--darksoft:#96917E;--em-glow:#E2782C;
+  --gold:#856B1A;--warn:#7A3B52;--warnlite:#F5E9ED;--warnline:#E3CBD4;
+
+  --graf:#A8AEA0;}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:#8C8F84;color:var(--body);font-family:Newsreader,Georgia,serif;font-size:17.5px;line-height:1.54;-webkit-font-smoothing:antialiased;counter-reset:pg}
+.page{max-width:760px;margin:26px auto;background:var(--paper);padding:60px 70px 74px;box-shadow:0 18px 50px rgba(0,0,0,.22);position:relative;counter-increment:pg}
+.page.cover{padding:0;background:var(--dark);overflow:hidden}
+.page.cover img{display:block;width:100%;height:auto}
+/* interior type */
+.kick{font-family:Inter,sans-serif;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--em);font-weight:700;margin:0 0 14px}
+h2{font-family:Fraunces,serif;font-weight:600;font-size:32px;line-height:1.1;color:var(--ink);margin:0 0 10px;letter-spacing:-.01em}
+h3{font-family:Fraunces,serif;font-weight:600;font-size:20px;color:var(--ink);margin:26px 0 8px}
+p{margin:0 0 13px}
+.lead{font-size:20px;line-height:1.48;color:var(--ink)}
+strong,b{color:var(--ink);font-weight:600}
+em{color:var(--em2);font-style:italic}
+a{color:var(--em2)}
+.rule{height:1px;background:var(--line);border:0;margin:30px 0}
+.small{font-family:Inter,sans-serif;font-size:13px;color:var(--soft);line-height:1.5}
+.eyebrow{font-family:Inter,sans-serif;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--soft);font-weight:600;margin:0 0 6px}
+/* item header */
+.item{display:flex;align-items:baseline;gap:16px;margin:0 0 6px}
+.item .n{font-family:Fraunces,serif;font-weight:700;font-size:38px;line-height:1;color:var(--em);font-variant-numeric:tabular-nums;min-width:60px}
+.item h2{margin:0}
+.cont{font-family:Inter,sans-serif;font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--soft);font-weight:700;margin:0 0 16px}
+/* rows */
+.field{margin:14px 0}
+.field .lab{font-family:Inter,sans-serif;font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--soft);font-weight:700;margin-bottom:3px}
+.field .val{color:var(--body)}
+/* bolso callout */
+.bolso{background:var(--emlite);border:1px solid var(--emline);border-radius:14px;padding:14px 20px;margin:15px 0}
+.bolso .t{font-family:Inter,sans-serif;font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--em2);font-weight:700;margin-bottom:4px}
+.bolso p{margin:0;color:var(--ink);font-size:17px}
+.bolso b{color:var(--em2)}
+/* erro callout */
+.erro{background:var(--warnlite);border:1px solid var(--warnline);border-radius:14px;padding:14px 20px;margin:15px 0}
+.erro .t{font-family:Inter,sans-serif;font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--warn);font-weight:700;margin-bottom:4px}
+.erro p{margin:0;color:var(--ink);font-size:17px}
+/* dark data chip */
+.figure{background:var(--dark);border-radius:14px;padding:17px 22px;margin:15px 0;display:flex;align-items:center;gap:22px}
+.figure .big{font-family:Fraunces,serif;font-weight:600;font-size:36px;color:var(--em-glow);line-height:1;font-variant-numeric:tabular-nums;white-space:nowrap}
+.figure .cap{font-family:Inter,sans-serif;font-size:13.5px;color:var(--darksoft);line-height:1.45}
+.figure .cap b{color:var(--darkink)}
+/* tables */
+table{width:100%;border-collapse:collapse;margin:15px 0;font-family:Inter,sans-serif;font-size:14px}
+th{text-align:left;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--soft);font-weight:700;padding:10px 12px;border-bottom:2px solid var(--line)}
+td{padding:10px 12px;border-bottom:1px solid var(--line2);color:var(--body);vertical-align:top}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+tr:last-child td{border-bottom:none}
+.tot td{border-top:2px solid var(--ink);font-weight:700;color:var(--ink);font-size:15px}
+.tot td .em{color:var(--em2)}
+/* gerente: o que ele diz x o que voce responde */
+table.gerente td:first-child{color:var(--soft);font-style:italic;width:44%}
+table.gerente td:last-child{color:var(--ink);font-weight:500}
+/* steps */
+ol.steps{list-style:none;counter-reset:st;padding:0;margin:16px 0}
+ol.steps li{counter-increment:st;position:relative;padding:0 0 11px 42px;font-size:17px}
+ol.steps li::before{content:counter(st);position:absolute;left:0;top:1px;font-family:Inter,sans-serif;font-weight:700;font-size:13px;color:var(--em2);background:var(--emlite);border:1px solid var(--emline);border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center}
+/* script box */
+.script{background:var(--paper2);border:1px solid var(--line);border-radius:14px;padding:17px 24px;margin:15px 0;font-family:Newsreader,serif;font-size:17px;color:var(--ink);line-height:1.55}
+.script .q{color:var(--em2);font-family:Inter,sans-serif;font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;margin-bottom:8px}
+.script p{margin:0 0 12px}.script p:last-child{margin:0}
+/* caso narrado */
+.caso{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:15px 22px;margin:15px 0}
+.caso .t{font-family:Inter,sans-serif;font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--soft);font-weight:700;margin-bottom:6px}
+.caso p{margin:0 0 10px;font-size:16.5px}.caso p:last-child{margin:0}
+.caso .linha{font-family:Inter,sans-serif;font-size:14px;color:var(--ink);border-top:1px solid var(--line);padding-top:10px;margin-top:12px;display:flex;justify-content:space-between;gap:14px}
+.caso .linha b{color:var(--em2);font-variant-numeric:tabular-nums}
+/* checklist */
+.check{list-style:none;padding:0;margin:14px 0}
+.check li{position:relative;padding:8px 0 8px 34px;border-bottom:1px solid var(--line2);font-size:16.5px}
+.check li:last-child{border-bottom:none}
+.check li::before{content:"[  ]";position:absolute;left:0;top:9px;font-family:Inter,sans-serif;font-weight:700;color:var(--em);letter-spacing:-.02em}
+/* sumario */
+.toc{list-style:none;padding:0;margin:20px 0 0}
+.toc li{display:flex;align-items:baseline;gap:12px;padding:6.5px 0;border-bottom:1px solid var(--line2);font-family:Inter,sans-serif;font-size:15px;color:var(--ink)}
+.toc li .n{color:var(--em);font-weight:700;font-variant-numeric:tabular-nums;min-width:26px}
+.toc li .d{flex:1;border-bottom:1px dotted var(--line);height:1px;margin:0 4px}
+.toc li .p{color:var(--soft);font-variant-numeric:tabular-nums;font-size:13px}
+.toc .sec{margin-top:18px;border-bottom:none;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--soft);font-weight:700;padding-bottom:2px}
+/* glossario */
+.gloss{margin:16px 0}
+.gloss .g{padding:12px 0;border-bottom:1px solid var(--line2)}
+.gloss .g:last-child{border-bottom:none}
+.gloss .g .termo{font-family:Inter,sans-serif;font-weight:700;font-size:14.5px;color:var(--ink);margin-bottom:2px}
+.gloss .g .trad{font-size:16.5px;color:var(--body)}
+/* ═══ componentes do miolo (ticket 03, sample selado) ═══ */
+.opener{position:relative;margin:-60px -70px 30px;height:300px;background:var(--dark);overflow:hidden}
+.opener img{width:100%;height:100%;object-fit:cover;display:block}
+.opener .veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(12,15,13,.15) 0%,rgba(12,15,13,.86) 78%)}
+.opener .txt{position:absolute;left:70px;right:70px;bottom:26px}
+.opener .sec{font-family:Inter,sans-serif;font-size:11.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--em-glow);font-weight:700;margin-bottom:8px}
+.opener h2{font-size:34px;line-height:1.06;color:var(--darkink);margin:0;letter-spacing:-.015em}
+.infog{background:var(--paper2);border:1px solid var(--line);border-radius:14px;padding:22px 26px;margin:18px 0}
+.infog .ttl{font-family:Inter,sans-serif;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--soft);font-weight:700;margin-bottom:4px}
+.infog .sub{font-family:Fraunces,serif;font-size:22px;color:var(--ink);font-weight:600;margin:0 0 16px;line-height:1.15}
+.bar{display:grid;grid-template-columns:200px 1fr 92px;align-items:center;gap:12px;margin:0 0 8px;font-family:Inter,sans-serif;font-size:13px}
+.bar .lb{color:var(--body);line-height:1.25}
+.bar .tk{display:block;height:14px;background:#E6E3D6;border-radius:3px;overflow:hidden}
+.bar .fl{display:block;height:100%;background:var(--graf);border-radius:3px}
+.bar .vl{text-align:right;font-variant-numeric:tabular-nums;color:var(--body);font-weight:600}
+.bar.hot .fl{background:var(--em)}
+.bar.hot .lb,.bar.hot .vl{color:var(--em2);font-weight:700}
+.infog .tot{display:flex;align-items:baseline;justify-content:space-between;margin-top:14px;padding-top:12px;border-top:2px solid var(--ink)}
+.infog .tot .l{font-family:Inter,sans-serif;font-size:13px;color:var(--body);font-weight:600}
+.infog .tot .v{font-family:Fraunces,serif;font-size:30px;color:var(--em2);font-weight:700;font-variant-numeric:tabular-nums;line-height:1}
+.flow{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}
+.flow .st{background:var(--paper2);border:1px solid var(--line);border-radius:14px;padding:16px 16px 18px}
+.flow .st .n{font-family:Fraunces,serif;font-size:14px;font-weight:700;color:var(--em);letter-spacing:.04em;margin-bottom:8px}
+.flow .st .h{font-family:Inter,sans-serif;font-size:14px;font-weight:700;color:var(--ink);line-height:1.3;margin-bottom:6px}
+.flow .st .d{font-family:Inter,sans-serif;font-size:12.5px;color:var(--body);line-height:1.45}
+.flow .st.end{background:var(--emlite);border-color:var(--emline)}
+.flow .st.end .h{color:var(--em2)}
+.art{background:var(--dark);border-radius:14px;padding:20px 22px 18px;margin:16px 0}
+.art .hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;font-family:Inter,sans-serif}
+.art .hd .t{font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--darksoft);font-weight:700}
+.art .hd .m{font-size:11.5px;color:var(--darksoft)}
+.art .ln{display:grid;grid-template-columns:64px 1fr 108px;gap:10px;padding:8px 12px;border-radius:6px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;color:#AAA598;line-height:1.35}
+.art .ln .v{text-align:right;font-variant-numeric:tabular-nums}
+.art .ln.hit{background:rgba(226,120,44,.15);color:var(--darkink)}
+.art .ln.hit .v{color:var(--em-glow);font-weight:700}
+.art .ln.hit .d{color:var(--darkink);font-weight:500}
+.art .note{display:grid;grid-template-columns:22px 1fr;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid rgba(143,163,150,.24)}
+.art .note .k{font-family:Inter,sans-serif;font-size:12px;font-weight:700;color:var(--em-glow);letter-spacing:.02em}
+.art .note .x{font-family:Inter,sans-serif;font-size:13px;color:#C5C3B9;line-height:1.5}
+.art .note .x b{color:var(--darkink);font-weight:600}
+/* ═══ features web do kit Auditoria (F4 calculadora, F5 copiar) · só na tela ═══ */
+@media print{.webonly{display:none !important}}
+.printonly{display:none}
+@media print{.printonly{display:block}}
+.calc{background:var(--emlite);border:1px solid var(--emline);border-radius:14px;padding:18px 22px;margin:16px 0;font-family:Inter,sans-serif}
+.calc .t{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--em2);font-weight:700;margin-bottom:10px}
+.calc .row{display:grid;grid-template-columns:1fr 130px;gap:10px;align-items:center;padding:5px 0}
+.calc .row label{font-size:14px;color:var(--body)}
+.calc input{font-family:Inter,sans-serif;font-size:15px;padding:7px 10px;border:1px solid var(--emline);border-radius:8px;background:#fff;color:var(--ink);text-align:right;width:100%}
+.calc .tot{display:flex;justify-content:space-between;align-items:baseline;border-top:2px solid var(--ink);margin-top:10px;padding-top:10px}
+.calc .tot .l{font-size:13px;font-weight:700;color:var(--ink)}
+.calc .tot .v{font-family:Fraunces,serif;font-size:30px;font-weight:700;color:var(--em2);font-variant-numeric:tabular-nums}
+.copybtn{font-family:Inter,sans-serif;font-size:12px;font-weight:700;color:var(--em2);background:var(--emlite);border:1px solid var(--emline);border-radius:8px;padding:6px 12px;cursor:pointer;margin:2px 0 10px}
+.copybtn:active{background:var(--emline)}
+/* signoff */
+.signoff{margin-top:36px;padding-top:24px;border-top:1px solid var(--line)}
+.signoff .fim{font-family:Fraunces,serif;font-size:26px;color:var(--ink);font-weight:600}
+.signoff .bm{font-family:Inter,sans-serif;font-size:14px;color:var(--soft);margin-top:8px;letter-spacing:.02em}
+.signoff .bm b{color:var(--em2)}
+.pgnum{position:absolute;bottom:28px;right:34px;font-family:Inter,sans-serif;font-size:11px;color:var(--soft);letter-spacing:.1em}
+.pgnum::after{content:"Notas do Café · " counter(pg)}
+@page{size:A4;margin:0}
+@media print{
+  body{background:#fff}
+  /* min-height, não height: seção que transborda vira 2 páginas no PDF e o check_pages.sh acusa.
+     Com height fixo o excesso era cortado em silêncio e a contagem dava falso positivo. */
+  .page{margin:0;box-shadow:none;max-width:none;width:100%;min-height:297mm;page-break-after:always;padding:52px 60px 58px}
+  .page.cover{padding:0}
+  .opener{margin:-52px -60px 28px}
+  .opener .txt{left:60px;right:60px}
+}
+@media(max-width:680px){
+  .page{padding:38px 24px 60px;margin:0}
+  /* linha de preenchimento longa ("____________________") é um token só e não quebra:
+     na CSP ela empurrava a tabela pra 395px e furava o gate de 390. Só abaixo de 680px,
+     então o A4 do PDF não muda. */
+  td,th{overflow-wrap:anywhere}
+  h2{font-size:25px}.lead{font-size:18.5px}.item .n{font-size:30px;min-width:44px}
+  .figure{flex-direction:column;align-items:flex-start;gap:10px}
+  .caso .linha{flex-direction:column;gap:4px}
+  .opener{margin:-38px -24px 24px;height:240px}
+  .opener .txt{left:24px;right:24px}
+  .opener h2{font-size:26px}
+  .flow{grid-template-columns:1fr}
+  .bar{grid-template-columns:118px 1fr 78px;font-size:12px}
+  .art .ln{grid-template-columns:52px 1fr 88px;font-size:11.5px}
+  .calc .row{grid-template-columns:1fr 110px}
+}
+/* glossário denso: 13 termos */
+.gloss .g{padding:7px 0}
+.gloss .g .trad{font-size:15.5px}
+/* ═══ seu guia no app (c4-20k/22): última página do PDF e fim da versão web ═══ */
+.appcta{display:grid;grid-template-columns:230px 1fr;gap:38px;align-items:start}
+.appcta .lead{margin-bottom:0}
+.appcta .ph{width:230px;aspect-ratio:390/844;border:7px solid #070505;border-radius:30px;background:#000;overflow:hidden;box-shadow:0 22px 44px -18px rgba(0,0,0,.6),0 0 0 1px rgba(0,0,0,.08);justify-self:start}
+.appcta .ph img{display:block;width:100%;height:100%;object-fit:cover}
+.appcta ul{list-style:none;padding:0;margin:18px 0 18px}
+.appcta li{position:relative;padding:7px 0 7px 26px;font-size:16.5px;border-bottom:1px solid var(--line2)}
+.appcta li:last-child{border-bottom:0}
+.appcta li::before{content:"";position:absolute;left:2px;top:16px;width:9px;height:9px;border-radius:50%;background:var(--em)}
+.appcta .preco{font-family:Inter,sans-serif;font-size:14px;color:var(--soft);margin:0 0 14px}
+.appcta .preco b{font-family:Fraunces,serif;font-size:26px;color:var(--ink);font-weight:700;margin-right:6px}
+.appcta .btn{display:inline-block;font-family:Inter,sans-serif;font-weight:700;font-size:15px;color:var(--paper);background:var(--em2);border-radius:10px;padding:13px 22px;text-decoration:none}
+.appcta .url{font-family:Inter,sans-serif;font-size:11.5px;color:var(--soft);margin:12px 0 0;word-break:break-all}
+@media(max-width:680px){.appcta{grid-template-columns:1fr;gap:22px}.appcta .ph{width:200px;justify-self:center}}
+</style>
+<meta name="robots" content="noindex,follow">
+</head>
+<body>
+<!-- ===================== CAPA (selada no ticket 01) ===================== -->
+<section class="page cover">
+  <img src="/ebook-web/capa-notas-do-cafe.webp" alt="Café de Balcão no Coador de Casa · Notas do Café">
+</section>
+<!-- ===================== SUMÁRIO ===================== -->
+<section class="page">
+  <p class="kick">O que tem aqui</p>
+  <h2>Sumário</h2>
+  <p class="small">As oito variáveis estão na ordem em que a água encontra o café: leia na sequência, mude uma variável por coada e prove a xícara antes de passar para a próxima.</p>
+  <ul class="toc">
+    <li class="sec">Antes de começar</li>
+    <li><span class="n">·</span><span>O coador que já está na sua cozinha</span><span class="d"></span><span class="p">3</span></li>
+    <li><span class="n">·</span><span>Como ler a sua xícara em 3 minutos</span><span class="d"></span><span class="p">4</span></li>
+    <li><span class="n">·</span><span>As quatro famílias da coada</span><span class="d"></span><span class="p">5</span></li>
+    <li><span class="n">·</span><span>A xícara do Rafael, antes</span><span class="d"></span><span class="p">6</span></li>
+    <li class="sec">As oito variáveis</li>
+    <li><span class="n">01</span><span>O grão e a torra</span><span class="d"></span><span class="p">7</span></li>
+    <li><span class="n">02</span><span>A moagem</span><span class="d"></span><span class="p">11</span></li>
+    <li><span class="n">03</span><span>A proporção</span><span class="d"></span><span class="p">15</span></li>
+    <li><span class="n">04</span><span>A água e a temperatura</span><span class="d"></span><span class="p">18</span></li>
+    <li><span class="n">05</span><span>O pré-molho</span><span class="d"></span><span class="p">21</span></li>
+    <li><span class="n">06</span><span>A técnica de despejo</span><span class="d"></span><span class="p">24</span></li>
+    <li><span class="n">07</span><span>O tempo total</span><span class="d"></span><span class="p">28</span></li>
+    <li><span class="n">08</span><span>A limpeza e o armazenamento</span><span class="d"></span><span class="p">31</span></li>
+    <li class="sec">O fecho</li>
+    <li><span class="n">·</span><span>A ficha da coada</span><span class="d"></span><span class="p">34</span></li>
+    <li><span class="n">·</span><span>O caso, depois</span><span class="d"></span><span class="p">35</span></li>
+    <li><span class="n">·</span><span>As falas prontas</span><span class="d"></span><span class="p">36</span></li>
+    <li><span class="n">·</span><span>Quando a xícara não colabora</span><span class="d"></span><span class="p">37</span></li>
+    <li><span class="n">·</span><span>A manutenção</span><span class="d"></span><span class="p">38</span></li>
+    <li><span class="n">·</span><span>Glossário</span><span class="d"></span><span class="p">39</span></li>
+    <li><span class="n">·</span><span>O fecho</span><span class="d"></span><span class="p">40</span></li>
+  </ul>
+</section>
+
+<!-- ===================== ABERTURA · PÁGINA 1: A PREMISSA ===================== -->
+<section class="page" data-toc="O coador que já está na sua cozinha" data-toc-sec="Antes de começar">
+  <p class="kick">A premissa</p>
+  <h2>A xícara boa nunca esteve na máquina</h2>
+  <p class="lead">O coador de papel que já está na sua cozinha extrai café tão bom quanto o balcão. O que separa a xícara amarga da xícara boa não é o equipamento: são oito variáveis que ninguém ensinou você a medir. Quem troca de máquina sem controlar as oito troca de erro, não de café.</p>
+  <p>A máquina de espresso na faixa de R$ 2 mil automatiza pressão e temperatura, e cobra pelo serviço. O coador entrega as mesmas duas coisas pela sua mão. A diferença entre a xícara do balcão e a sua não está na bancada, está em oito decisões entre o pacote e o copo.</p>
+  <p>As oito vêm na ordem em que a água encontra o café: a matéria, a superfície do pó, o contato, e no fim a guarda que faz a coada de amanhã repetir a de hoje. Cada uma tem um preço por ano, porque cada erro empurra você de volta para o balcão.</p>
+  <div class="infog">
+    <div class="ttl">O mapa · as oito variáveis em reais por ano</div>
+    <div class="bar hot"><span class="lb">01 · Grão e torra</span><span class="tk"><span class="fl" style="width:100%"></span></span><span class="vl">590,00</span></div>
+    <div class="bar"><span class="lb">02 · Moagem</span><span class="tk"><span class="fl" style="width:81%"></span></span><span class="vl">475,80</span></div>
+    <div class="bar"><span class="lb">03 · Proporção</span><span class="tk"><span class="fl" style="width:62%"></span></span><span class="vl">366,00</span></div>
+    <div class="bar"><span class="lb">06 · Despejo</span><span class="tk"><span class="fl" style="width:56%"></span></span><span class="vl">329,40</span></div>
+    <div class="bar"><span class="lb">04 · Água e temperatura</span><span class="tk"><span class="fl" style="width:50%"></span></span><span class="vl">292,80</span></div>
+    <div class="bar"><span class="lb">05 · Pré-molho</span><span class="tk"><span class="fl" style="width:37%"></span></span><span class="vl">219,60</span></div>
+    <div class="bar"><span class="lb">08 · Limpeza e guarda</span><span class="tk"><span class="fl" style="width:35%"></span></span><span class="vl">208,00</span></div>
+    <div class="bar"><span class="lb">07 · Tempo total</span><span class="tk"><span class="fl" style="width:31%"></span></span><span class="vl">183,00</span></div>
+    <div class="tot"><span class="l">Soma das oito variáveis, primeiro ano</span><span class="v">R$ 2.664,60</span></div>
+  </div>
+  <h3>Como usar</h3>
+  <p>Leia uma variável, coe uma vez mudando só aquela, prove a xícara e anote o que mudou. <strong>Uma variável por coada</strong>, na ordem do livro. A leitura inteira cabe numa semana de manhãs, e a primeira diferença na boca costuma aparecer já na segunda coada.</p>
+  <p class="small">Os valores saem do caso do Rafael, que abre e fecha o livro, que tomava as duas xícaras do dia no balcão, dentro da faixa de R$ 7,00 a R$ 12,00. A máquina de R$ 2 mil é faixa de varejo, nunca um modelo nomeado. O seu número sai da sua conta: preço do pacote dividido pelas xícaras que ele rende.</p>
+  <span class="pgnum"></span>
+</section>
+
+<!-- ===================== ABERTURA · PÁGINA 2: O MÉTODO ===================== -->
+<section class="page" data-toc="Como ler a sua xícara em 3 minutos">
+  <p class="kick">O método</p>
+  <h2>Como ler a sua xícara em 3 minutos</h2>
+  <p>A xícara que acabou de sair do coador já carrega o diagnóstico inteiro. Amargor seco na garganta, azedume de fruta verde, ausência de cheiro: cada defeito aponta uma variável, e nenhum precisa de paladar treinado para ser notado.</p>
+  <p>Falta ler na ordem certa e olhar o rótulo junto, porque metade do defeito foi decidida na prateleira, semanas antes da coada. Três minutos bastam: um para provar, um para o rótulo, um para o relógio. Faça uma vez antes de começar e já sabe por qual variável entrar.</p>
+  <ol class="steps">
+    <li>Prove a xícara <strong>quente e depois morna</strong>. O amargor aparece no primeiro gole; a doçura e a acidez só se mostram quando o café esfria um pouco.</li>
+    <li>Vire o pacote e leia os dois campos que decidem a coada: <strong>data de torra</strong> e grau de torra. O resto do rótulo é apresentação e não muda a xícara.</li>
+    <li>Esfregue o pó entre os dedos e compare com <strong>areia grossa</strong>. Mais fino que areia entope o filtro; mais grosso deixa a água passar direto.</li>
+    <li>Cronometre da primeira gota à última e compare com a faixa de <strong>2min30 a 3min30</strong>. Fora da faixa, a moagem é a primeira suspeita.</li>
+    <li>Anote o resultado e mude <strong>uma variável por coada</strong>. Duas mudanças juntas apagam a prova de qual delas funcionou.</li>
+  </ol>
+  <div class="art">
+    <div class="hd"><span class="t">Rótulo do pacote · os dois campos que decidem</span><span class="m">250 g</span></div>
+    <div class="ln"><span>TORRA</span><span class="d">Grau declarado pelo torrador</span><span class="v">Média</span></div>
+    <div class="ln hit"><span>DATA DE TORRA</span><span class="d">Dia em que o grão saiu do torrador</span><span class="v">12/03</span></div>
+    <div class="ln"><span>MOAGEM</span><span class="d">Grão inteiro ou já moído na loja</span><span class="v">Inteiro</span></div>
+    <div class="ln"><span>PESO</span><span class="d">Conteúdo do pacote fechado</span><span class="v">250 g</span></div>
+    <div class="ln"><span>VALIDADE</span><span class="d">Prazo do fabricante, não do aroma</span><span class="v">12 meses</span></div>
+    <div class="ln"><span>PREÇO</span><span class="d">O que você pagou no pacote</span><span class="v">R$ ______</span></div>
+    <div class="note"><span class="k">01</span><span class="x">A validade é do fabricante e costuma passar de um ano. A <b>data de torra</b> é o único campo que diz se o grão ainda tem aroma. Feche a conta: preço do pacote dividido pelas xícaras que rende. Um pacote de 250 gramas, a 15 por xícara, rende perto de 16.</span></div>
+  </div>
+  <span class="pgnum"></span>
+</section>
+
+<!-- ===================== ABERTURA · PÁGINA 3: A TAXONOMIA ===================== -->
+<section class="page" data-toc="As quatro famílias da coada">
+  <p class="kick">A taxonomia</p>
+  <h2>As quatro famílias da coada</h2>
+  <p>As oito variáveis cabem em quatro famílias. A família importa mais que o nome do gesto: o gesto muda de coador para coador, a família não muda. Cada uma estraga a xícara de um jeito próprio e pede uma correção própria.</p>
+  <h3>Matéria</h3>
+  <p>O grão, o ponto de torra e a água. É o que já está decidido antes de você encostar na chaleira, e abre a fila porque nenhuma das outras três conserta matéria vencida. Grão moído há meses entrega xícara sem cheiro. Água com gosto próprio entrega o gosto dela junto.</p>
+  <h3>Superfície</h3>
+  <p>Quanta área do café a água consegue tocar, e em que proporção. Moagem e dose mandam na força e na velocidade da extração. É a família que mais muda a xícara com o menor gasto, porque depende do tamanho do pó e de uma balança, nunca de equipamento novo na bancada.</p>
+  <h3>Contato</h3>
+  <p>Quanto tempo a água fica com o café e por onde ela chega até o pó. Pré-molho, despejo e tempo total. Aqui mora a distância entre tirar o doce do grão e arrancar o amargo que vem logo atrás, e é a família que você sente primeiro na boca.</p>
+  <h3>Constância</h3>
+  <p>O que faz a xícara de amanhã sair igual à de hoje: o coador enxaguado na hora e o grão guardado longe de ar, luz e calor. É a única família que não melhora a xícara de agora. Abandone por uma semana e ela devolve o defeito das outras três.</p>
+  <p class="small">A ordem das oito variáveis é a ordem em que a água encontra o café: matéria, superfície, contato, constância. Ler na sequência ajuda porque cada variável assume que a anterior já está no lugar. Se você já sabe onde erra, pule direto para a variável e volte ao começo depois.</p>
+  <span class="pgnum"></span>
+</section>
+
+<!-- ===================== ABERTURA · PÁGINA 4: O CASO ===================== -->
+<section class="page" data-toc="A xícara do Rafael, antes">
+  <p class="kick">O caso</p>
+  <h2>A xícara do Rafael, antes</h2>
+  <p>Rafael tem 34 anos e toma duas xícaras por dia, sempre. Em dia útil, comprava as duas no balcão perto do trabalho: uma na chegada, outra depois do almoço. No fim de semana fazia em casa, com café já moído de supermercado, e descartava boa parte da jarra porque saía com gosto de queimado.</p>
+  <p>Ele não se achava desligado de café. A conclusão era simples: a xícara de casa saía ruim porque faltava equipamento. Tinha uma máquina de espresso na faixa de R$ 2 mil no carrinho de compras, esperando o salário cair para fechar a compra. A conta que ele nunca tinha feito era a do balcão.</p>
+  <p>Antes de fechar, resolveu testar o coador de papel parado no armário. Coou, provou, achou amargo de novo, e em vez de culpar o coador começou a anotar o que tinha feito. Levou oito variáveis para chegar na xícara que comprava no balcão, e a máquina saiu do carrinho no caminho. A tabela abaixo é a conta do primeiro ano.</p>
+  <table>
+    <thead><tr><th>O que ele corrigiu</th><th class="num">Valor por ano</th></tr></thead>
+    <tbody>
+      <tr><td>01 · Grão e torra</td><td class="num">R$ 590,00</td></tr>
+      <tr><td>02 · Moagem</td><td class="num">R$ 475,80</td></tr>
+      <tr><td>03 · Proporção</td><td class="num">R$ 366,00</td></tr>
+      <tr><td>04 · Água e temperatura</td><td class="num">R$ 292,80</td></tr>
+      <tr><td>05 · Pré-molho</td><td class="num">R$ 219,60</td></tr>
+      <tr><td>06 · Despejo</td><td class="num">R$ 329,40</td></tr>
+      <tr><td>07 · Tempo total</td><td class="num">R$ 183,00</td></tr>
+      <tr><td>08 · Limpeza e guarda</td><td class="num">R$ 208,00</td></tr>
+      <tr class="tot"><td>Total por ano</td><td class="num"><span class="em">R$ 2.664,60</span></td></tr>
+    </tbody>
+  </table>
+  <p class="small">Cada variável fecha com o beat do Rafael: a linha do que ele mudou e o valor anual correspondente. A xícara depois, com a conta refeita, aparece no fechamento do livro. Rafael é caso composto, montado a partir de padrões típicos de quem compra café no balcão, e não corresponde a uma pessoa específica. O beat da variável 08 é o único que não aparece na primeira semana: a guarda certa só paga quando o pacote seguinte chega ao fim ainda com aroma.</p>
+  <span class="pgnum"></span>
+</section>
+
+<!-- ===================== VARIÁVEL 01 · PÁGINA 1: A MECÂNICA ===================== -->
+<section class="page" data-frente="01" data-toc="O grão e a torra" data-toc-sec="As oito variáveis">
+  <div class="opener">
+    <img src="/ebook-web/mio-abre-01.webp" alt="">
+    <div class="veil"></div>
+    <div class="txt">
+      <div class="sec">Variável 01 · Matéria</div>
+      <h2>O grão e a torra<br>decidem antes do coador</h2>
+    </div>
+  </div>
+  <p class="lead">Nenhuma técnica das outras sete variáveis corrige matéria errada. O grão que você comprou e o ponto de torra dele já definiram o teto da sua xícara, semanas antes de a água encostar no pó.</p>
+  <p>Café perde aroma pelo contato com o ar. Em grão inteiro a perda é lenta, porque só a superfície externa fica exposta. Moído, a área exposta multiplica, e o aroma vai embora poucos dias depois de o pacote ser aberto. O pó da semana passada não estragou: emudeceu.</p>
+  <p>A torra escura carrega outro defeito, e ele não sai com técnica. Passado o ponto, o açúcar do grão queima e vira amargor seco. A água na temperatura certa apenas extrai o que já existe ali dentro. <strong>Torra média</strong> é a faixa que mais perdoa erro de execução no coador.</p>
+  <h3>Por que a prateleira empurra o moído</h3>
+  <p>Não é maldade do mercado, é logística. O pó em pacote selado tem validade longa impressa na embalagem, gira rápido e dispensa moedor na casa de quem compra. A torra escura aguenta mais tempo de gôndola e agrada o paladar acostumado ao café de bar. O supermercado otimiza giro e prazo. A sua xícara não entra na conta.</p>
+  <p>A saída é ler o pacote pelos dois campos que decidem a coada, a <strong>data de torra</strong> e o <strong>grau de torra</strong>, e comprar em grão inteiro.</p>
+  <span class="pgnum"></span>
+</section>
+
+<!-- ===================== VARIÁVEL 01 · PÁGINA 2: ONDE SE ESCONDE ===================== -->
+<section class="page" data-frente="01">
+  <p class="kick">Variável 01</p>
+  <h2>Onde o defeito se esconde</h2>
+  <p>O defeito da variável 01 não nasce no coador. Nasce na gôndola, semanas antes, e o rótulo entrega tudo em dois campos que quase ninguém procura.</p>
+  <p>Vire o pacote antes de pôr no carrinho e leia de trás para a frente.</p>
+  <ol class="steps">
+    <li>Procure a <strong>data de torra</strong>. Validade fala de segurança do alimento; data de torra fala de aroma. Grão com mais de dois meses fora do torrador não responde a técnica nenhuma.</li>
+    <li>Confira o <strong>grau de torra</strong> e mire na <strong>torra média</strong>: já perdeu a acidez verde, ainda não ganhou gosto de queima.</li>
+    <li>Cheque se é <strong>grão inteiro ou moído</strong>. O moído perde aroma poucos dias depois de aberto, e despejo nenhum devolve o que evaporou.</li>
+    <li>Calcule o pacote pelo consumo. A <strong>15 gramas por xícara</strong>, 250 gramas rendem perto de 16. Leve o que acaba em até um mês.</li>
+  </ol>
+  <div class="art">
+    <div class="hd"><span class="t">Prateleira · quatro pacotes, mesma gôndola</span><span class="m">Rótulos</span></div>
+    <div class="ln"><span>500 g moído</span><span class="d">TORRA EXTRAFORTE · VALIDADE 09/27 · SEM DATA DE TORRA</span><span class="v">R$ ______</span></div>
+    <div class="ln"><span>250 g moído</span><span class="d">TORRA ESCURA · MOIDO NA LOJA · SEM DATA DE TORRA</span><span class="v">R$ ______</span></div>
+    <div class="ln hit"><span>250 g em grão</span><span class="d">TORRA MEDIA · TORRADO EM 02/06 · GRAO INTEIRO</span><span class="v">R$ ______</span></div>
+    <div class="ln"><span>1 kg em grão</span><span class="d">TORRA MEDIA · TORRADO EM 11/03 · GRAO INTEIRO</span><span class="v">R$ ______</span></div>
+    <div class="note"><span class="k">01</span><span class="x">A linha destacada é a única com os três campos certos: <b>grão inteiro, torra média e data de torra recente</b>. A conta do custo por xícara: preço do pacote dividido pelas xícaras que ele rende. A 15 gramas por xícara, 250 gramas rendem perto de 16, e a de casa fica perto de <b>R$ 2,90</b>, contra a faixa de <b>R$ 7,00 a R$ 12,00</b> do balcão.</span></div>
+  </div>
+  <span class="pgnum"></span>
+</section>
+
+<!-- ===================== VARIÁVEL 01 · PÁGINA 3: O MOVIMENTO ===================== -->
+<section class="page" data-frente="01">
+  <p class="kick">Variável 01</p>
+  <h2>O movimento</h2>
+  <ol class="steps">
+    <li>Escolha onde comprar pelo rótulo, não pela marca: serve qualquer torrefação ou mercado que <strong>imprima a data de torra</strong> no pacote.</li>
+    <li data-acao="Compre grão inteiro de torra média com data de torra impressa no pacote">Na gôndola, <strong>compre grão inteiro de torra média com data de torra impressa no pacote</strong>. Os três campos juntos, nunca dois de três.</li>
+    <li>Dimensione o pacote pelo consumo: duas xícaras por dia a 15 gramas pedem perto de 250 gramas a cada oito ou nove dias.</li>
+    <li>Anote no pacote o dia em que abriu. Passou do mês, o aroma caiu, e a próxima compra vem menor.</li>
+  </ol>
+  <p>A troca leva uma compra para acontecer e não custa equipamento nenhum na bancada. O que muda é o campo que você lê no rótulo e o tamanho do pacote que você leva para casa. A xícara responde já na primeira coada do pacote novo.</p>
+  <div class="caso">
+    <div class="t">A xícara do Rafael</div>
+    <p>Rafael comprava café já moído, em pacote de supermercado sem data de torra. Fazia a jarra no fim de semana e descartava quase um terço dela, porque saía com gosto de queimado e ninguém terminava.</p>
+    <p>Passou a comprar grão inteiro de torra média, com a data impressa no rótulo e em pacote que acaba dentro do mês. Parou de jogar café fora e trocou 72 cafés de balcão por xícaras de casa no primeiro ano.</p>
+    <div class="linha"><span>72 cafés de balcão trocados no primeiro ano</span><b data-spine="590.00">R$ 590,00 por ano</b></div>
+  </div>
+  <div class="bolso"><div class="t">No seu bolso</div><p>Cada xícara que sai do coador em vez do balcão devolve a diferença entre a faixa de <b>R$ 7,00 a R$ 12,00</b> e o custo do seu pacote dividido pelas xícaras que ele rende, perto de <b>R$ 2,90</b>. Some o café que você para de descartar.</p></div>
+  <span class="pgnum"></span>
+</section>
+
+<!-- ===================== VARIÁVEL 01 · PÁGINA 4: A RESPOSTA PRONTA ===================== -->
+<section class="page" data-frente="01">
+  <p class="kick">Variável 01 · variável pesada</p>
+  <h2>A resposta pronta</h2>
+  <p>Cinco respostas para as objeções que a variável 01 encontra.</p>
+  <table class="gerente">
+    <thead><tr><th>O que você ouve</th><th>O que você responde</th></tr></thead>
+    <tbody>
+      <tr><td>"Café bom precisa de máquina cara."</td><td>"O coador extrai o mesmo café. Quem decide a xícara é o grão e o ponto de torra, e nenhum dos dois vem na máquina."</td></tr>
+      <tr><td>"Grão inteiro é frescura sem moedor."</td><td>"O grão guarda aroma por semanas, o moído perde em dias. Sem moedor, peça para moer na hora da compra."</td></tr>
+      <tr><td>"Torra escura é café mais forte."</td><td>"Torra escura é café mais queimado. Força vem da proporção, de 1 para 15 até 1 para 17."</td></tr>
+      <tr><td>"Pacote pequeno sai mais caro."</td><td>"Por quilo, sim. O pacote grande que envelhece na metade custa o dobro: metade vai para o lixo."</td></tr>
+      <tr><td>"O balcão é melhor porque quem faz é profissional."</td><td>"No balcão, alguém controla as mesmas oito variáveis deste livro. Nenhuma exige crachá."</td></tr>
+    </tbody>
+  </table>
+  <div class="infog">
+    <div class="ttl">O custo de uma xícara · por unidade</div>
+    <p class="sub">A diferença por xícara é a conta do livro inteiro. A de casa sai do pacote dividido pelas xícaras que rende.</p>
+    <div class="bar hot"><span class="lb">Balcão urbano</span><span class="tk"><span class="fl" style="width:100%"></span></span><span class="vl">7,00 a 12,00</span></div>
+    <div class="bar"><span class="lb">Coada em casa</span><span class="tk"><span class="fl" style="width:28%"></span></span><span class="vl">≈ 2,90</span></div>
+    <div class="tot"><span class="l">Margem por xícara convertida</span><span class="v">R$ 6,10</span></div>
+  </div>
+  <span class="pgnum"></span>
+</section>
+
+<!-- ===================== VARIÁVEL 02 · PÁGINA 1: A MECÂNICA ===================== -->
+
+<!-- ===================== FIM DO CAPÍTULO 1 · bloco de volta (c4-20k/40) ===================== -->
+<style id="capitulo-1">#continuar .volta{display:inline-block;background:var(--em);color:#fff;text-decoration:none;font-family:Inter,sans-serif;font-weight:700;font-size:16px;padding:14px 28px;border-radius:99px}#continuar .volta:hover{filter:brightness(1.08)}</style>
+<section class="page" id="continuar">
+  <p class="kick">Fim do capítulo 1</p>
+  <h2>O guia continua daqui</h2>
+  <p class="lead">Você leu a abertura e o primeiro capítulo de <em>Café de Balcão no Coador de Casa</em>, inteiros e sem cadastro. Faltam 7 capítulos, e eles chegam no seu email em um minuto, na versão web e em PDF.</p>
+  <p class="webonly" style="margin:28px 0 0"><a class="volta" href="/ebook-premium/checkout?src=cap1-volta">Ler o guia completo por R$&nbsp;27 →</a></p>
+  <span class="pgnum"></span>
+</section>
+
+<style id="ebook-web-mode">@media screen{.webonly{display:revert!important}.printonly{display:none!important}}@media screen and (max-width:680px){td,th{overflow-wrap:anywhere}}</style>
+<script>
+(function(){
+  var calc=document.getElementById('calc');
+  if(calc && !calc.querySelector('input') && document.querySelector('tr[data-campo]')){
+    var unit=calc.dataset.unit||'R$',upos=calc.dataset.unitpos||'pre',totLabel=calc.dataset.total||'Total por ano';
+    // moeda vem antes do número, medida vem depois ("R$ 1.250" x "130 g")
+    var fmt=function(n){var v=n.toLocaleString('pt-BR');return upos==='pos'?v+' '+unit:unit+' '+v};
+    document.querySelectorAll('tr[data-campo]').forEach(function(tr){
+      var row=document.createElement('div');row.className='row';var id='c_'+tr.dataset.campo;
+      var peso=tr.dataset.peso===undefined?1:Number(tr.dataset.peso);
+      var nota=peso===0?' · fora da soma':(peso<0?' · desconta do total':'');
+      row.innerHTML='<label for="'+id+'">'+tr.dataset.label+' <span style="color:var(--soft)">(faixa '+tr.dataset.min+' a '+tr.dataset.max+nota+')</span></label>'+
+        '<input id="'+id+'" type="number" min="0" step="10" placeholder="0" data-peso="'+peso+'">';
+      calc.appendChild(row);
+    });
+    var tot=document.createElement('div');tot.className='tot';
+    tot.innerHTML='<span class="l">'+totLabel+'</span><span class="v" id="calcTot">'+fmt(0)+'</span>';
+    calc.appendChild(tot);
+    calc.addEventListener('input',function(){
+      var s=0;calc.querySelectorAll('input').forEach(function(i){s+=(Number(i.value)||0)*Number(i.dataset.peso)});
+      document.getElementById('calcTot').textContent=fmt(s);
+    });
+  }
+  document.querySelectorAll('.script p[data-script]').forEach(function(p){
+    if(p.nextElementSibling && p.nextElementSibling.classList.contains('copybtn'))return;
+    var b=document.createElement('button');b.className='copybtn webonly';b.textContent='Copiar';
+    b.addEventListener('click',function(){
+      navigator.clipboard.writeText(p.textContent.replace(/^"|"$/g,''));
+      b.textContent='Copiado';setTimeout(function(){b.textContent='Copiar'},1500);
+    });
+    p.insertAdjacentElement('afterend',b);
+  });
+})();
+</script>
+
+</body>
+</html>

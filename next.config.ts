@@ -16,6 +16,7 @@ const nextConfig: NextConfig = {
   ];},
   async rewrites(){return [
     {source:"/ebook-premium-versao-web",destination:"/ebook-web/ebook-premium-versao-web.html"},
+    {source:"/ebook-premium-capitulo-1",destination:"/ebook-web/ebook-premium-capitulo-1.html"},
     {source:"/quiz",destination:"/quiz/index.html"},
   ];},
   typescript: { ignoreBuildErrors: true },
