@@ -28,6 +28,25 @@ const SHARE_URL = "https://api.whatsapp.com/send/?text=A%20Notas%20do%20Caf%C3%A
 /* vdn-rec-step: passo REC (combo cross-rede), baked pelo rollout_rec_step.py.
    SOT = _combo/lib/newsletters.json (pool sanguíneo TOP4 da Notas do Café). Não editar à mão. */
 const COMBO_API = "https://scriptorium-combo.vercel.app/api/combo";
+
+/* wiz/23: holdout do passo do combo. O braço é sorteado no servidor por hash estável do email
+   (GET na mesma rota; os percentuais vivem lá, em COMBO_HOLDOUT_PCT e COMBO_DOSE2_PCT, ligados e
+   desligados sem redeploy das LPs). "controle" não vê o passo; "dose2" escolhe até 2 news;
+   "teste" = o passo de hoje. Sem resposta em 2,5 s, ou erro, vale "teste". */
+let recBraco: "" | "teste" | "controle" | "dose2" = "";
+async function sortearBraco(): Promise<number> {
+  if (recBraco) return recBraco === "dose2" ? 2 : 4;
+  let em: string | null = null;
+  try { em = localStorage.getItem("vdn_lead_email"); } catch {}
+  recBraco = "teste";
+  if (!em) return 4;
+  try {
+    const r = await fetch(`${COMBO_API}?email=${encodeURIComponent(em)}`, { signal: AbortSignal.timeout(2500) });
+    const j = await r.json();
+    if (j && (j.braco === "controle" || j.braco === "dose2")) recBraco = j.braco;
+  } catch {}
+  return recBraco === "dose2" ? 2 : 4;
+}
 const REC_POOL = [
   { slug: "brasa-certa", name: "Brasa Certa", card: "O churrasco perfeito sem mistério: o corte certo, o ponto, o tempo da brasa.", hora: "14:14", leitores: "2.138", emoji: "🔥", logo: "/images/rec/brasa-certa.png" },
   { slug: "jogos-de-valor", name: "Jogos de Valor", card: "Os jogos de tabuleiro que valem a mesa, com curadoria honesta.", hora: "14:14", leitores: "1.257", emoji: "👑", logo: "/images/rec/jogos-de-valor.png" },
@@ -154,6 +173,7 @@ export default function OnboardingWizard({
   const [reduce, setReduce] = useState(false);
   const [recSel, setRecSel] = useState<Set<string>>(() => new Set(REC_POOL.slice(0, 1).map((n) => n.slug)));
   const [recBusy, setRecBusy] = useState(false);
+  const [recCap, setRecCap] = useState(4); // wiz/23: 2 no braço dose2
   const [recErr, setRecErr] = useState(false);
 
   const isHandled = useCallback((k: StepKey): boolean => {
@@ -163,6 +183,7 @@ export default function OnboardingWizard({
       let em: string | null = null;
       try { em = localStorage.getItem("vdn_lead_email"); } catch {}
       if (!em) return true;
+      if (recBraco === "controle") return true; // wiz/23: o controle não vê o passo
     }
     if (k === "ebook" && !EB.url) return true; // news sem LP de venda: passo nao existe
     if (k === "pesquisa") return !!SS("vdn_pesquisa");
@@ -175,9 +196,12 @@ export default function OnboardingWizard({
     if (context === "ebook") sendBeacon(SLUG, "lead", { eventType: "converteu" }); // ebook: chegar aqui = lead
     const rm = typeof window !== "undefined" && !!window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     setReduce(rm);
-    const start = ORDER.findIndex((k) => !isHandled(k));
-    if (start === -1) { setDone(true); setIdx(ORDER.length); return; }
-    setIdx(start);
+    const go = () => {
+      const start = ORDER.findIndex((k) => !isHandled(k));
+      if (start === -1) { setDone(true); setIdx(ORDER.length); return; }
+      setIdx(start);
+    };
+    sortearBraco().then((c) => { setRecCap(c); go(); }); // wiz/23: o braço antes da primeira tela
   }, [isHandled, defaultSource, context]);
 
   useEffect(() => {
@@ -232,7 +256,7 @@ export default function OnboardingWizard({
   };
 
   const toggleRec = (s: string) =>
-    setRecSel((cur) => { const n = new Set(cur); if (n.has(s)) n.delete(s); else n.add(s); return n; });
+    setRecSel((cur) => { const n = new Set(cur); if (n.has(s)) n.delete(s); else if (n.size < recCap) n.add(s); return n; });
 
   const confirmRec = async () => {
     if (recBusy) return;
@@ -362,7 +386,7 @@ export default function OnboardingWizard({
                   <div className="cc-step" key="rec">
                     <div className="cc-n">Você foi convidado</div>
                     <h2>Quem lê a {NAME} também lê <em>estas 4</em></h2>
-                    <p>Escolhemos outras 4 news que mais combinam com a {NAME}. Deixamos a primeira marcada. Marque as outras que você quiser receber e confirme.</p>
+                    <p>Escolhemos outras 4 news que mais combinam com a {NAME}. Deixamos a primeira marcada. {recCap === 2 ? "Escolha até 2 e confirme." : "Marque as outras que você quiser receber e confirme."}</p>
                     <div className="cc-recgrid">
                       {REC_POOL.map((n) => {
                         const sel = recSel.has(n.slug);
