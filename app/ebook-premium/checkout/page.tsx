@@ -36,10 +36,9 @@ const EBOOK = {
 
 /* Faixa de confiança acima do formulário (ticket 46). A primeira linha é a única
    que muda quando o Pix ligar na conta da NM (02/09/26: a capability não existe,
-   a session volta com card e boleto): vira "Pix, cartão ou boleto". */
+   a session volta com card e boleto): vira "Stripe · Pix, cartão ou boleto". */
 const CONFIANCA = [
-  "Cartão ou boleto",
-  "Pagamento pela Stripe",
+  "Stripe · cartão ou boleto",
   "7 dias de garantia",
   "Entrega imediata por email",
 ];
@@ -178,7 +177,7 @@ export default function EbookCheckout() {
             <b>{metade ? (bump ? "R$ 62,00" : "R$ 13,50") : bump ? "R$ 75,50" : EBOOK.preco}</b>, uma vez só.
             {bump ? " Guia + o app do guia." : ""}
           </p>
-          <p className="ck-resumo">O link chega no email assim que o pagamento confirma. {EBOOK.garantiaNome}</p>
+          <p className="ck-resumo">O link chega no email assim que a Stripe confirmar. {EBOOK.garantiaNome}</p>
         </header>
 
         <ul className="ck-conf">
@@ -195,7 +194,7 @@ export default function EbookCheckout() {
                   sem ele a caixa branca fica vazia até a Stripe pintar (medido: 0,7 a
                   1,7 s), e a sessão média no checkout é de 19 s (Clarity, ago/26). */}
               {!montado && !erro && (
-                <div className="ck-skel" role="status" aria-label="Abrindo o pagamento">
+                <div className="ck-skel" role="status" aria-label="Abrindo o checkout">
                   <div className="sk-bars" aria-hidden="true">
                     <span className="sk-l sk-rot" />
                     <span className="sk-l sk-campo" />
@@ -215,10 +214,10 @@ export default function EbookCheckout() {
           ) : (
             <div className="ck-pend">
               <p><b>Checkout em preparação.</b></p>
-              <p>O pagamento abre aqui assim que as chaves da Stripe entrarem no ambiente. Nada é cobrado até lá.</p>
+              <p>O checkout abre aqui assim que as chaves da Stripe entrarem no ambiente. Nada é cobrado até lá.</p>
             </div>
           )}
-          {erro && <div className="ck-pend"><p><b>O pagamento não abriu.</b></p><p>{erro}</p></div>}
+          {erro && <div className="ck-pend"><p><b>O checkout não abriu.</b></p><p>{erro}</p></div>}
         </div>
 
         <label htmlFor="bump" className={`bumpcard${bump ? " on" : ""}`}>
