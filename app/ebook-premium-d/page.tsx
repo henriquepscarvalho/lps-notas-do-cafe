@@ -132,7 +132,7 @@ const EBOOK = {
   ],
   "amostra": {
     "on": true,
-    "kicker": "Leia antes de pagar",
+    "kicker": "Leia antes de decidir",
     "titulo": "A primeira variável, aberta na íntegra",
     "intro": "Uma das oito variáveis da coada, exatamente como aparece no miolo. As outras sete vêm com o guia.",
     "cta": "Ler a variável inteira",
@@ -291,11 +291,11 @@ const EBOOK = {
   ],
   "faq": {
     "kicker": "Perguntas diretas",
-    "titulo": "O que você quer saber antes de pagar",
+    "titulo": "Perguntas de quem está na porta",
     "itens": [
       {
         "q": "Como recebo o guia?",
-        "a": "O pagamento confirma e o acesso abre na hora: a versão web pra ler no navegador e o PDF pra guardar. O link também chega no email da compra."
+        "a": "Confirmou, o acesso abre na hora: a versão web pra ler no navegador e o PDF pra guardar. O link também chega no email do pedido."
       },
       {
         "q": "Preciso de balança e termômetro?",
@@ -311,7 +311,7 @@ const EBOOK = {
       },
       {
         "q": "É assinatura?",
-        "a": "Não. Pagamento único de R$ 27, processado pela Stripe. O guia e o kit são seus."
+        "a": "Não. Uma vez só, R$ 27, pela Stripe. O guia e o kit são seus."
       },
       {
         "q": "E se a minha coada já estiver no ponto?",
@@ -322,7 +322,7 @@ const EBOOK = {
   "garantia": "Leu o guia e não encontrou nenhuma variável pra corrigir na sua coada? Responda o email da compra em até 7 dias e devolvemos os R$ 27.",
   "garantiaNome": "Melhorou a coada ou devolve · 7 dias",
   "fecho": "Sem frescura.",
-  "fechoAncora": "R$ 27 pra tirar do coador o que a máquina cara promete. Pagamento único, sem assinatura.",
+  "fechoAncora": "R$ 27 pra tirar do coador o que a máquina cara promete. Uma vez só, sem assinatura.",
   "custoEspera": "Toda manhã sem o ajuste é a mesma xícara mediana de novo.",
   "despedida": "Bom café. Até sábado.",
   "kicker": "Café de Balcão no Coador de Casa · Guia Notas do Café",
@@ -454,7 +454,7 @@ export default function EbookPremiumD() {
           <a href={CHECKOUT} className="btn btn-hero" onClick={ctaClick}>{CTA_LABEL}</a>
           <div className="hero-preco">
             <span className="por">{PRECO}</span>
-            <span className="uni">pagamento único · pix ou cartão</span>
+            <span className="uni">uma vez só · pix ou cartão</span>
           </div>
           <p className="hero-micro">{EBOOK.ctaMicro}</p>
         </div>
@@ -496,7 +496,7 @@ export default function EbookPremiumD() {
           <a href={CHECKOUT} className="btn btn-faixa" onClick={ctaClick}>{CTA_LABEL}</a>
           <div className="faixa-preco">
             <span className="por">{PRECO}</span>
-            <span className="uni">pagamento único · pix ou cartão</span>
+            <span className="uni">uma vez só · pix ou cartão</span>
           </div>
           <p className="faixa-micro">{EBOOK.ctaMicro}</p>
           <div className="faixa-gar">{EBOOK.garantiaNome}</div>
@@ -615,7 +615,7 @@ export default function EbookPremiumD() {
             <a href={CHECKOUT} className="btn btn-caixa" onClick={ctaClick}>{CTA_LABEL}</a>
             <div className="hero-preco">
               <span className="por">{PRECO}</span>
-              <span className="uni">pagamento único · pix ou cartão</span>
+              <span className="uni">uma vez só · pix ou cartão</span>
             </div>
           </div>
           <div>
@@ -679,7 +679,7 @@ export default function EbookPremiumD() {
       <div className={"dsticky" + (sticky ? " show" : "")} aria-hidden={!sticky}>
         <div className="ds-preco">
           <span className="por">{PRECO}</span>
-          <span className="uni">pagamento único</span>
+          <span className="uni">uma vez só</span>
         </div>
         <a href={CHECKOUT} className="btn ds-btn" onClick={ctaClick} tabIndex={sticky ? 0 : -1}>{CTA_LABEL}</a>
       </div>
