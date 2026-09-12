@@ -53,4 +53,32 @@ export const PRODUTOS: Produto[] = [
   { slug: "origami", name: "Coador Origami", q: "coador Origami dripper café", section: EQUIP, edicao: "027" },
   { slug: "hario-switch", name: "Hario Switch", q: "Hario Switch coador imersão", section: EQUIP, edicao: "036" },
   { slug: "pote", name: "Pote Hermético Opaco", q: "pote hermético café opaco vedado", section: EQUIP, edicao: "033" },
+  { slug: "cafeteira-eletrica", name: "Cafeteira Elétrica de Filtro", q: "cafeteira elétrica filtro café", section: EQUIP, edicao: "083" },
+  { slug: "cezve", name: "Cezve (Ibrik)", q: "cezve ibrik café turco", section: EQUIP, edicao: "104" },
+  { slug: "phin-vietnamita", name: "Phin Vietnamita", q: "phin filtro café vietnamita", section: EQUIP, edicao: "113" },
 ];
+
+// Âncoras que as edições mandaram com nome solto (fnx/333). Chave = o que está no email,
+// valor = o card certo. O resto sem par cai no card com mais palavras em comum.
+export const ALIAS: Record<string, string> = {
+  "prensa-francesa": "prensa-francesa-bodum",
+  "chaleira-com-termometro": "chaleira-hario-buono",
+  "coador-v60": "v60-hario-kit",
+  "v60": "v60-hario-kit",
+  "v60-01": "v60-hario-kit",
+  "v60-02": "v60-hario-kit",
+  "coador-papel": "filtros-melitta",
+  "coador-de-papel": "filtros-melitta",
+  "coador-cone-102": "filtros-melitta",
+  "melitta-103": "filtros-melitta",
+  "coador-de-pano": "filtros-pano",
+  "aeropress": "aeropress-original",
+  "kalita-wave": "kalita-wave-185",
+  "sifao-de-vidro": "hario-technica-sifao",
+  "moka": "bialetti-moka",
+  "moka-3-xicaras": "bialetti-moka",
+  "cafeteira-moka": "bialetti-moka",
+  "chemex-3": "chemex",
+  "chemex-3-xicaras": "chemex",
+  "coador-clever": "clever-dripper",
+};

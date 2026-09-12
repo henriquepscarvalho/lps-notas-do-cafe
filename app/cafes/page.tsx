@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { CAFES, RETAILER, type Cafe } from "./cafes.data";
+import { resolverAncora } from "../components/ancora";
 
 function Card({ c }: { c: Cafe }) {
   return (
@@ -84,6 +85,10 @@ function Card({ c }: { c: Cafe }) {
 }
 
 export default function Cafes() {
+  useEffect(() => {
+    resolverAncora(CAFES.map((c) => ({ slug: c.slug, texto: `${c.name} ${c.regiao ?? ""}` })));
+  }, []);
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {

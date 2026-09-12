@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, type ReactNode } from "react";
-import { PRODUTOS, RETAILER, type Produto } from "./produtos.data";
+import { ALIAS, PRODUTOS, RETAILER, type Produto } from "./produtos.data";
+import { resolverAncora } from "../components/ancora";
 
 const sections = [...new Set(PRODUTOS.map((p) => p.section))];
 
@@ -92,6 +93,10 @@ function SectionTitle({ children }: { children: ReactNode }) {
 }
 
 export default function Produtos() {
+  useEffect(() => {
+    resolverAncora(PRODUTOS.map((p) => ({ slug: p.slug, texto: `${p.name} ${p.q ?? ""}` })), ALIAS);
+  }, []);
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
