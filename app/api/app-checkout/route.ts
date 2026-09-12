@@ -108,6 +108,10 @@ export async function POST(req: Request) {
   }
 
   try {
+    // HC 12/09/26 (app/58): sem o seletor de moeda da Stripe. O adaptive pricing da conta NM
+    // mostrava US$ na frente e escondia Pix e Boleto pra browser em inglês; comprador e
+    // entrega são em português, então a session fica só em BRL.
+    params["adaptive_pricing[enabled]"] = "false";
     const r = await fetch("https://api.stripe.com/v1/checkout/sessions", {
       method: "POST",
       headers: {
