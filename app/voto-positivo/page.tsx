@@ -1,7 +1,7 @@
 "use client";
 
 /* ============================================================
- * PÁGINA /voto-positivo — MODELO CANÔNICO ÚNICO (rede Scriptorium)
+ * PÁGINA /voto-positivo, MODELO CANÔNICO ÚNICO (rede Scriptorium)
  * AUTO-GERADO por _shared/voto-positivo/build.py
  * NÃO EDITAR À MÃO. Fonte = page.template.tsx + config.json.
  * Para re-skinar TODAS as news: editar este template ou o config
@@ -10,6 +10,12 @@
  * Fluxo (nota 5): caixa de comentário PRIMEIRO. Só depois de o leitor
  * ENVIAR a resposta aparecem a mensagem de agradecimento, o confete e o
  * botão de compartilhar no WhatsApp. A recompensa vem após o engajamento.
+ *
+ * Faixa do guia (c4-20k/72, posição C, variante D): abaixo da caixa, nos dois
+ * estados, um bloco tingido com a capa, o título e a promessa do guia da casa
+ * e um botão pequeno levando pra /ebook-premium?src=edicao-voto. Sem preço:
+ * a caixa de comentário continua sendo a primeira ação. Casa sem guia:
+ * CFG.oferta = null.
  * ============================================================ */
 
 import { useState } from "react";
@@ -44,8 +50,17 @@ const CFG = {
     "btnText": "#2C1810",
     "glow": "rgba(200,150,62,0.14)",
     "font": "var(--font-heading)"
+  },
+  "oferta": {
+    "titulo": "Café de Balcão no Coador de Casa",
+    "promessa": "A técnica completa sem máquina de R$ 2 mil",
+    "capa": "https://ecmveymyzdqiehvtqxms.supabase.co/storage/v1/object/public/assets/rede/capas/notas-do-cafe.webp",
+    "href": "/ebook-premium?src=edicao-voto"
   }
 };
+
+type Oferta = { titulo: string; promessa: string; capa: string; href: string };
+const OFERTA: Oferta | null = CFG.oferta;
 
 interface Piece { id: number; left: number; delay: number; duration: number; size: number; emoji: string; }
 
@@ -79,6 +94,20 @@ export default function VotoPositivo() {
 
   const t = CFG.theme;
 
+  /* Faixa do guia da casa (c4-20k/72, variante D). Mesma faixa nos dois estados. */
+  const guia = (delay: string) =>
+    OFERTA ? (
+      <div className="vp-of" style={{ background: `${t.accent}0F`, borderColor: `${t.accent}33`, animation: `vpUp .9s ease-out ${delay} both` }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={OFERTA.capa} alt={`Capa do guia ${OFERTA.titulo}`} width={56} height={78} />
+        <div>
+          <b style={{ fontFamily: t.font, color: t.heading }}>{OFERTA.titulo}</b>
+          {OFERTA.promessa ? <small>{OFERTA.promessa}</small> : null}
+        </div>
+        <a href={OFERTA.href} className="vp-btn" style={{ background: t.btnBg, color: t.btnText }}>Conhecer o guia</a>
+      </div>
+    ) : null;
+
   return (
     <>
       <PageBeacon slug={CFG.slug} step="voto-positivo" />
@@ -93,10 +122,15 @@ export default function VotoPositivo() {
         .vp-ta { width:100%; box-sizing:border-box; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:.9rem 1rem; font-family:var(--font-body, system-ui, sans-serif); font-size:.95rem; line-height:1.6; resize:vertical; outline:none; transition:border-color .18s ease }
         .vp-ta:focus { border-color:var(--vp-accent) }
         .vp-ta::placeholder { color:var(--vp-text); opacity:.5 }
+        .vp-of { display:grid; grid-template-columns:56px 1fr; gap:12px 14px; align-items:center; text-align:left; width:100%; max-width:480px; margin-top:1.75rem; padding:14px; border-radius:12px; border:1px solid; font-family:var(--font-body, system-ui, sans-serif); position:relative }
+        .vp-of img { width:56px; height:auto; border-radius:3px; box-shadow:0 5px 14px rgba(0,0,0,.2) }
+        .vp-of b { display:block; font-size:1.1rem; line-height:1.15; margin-bottom:4px }
+        .vp-of small { display:block; font-size:.8rem; line-height:1.45; color:var(--vp-text) }
+        .vp-of .vp-btn { grid-column:1 / -1; justify-self:start; width:auto; max-width:none; font-size:13.5px; padding:10px 14px }
         @media (max-width:480px){ .vp-btn{ width:100%; max-width:340px } }
       `}</style>
 
-      {/* Confetti — emojis da marca, dispara só DEPOIS do envio */}
+      {/* Confetti, emojis da marca, dispara só DEPOIS do envio */}
       <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 50, overflow: "hidden" }}>
         {confetti.map((p) => (
           <span key={p.id} style={{ position: "absolute", top: -30, left: `${p.left}%`, fontSize: p.size, animation: `vpFall ${p.duration}s ease-in ${p.delay}s forwards`, opacity: 0 }}>{p.emoji}</span>
@@ -133,7 +167,7 @@ export default function VotoPositivo() {
         </h1>
 
         {!sent ? (
-          /* ESTADO A — caixa de comentário primeiro */
+          /* ESTADO A, caixa de comentário primeiro */
           <>
             <p style={{ fontSize: "1.125rem", color: t.text, maxWidth: 480, lineHeight: 1.7, marginBottom: "1.75rem", animation: "vpUp .9s ease-out .9s both", position: "relative" }}>
               O que te fez dar nota máxima hoje? Uma frase já molda a próxima edição.
@@ -158,15 +192,19 @@ export default function VotoPositivo() {
                 {sending ? "Enviando..." : "Enviar resposta"}
               </button>
             </div>
+
+            {guia("1.3s")}
           </>
         ) : (
-          /* ESTADO B — pós-envio: agradecimento + WhatsApp */
+          /* ESTADO B, pós-envio: agradecimento + WhatsApp */
           <>
             <p style={{ fontSize: "1.125rem", color: t.text, maxWidth: 480, lineHeight: 1.7, marginBottom: "2.5rem", animation: "vpUp .7s ease-out .05s both", position: "relative" }}>{CFG.paragraph}</p>
 
             <a href={CFG.shareUrl} target="_blank" rel="noopener noreferrer" className="vp-btn" style={{ background: t.btnBg, color: t.btnText, animation: "vpUp .7s ease-out .25s both", position: "relative" }}>
               Indicar pra um amigo no WhatsApp
             </a>
+
+            {guia(".35s")}
 
             <p style={{ fontFamily: t.font, fontStyle: "italic", fontSize: "1rem", color: t.text, opacity: .7, marginTop: "3rem", animation: "vpUp .7s ease-out .45s both", position: "relative" }}>{CFG.tagline}</p>
           </>
