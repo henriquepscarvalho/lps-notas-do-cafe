@@ -54,6 +54,63 @@ const REC_POOL = [
   { slug: "turno-do-pai", name: "Turno do Pai", card: "O manual prático da paternidade nos primeiros anos, sem julgamento.", hora: "06:06", leitores: "325", emoji: "👶", logo: "/images/rec/turno-do-pai.png" },
 ];
 
+/* c420/51 + c420/52: Boost de volta. O passo rec lê as recomendações do widget da beehiiv pelo
+   MESMO endpoint público que o script recommendations.js chama (CORS aberto, sem chave)
+   e desenha nossos cards: até 3 pagas (Sponsored = Boost, US$ por aceite verificado) +
+   até 2 irmãs livres. O aceite vai pro mesmo submit do widget, com o email do lead e o
+   id do widget, que é o que credita o Boost no painel. Painel sem recomendação
+   (show_widget false), 404, rede fora ou HTML fora do esperado: cai no REC_POOL + combo de
+   sempre, sem quebrar o passo. Rótulo "Patrocinada" fica porque o widget da beehiiv
+   também marca Sponsored. `carregaBh` roda uma vez por página (single-flight) e guarda o
+   resultado em `bhCache`, que o guard do pool vazio lê fora do React. */
+const BH_PUB = "809b90ba-6880-457e-b688-dd045d10d2ed";
+const BH_WIDGET_API = "https://subscribe-forms.beehiiv.com/api/recommendations_widget?publication_id=" + BH_PUB;
+const BH_SUBMIT = "https://subscribe-forms.beehiiv.com/api/recommendations/submit";
+const BH_MAX_PAID = 3;
+const BH_MAX_FREE = 2;
+type BhRec = { id: string; name: string; desc: string; logo: string; paid: boolean };
+type BhState = { status: "loading" } | { status: "off" } | { status: "ready"; widgetId: string; recs: BhRec[] };
+function parseBhForm(html: string): BhRec[] {
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  const out: BhRec[] = [];
+  doc.querySelectorAll<HTMLInputElement>('input[name="recommendation_id"]').forEach((inp) => {
+    const li = inp.closest("li");
+    if (!li || !inp.value) return;
+    const name = li.querySelector("h3")?.textContent?.trim() || "";
+    if (!name) return;
+    const ps = Array.from(li.querySelectorAll(".name_block p")).map((e) => e.textContent?.trim() || "");
+    const paid = ps.some((t) => /^sponsored$/i.test(t));
+    // travessão da descrição da beehiiv vira vírgula (regra da casa no que o leitor lê)
+    const desc = (ps.filter((t) => t && !/^sponsored$/i.test(t))[0] || "").replace(/\s+[\u2014\u2013]\s+/g, ", ");
+    const logo = li.querySelector("img")?.getAttribute("src") || "";
+    out.push({ id: inp.value, name, desc, logo, paid });
+  });
+  const paid = out.filter((r) => r.paid).slice(0, BH_MAX_PAID);
+  const free = out.filter((r) => !r.paid).slice(0, BH_MAX_FREE);
+  return [...paid, ...free];
+}
+let bhCache: BhState = { status: "loading" };
+let bhPromessa: Promise<BhState> | null = null;
+function carregaBh(): Promise<BhState> {
+  if (bhPromessa) return bhPromessa;
+  if (!BH_PUB) { bhCache = { status: "off" }; bhPromessa = Promise.resolve(bhCache); return bhPromessa; } // fábrica: pub ainda sem id
+  bhPromessa = new Promise<BhState>((resolve) => {
+    let fechado = false;
+    const fim = (s: BhState) => { if (fechado) return; fechado = true; bhCache = s; resolve(s); };
+    const t = setTimeout(() => fim({ status: "off" }), 2500); // rede lenta: o passo não espera a beehiiv
+    fetch(BH_WIDGET_API, { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => {
+        clearTimeout(t);
+        const widgetId: string = j?.recommendation_widget?.id || "";
+        const recs = j?.show_widget && typeof j.form === "string" && widgetId ? parseBhForm(j.form) : [];
+        fim(recs.length === 0 ? { status: "off" } : { status: "ready", widgetId, recs });
+      })
+      .catch(() => { clearTimeout(t); fim({ status: "off" }); });
+  });
+  return bhPromessa;
+}
+
 /* vdn-ebook-step: passo do guia premium (passo 6), baked pelo rollout_ebook_step.py.
    Layout Capa Herói (escolha do HC no burst de 10/08): a capa carrega a tela, título e
    promessa embaixo. Tokens saem de app/ebook-premium/page.tsx (EBOOK.titulo/sub/capa).
@@ -175,6 +232,17 @@ export default function OnboardingWizard({
   const [recBusy, setRecBusy] = useState(false);
   const [recCap, setRecCap] = useState(4); // wiz/23: 2 no braço dose2
   const [recErr, setRecErr] = useState(false);
+  const [bh, setBh] = useState<BhState>(bhCache);
+
+  useEffect(() => {
+    let alive = true;
+    carregaBh().then((s) => {
+      if (!alive) return;
+      setBh(s);
+      if (s.status === "ready") setRecSel(new Set(s.recs.map((r) => r.id))); // todas marcadas (HC 12/09/26): o foco é o aceite das patrocinadas
+    });
+    return () => { alive = false; };
+  }, []);
 
   const isHandled = useCallback((k: StepKey): boolean => {
     if (k === "rec") {
@@ -201,7 +269,9 @@ export default function OnboardingWizard({
       if (start === -1) { setDone(true); setIdx(ORDER.length); return; }
       setIdx(start);
     };
-    sortearBraco().then((c) => { setRecCap(c); go(); }); // wiz/23: o braço antes da primeira tela
+    // wiz/23: o braço antes da primeira tela; c420/52: sem pool próprio, a resposta da beehiiv também
+    Promise.all([sortearBraco(), REC_POOL.length === 0 ? carregaBh() : Promise.resolve(null)])
+      .then(([c]) => { setRecCap(c); go(); });
   }, [isHandled, defaultSource, context]);
 
   useEffect(() => {
@@ -270,6 +340,35 @@ export default function OnboardingWizard({
     let internal = false;
     try { internal = localStorage.getItem("vdn_internal") === "1"; } catch {}
     setRecBusy(true); setRecErr(false);
+    if (bh.status === "ready") {
+      try {
+        const sp = new URLSearchParams(window.location.search);
+        const r = await fetch(BH_SUBMIT, {
+          method: "POST",
+          mode: "cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            publication_id: BH_PUB,
+            recommendation_widget_id: bh.widgetId,
+            email,
+            recommendation_ids: Array.from(recSel),
+            utm_source: sp.get("utm_source"),
+            utm_medium: sp.get("utm_medium"),
+            utm_campaign: sp.get("utm_campaign"),
+            referrer: encodeURIComponent(window.location.href),
+            user_agent: navigator.userAgent,
+          }),
+        });
+        if (r.ok) {
+          SET("vdn_ob_rec", "done");
+          sendBeacon(SLUG, "rec", { eventType: "converteu" });
+          advance();
+          return;
+        }
+        setRecErr(true); setRecBusy(false);
+      } catch { setRecErr(true); setRecBusy(false); }
+      return;
+    }
     try {
       const r = await fetch(COMBO_API, {
         method: "POST",
@@ -385,9 +484,33 @@ export default function OnboardingWizard({
                 {idx === 0 && (
                   <div className="cc-step" key="rec">
                     <div className="cc-n">Você foi convidado</div>
-                    <h2>Quem lê a {NAME} também lê <em>estas 4</em></h2>
-                    <p>Escolhemos outras 4 news que mais combinam com a {NAME}. Deixamos a primeira marcada. {recCap === 2 ? "Escolha até 2 e confirme." : "Marque as outras que você quiser receber e confirme."}</p>
-                    <div className="cc-recgrid">
+                    <h2>Quem lê a {NAME} também lê <em>estas {bh.status === "ready" ? bh.recs.length : 4}</em></h2>
+                    <p>Escolhemos outras {bh.status === "ready" ? bh.recs.length : 4} news que mais combinam com a {NAME}. {bh.status === "ready" ? "Deixamos todas marcadas. Desmarque a que não quiser e confirme." : (<>Deixamos a primeira marcada. {recCap === 2 ? "Escolha até 2 e confirme." : "Marque as outras que você quiser receber e confirme."}</>)}</p>
+                    {bh.status === "loading" && <div className="cc-recgrid" aria-busy="true"><p className="cc-recerr">Carregando as recomendações...</p></div>}
+                    {bh.status === "ready" && (
+                      <div className="cc-recgrid">
+                        {bh.recs.map((n) => {
+                          const sel = recSel.has(n.id);
+                          return (
+                            <div key={n.id} className={"cc-reccard" + (sel ? " sel" : "")} role="checkbox" aria-checked={sel} tabIndex={0}
+                              onClick={() => toggleRec(n.id)}
+                              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleRec(n.id); } }}>
+                              <div className="cc-rectile"><span>📰</span>
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                {n.logo ? <img src={n.logo} alt="" onError={(e) => { e.currentTarget.style.display = "none"; }} /> : null}
+                              </div>
+                              <div className="cc-recbody">
+                                <div className="cc-recname">{n.name}</div>
+                                {n.desc ? <p className="cc-recpr">{n.desc}</p> : null}
+                                <span className="cc-recchip">{n.paid ? "Patrocinada" : "Da casa"}</span>
+                              </div>
+                              <div className="cc-recpk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12l5 5L20 7" /></svg></div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                    {bh.status === "off" && <div className="cc-recgrid">
                       {REC_POOL.map((n) => {
                         const sel = recSel.has(n.slug);
                         return (
@@ -408,8 +531,8 @@ export default function OnboardingWizard({
                           </div>
                         );
                       })}
-                    </div>
-                    <button className="cc-btnP" disabled={recBusy} onClick={confirmRec}>
+                    </div>}
+                    <button className="cc-btnP" disabled={recBusy || bh.status === "loading"} onClick={confirmRec}>
                       {recBusy ? "Enviando..." : recSel.size === 0 ? "Continuar" : recSel.size === 1 ? "Receber esta também" : `Receber estas ${recSel.size} também`}
                     </button>
                     {recErr && <p className="cc-recerr">Não deu certo. Tente de novo ou toque em Agora não.</p>}
