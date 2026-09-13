@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 const DEGRAUS = [
   { n: 3, premio: "Edição de colecionador do mês", em: "🥇" },
   { n: 5, premio: `Ebook premium da ${NOME}`, em: "📕" },
-  { n: 10, premio: "Colecionador vitalício + ebook premium de uma news irmã", em: "💎" },
+  { n: 10, premio: "Colecionador vitalício + ebook premium de outra news da rede", em: "💎" },
 ];
 
 function hashEmail(e: string): string {

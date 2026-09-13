@@ -150,7 +150,7 @@ export default function AppObrigado() {
 
         <ul className="ob-itens">
           <li>{APP.titulo}, o app</li>
-          {temBump && <li>{bumpTitulo ?? "Guia irmão"} · desbloqueado no app</li>}
+          {temBump && <li>{bumpTitulo ?? "O segundo ebook + app"} · desbloqueado no app</li>}
         </ul>
 
         <a className="ob-abrir" href={APP.url}>Abrir seu app →</a>
