@@ -197,7 +197,7 @@ export default function AppCheckout() {
                 : "R$ 48,50"
               : bump
                 ? "R$ 145,50"
-                : APP.preco}</b>, pagamento único.
+                : APP.preco}</b>, uma vez só.
             {dono === "dono27"
               ? " O valor do ebook pelo app, dentro das 48 horas do seu email."
               : dono === "dono"
@@ -216,10 +216,10 @@ export default function AppCheckout() {
           ) : (
             <div className="ck-pend">
               <p><b>Checkout em preparação.</b></p>
-              <p>O pagamento abre aqui assim que as chaves da Stripe entrarem no ambiente. Nada é cobrado até lá.</p>
+              <p>O checkout abre aqui assim que as chaves da Stripe entrarem no ambiente. Nada é cobrado até lá.</p>
             </div>
           )}
-          {erro && <div className="ck-pend"><p><b>O pagamento não abriu.</b></p><p>{erro}</p></div>}
+          {erro && <div className="ck-pend"><p><b>O checkout não abriu.</b></p><p>{erro}</p></div>}
         </div>
 
         {oferta === "bonus" ? (
@@ -255,7 +255,7 @@ export default function AppCheckout() {
         )}
 
         <div className="selos">
-          <span>Pagamento seguro via Stripe</span>
+          <span>Stripe · cartão ou boleto</span>
           <span>Garantia de 7 dias</span>
         </div>
       </main>
