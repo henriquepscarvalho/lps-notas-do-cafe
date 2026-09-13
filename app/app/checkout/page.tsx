@@ -60,10 +60,15 @@ export default function AppCheckout() {
   const [bump, setBump] = useState(false);
   // ticket 35: a recuperação chega com ?oferta=bonus (irmão de graça) ou ?oferta=metade (R$ 48,50)
   const [oferta, setOferta] = useState("");
+  // c4-20k/58: o D+3 da Escada chega com ?oferta=dono27&e=<email>; a rota confere posse e prazo e
+  // devolve a oferta que vale, e só então a página escreve R$ 27 ou R$ 48,50.
+  const [email, setEmail] = useState("");
+  const [dono, setDono] = useState("");
   useEffect(() => {
     try {
       const o = new URLSearchParams(window.location.search).get("oferta");
-      if (o === "bonus" || o === "metade" || o === "leitor") setOferta(o);
+      if (o === "bonus" || o === "metade" || o === "leitor" || o === "dono" || o === "dono27") setOferta(o);
+      setEmail((new URLSearchParams(window.location.search).get("e") || "").replace(/ /g, "+").trim());
     } catch {
       /* sem query */
     }
@@ -100,11 +105,12 @@ export default function AppCheckout() {
           fetch("/api/app-checkout", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ bump, oferta, ...jornada() }),
+            body: JSON.stringify({ bump, oferta, email, ...jornada() }),
           })
             .then((r) => r.json())
             .then((d) => {
               if (!d.clientSecret) throw new Error(d.error || "sem clientSecret");
+              setDono(d.oferta === "dono" || d.oferta === "dono27" ? d.oferta : "");
               return d.clientSecret;
             }),
       })
@@ -121,7 +127,7 @@ export default function AppCheckout() {
       vivo = false;
       handle?.destroy();
     };
-  }, [stripeOk, bump, oferta]);
+  }, [stripeOk, bump, oferta, email]);
 
   // Saída do checkout (ticket 25, ponto 3 do downsell): abriu o embedded e fez o
   // gesto de sair sem pagar. Uma vez por sessão; o corpo da página não cita o ebook.
@@ -181,14 +187,22 @@ export default function AppCheckout() {
           <p className="kicker">{APP.kicker}</p>
           <h1>{APP.titulo}</h1>
           <p className="ck-resumo">
-            <b>{oferta === "metade" || oferta === "leitor"
+            <b>{dono === "dono27"
+              ? (bump ? "R$ 75,50" : "R$ 27")
+              : dono === "dono"
+                ? (bump ? "R$ 97" : "R$ 48,50")
+                : oferta === "metade" || oferta === "leitor"
               ? bump
                 ? "R$ 97"
                 : "R$ 48,50"
               : bump
                 ? "R$ 145,50"
                 : APP.preco}</b>, pagamento único.
-            {oferta === "bonus"
+            {dono === "dono27"
+              ? " O valor do ebook pelo app, dentro das 48 horas do seu email."
+              : dono === "dono"
+                ? " Metade do preço, porque o ebook já é seu."
+                : oferta === "bonus"
               ? ` App + ${APP.bump.titulo} desbloqueado de bônus.`
               : bump
                 ? " App + guia irmão desbloqueado."
