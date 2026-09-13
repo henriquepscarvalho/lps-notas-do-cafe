@@ -94,6 +94,11 @@ export async function POST(req: Request) {
   const journey = curto(body?.journey);
   const src = curto(body?.src);
   if (journey) params["metadata[journey]"] = journey;
+  // EXP-058/059 (c4-20k/55): braço do 2 x 2 do checkout ("hA-bB"; "golden" sem split),
+  // sorteado no page.tsx e mandado no body. Cross-check da leitura por journey_id na
+  // Stripe: session paga sem carimbo = furo do sorteio.
+  const checkoutVariant = curto(body?.checkout_variant).slice(0, 12);
+  if (checkoutVariant) params["metadata[checkout_variant]"] = checkoutVariant;
   // Porta da página (ticket 13): sem ?src= na jornada, quem carimba a origem é a
   // própria porta que abriu o checkout. Sessão nunca nasce anônima, e "direto e
   // solto" deixa de ser o balde de tudo que o beacon não pegou.

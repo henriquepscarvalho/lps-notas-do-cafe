@@ -1,0 +1,65 @@
+{
+ "slug": "notas-do-cafe",
+ "exibir": false,
+ "exibir_nota": false,
+ "leitores": 2445,
+ "leitores_exibido": "+2.400",
+ "edicoes": 119,
+ "edicoes_exibido": "+110",
+ "votos": 588,
+ "nota5": 550,
+ "nota5_pct": 94,
+ "media": 4.91,
+ "media_exibido": "4,9",
+ "media_pct": 98.2,
+ "distribuicao": [
+  {
+   "estrelas": 5,
+   "n": 550,
+   "pct": 94
+  },
+  {
+   "estrelas": 4,
+   "n": 31,
+   "pct": 5
+  },
+  {
+   "estrelas": 3,
+   "n": 3,
+   "pct": 1
+  },
+  {
+   "estrelas": 2,
+   "n": 3,
+   "pct": 1
+  },
+  {
+   "estrelas": 1,
+   "n": 1,
+   "pct": 0
+  }
+ ],
+ "depoimento": {
+  "id": "",
+  "texto": "",
+  "edicao": 0,
+  "nota": 0,
+  "data": "",
+  "quem": ""
+ },
+ "pix": false,
+ "fonte": {
+  "leitores": "pharos:beehiiv_subscriber_snapshots publication_id=pub_809b90ba-6880-457e-b688-dd045d10d2ed date=2026-09-13",
+  "edicoes": "newsletter_posts status=confirmed publish_date<=hoje",
+  "votos": "edition_votes slug=notas-do-cafe is_internal=false",
+  "depoimento": "checkout-depoimentos.json (curadoria do HC, c4-20k/54)",
+  "pix": "formulário da Stripe lido no checkout vivo (Playwright), não a capability"
+ },
+ "piso": {
+  "leitores": 1000,
+  "edicoes": 30,
+  "votos": 50
+ },
+ "gerado_em": "2026-09-13",
+ "motivo_sem_bloco": "sem voto curado em checkout-depoimentos.json (app-scriptorium/56)"
+}
