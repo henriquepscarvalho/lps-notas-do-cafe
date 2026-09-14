@@ -21,52 +21,6 @@ const VALOR_BUMP = 4850;
 // desbloqueia); `oferta=metade` = price de R$ 48,50 do D2, bump card permitido.
 const PRICE_METADE = "price_1UC5G340q2kXDh5Bh4c2QQsy"; // R$ 48,50 (live, NM). ponytail: sem recuperação nesta casa ainda; mesmo valor do bump
 const VALOR_METADE = 4850;
-// D+3 da Escada de Ascensão (c4-20k/58, golden da EE no 57): o dono do ebook desta casa chega
-// com `oferta=dono27` e o email. Até compra + 5 d, contados pela linha do banco (nunca pelo
-// `ate=` do link, esse é só pra tela), paga R$ 27, o valor do ebook; vencido cai em `dono`, a
-// metade pelo price do leitor (price_app_leitor do catálogo); sem posse, cheio.
-const PRICE_DONO = "price_1UCLTr40q2kXDh5BsAem5o8F"; // R$ 48,50 (live, NM, price_app_leitor)
-const PRICE_DONO27 = "price_1UFDqg40q2kXDh5BolQmTD8A"; // R$ 27 (live, NM, canal ascensao-d3)
-const VALOR_DONO27 = 2700;
-const JANELA_DONO27_S = 5 * 86400;
-
-/**
- * A primeira linha paga do EBOOK desta casa pro email, ou null. Service role no servidor,
- * nunca no cliente. A data da compra é o relógio da janela do `dono27`.
- */
-async function compraDoEbook(email: string): Promise<{ created_at: string } | null> {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key) return null;
-  const q = new URLSearchParams({
-    select: "created_at",
-    email: `eq.${email}`,
-    sc: `eq.${SC}`,
-    produto: "eq.ebook",
-    payment_status: "eq.paid",
-    order: "created_at.asc",
-    limit: "1",
-  });
-  try {
-    const r = await fetch(`${url}/rest/v1/ebook_purchases?${q}`, {
-      headers: { apikey: key, Authorization: `Bearer ${key}` },
-      cache: "no-store",
-    });
-    if (!r.ok) return null;
-    const rows = (await r.json()) as Array<{ created_at: string }>;
-    return rows[0] ?? null;
-  } catch {
-    return null;
-  }
-}
-
-/** `dono27` dentro da janela (compra + 5 d)? Fora dela vira `dono`; sem posse, vazio. */
-function resolveDono(oferta: string, compra: { created_at: string } | null, agoraMs: number): string {
-  if (!compra) return "";
-  if (oferta !== "dono27") return oferta;
-  const t = Date.parse(compra.created_at);
-  return Number.isFinite(t) && agoraMs < t + JANELA_DONO27_S * 1000 ? "dono27" : "dono";
-}
 
 export async function POST(req: Request) {
   // Conta Stripe = News Makers (decisão HC 31/08, ticket app/14), nunca a VDN.
@@ -82,18 +36,9 @@ export async function POST(req: Request) {
   }
 
   const body = await req.json().catch(() => ({}) as Record<string, unknown>);
-  // c4-20k/23: `leitor` = CTA dentro do ebook (versao web e PDF). Mesmo price da metade,
-  // carimbo proprio, sem conferencia de posse: o link so existe dentro do produto pago.
-  let oferta = ["bonus", "metade", "leitor", "dono", "dono27"].includes(String(body?.oferta)) ? String(body.oferta) : "";
-  // `+` do email chega como espaço quando o merge tag do beehiiv não vem url-encoded.
-  const email = String(body?.email ?? "").replace(/ /g, "+").trim().toLowerCase();
-  const emailOk = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) && !email.includes("{");
-  if (oferta === "dono" || oferta === "dono27") {
-    oferta = resolveDono(oferta, emailOk ? await compraDoEbook(email) : null, Date.now());
-  }
+  const oferta = body?.oferta === "bonus" || body?.oferta === "metade" ? String(body.oferta) : "";
   const bump = body?.bump === true && oferta !== "bonus";
-  const valorApp =
-    oferta === "metade" || oferta === "leitor" || oferta === "dono" ? VALOR_METADE : oferta === "dono27" ? VALOR_DONO27 : VALOR_APP;
+  const valorApp = oferta === "metade" ? VALOR_METADE : VALOR_APP;
 
   const origin = new URL(req.url).origin;
   const params: Record<string, string> = {
@@ -110,8 +55,6 @@ export async function POST(req: Request) {
   };
   if (bump || oferta === "bonus") params["metadata[bump]"] = BUMP_SC;
   if (oferta) params["metadata[oferta]"] = oferta;
-  // O dono paga com o email que tem o ebook: a linha do app cai no mesmo email e a posse fecha sozinha.
-  if (oferta === "dono" || oferta === "dono27") params.customer_email = email;
 
   // Jornada e origem (mesmo desenho do create-session do ebook): o webhook persiste
   // em ebook_purchases.journey_id/src e cada real fica colado no caminho.
@@ -121,10 +64,6 @@ export async function POST(req: Request) {
   const src = curto(body?.src);
   if (journey) params["metadata[journey]"] = journey;
   params["metadata[src]"] = src || "lp-app";
-  // app-scriptorium/55: o braço do checkout ("golden" sem split, "hA-bB" quando as chaves
-  // ligarem) viaja na metadata da session pra separar A e B por jornada no rio do C4.
-  const variante = curto(body?.checkout_variant);
-  if (variante) params["metadata[checkout_variant]"] = variante;
   // funil-pixel: fbp, fbc, IP e user agent pra CAPI casar a venda com o clique.
   const cookies = req.headers.get("cookie") || "";
   const cookie = (k: string) => cookies.match(new RegExp(`(?:^|;\\s*)${k}=([^;]+)`))?.[1] || "";
@@ -139,7 +78,7 @@ export async function POST(req: Request) {
 
   params["payment_intent_data[description]"] =
     `App ${TITULO} (${SC})` +
-    (oferta === "metade" ? " metade" : oferta === "leitor" ? " leitor do ebook" : oferta === "dono" ? " dono do ebook" : oferta === "dono27" ? " dono do ebook, janela D+3" : "") +
+    (oferta === "metade" ? " metade" : "") +
     (oferta === "bonus" ? ` + bônus ${BUMP_SC} no app` : bump ? ` + bump ${BUMP_SC} no app` : "");
   params["payment_intent_data[statement_descriptor_suffix]"] = `APP ${SC}`;
 
@@ -157,8 +96,7 @@ export async function POST(req: Request) {
       params["line_items[1][quantity]"] = "1";
     }
   } else {
-    params["line_items[0][price]"] =
-      oferta === "metade" || oferta === "leitor" ? PRICE_METADE : oferta === "dono" ? PRICE_DONO : oferta === "dono27" ? PRICE_DONO27 : PRICE_APP;
+    params["line_items[0][price]"] = oferta === "metade" ? PRICE_METADE : PRICE_APP;
     params["line_items[0][quantity]"] = "1";
     if (bump) {
       params["line_items[1][price]"] = BUMP_PRICE;
@@ -167,10 +105,6 @@ export async function POST(req: Request) {
   }
 
   try {
-    // HC 12/09/26 (app/58): sem o seletor de moeda da Stripe. O adaptive pricing da conta NM
-    // mostrava US$ na frente e escondia Pix e Boleto pra browser em inglês; comprador e
-    // entrega são em português, então a session fica só em BRL.
-    params["adaptive_pricing[enabled]"] = "false";
     const r = await fetch("https://api.stripe.com/v1/checkout/sessions", {
       method: "POST",
       headers: {
@@ -184,8 +118,7 @@ export async function POST(req: Request) {
       console.error("[app-checkout] Stripe:", data.error?.message);
       return NextResponse.json({ error: data.error?.message }, { status: r.status });
     }
-    // `oferta` de volta: a página só escreve R$ 27 ou R$ 48,50 quando a posse foi confirmada aqui.
-    return NextResponse.json({ clientSecret: data.client_secret, oferta });
+    return NextResponse.json({ clientSecret: data.client_secret });
   } catch (err) {
     console.error("[app-checkout] fetch:", (err as Error).message);
     return NextResponse.json({ error: "stripe_unreachable" }, { status: 500 });

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import PageBeacon, { sendBeacon } from "../PageBeacon";
 import LpWidgets, { fichaDoApp } from "../LpWidgets";
 import { CSS, HTML, JS } from "./ouro";
@@ -156,42 +156,6 @@ function ctaClick() {
   sendBeacon(APP.slug, "app-lp-cta", { eventType: "converteu" });
 }
 
-// c4-20k/58: o D+3 da Escada chega com ?oferta=dono27&e=<email>&ate=<epoch>&src=poscompra-d3.
-// A faixa mostra o valor e o prazo; quem decide se ainda vale é a rota do checkout, pela linha do
-// banco. Componente próprio: o estado dele não re-renderiza a LP (o innerHTML do golden fica).
-function FaixaDono() {
-  const [faixa, setFaixa] = useState<{ valor: string; prazo: string; qs: string } | null>(null);
-  useEffect(() => {
-    try {
-      const q = new URLSearchParams(window.location.search);
-      const o = q.get("oferta");
-      if (o !== "dono27" && o !== "dono") return;
-      const ate = Number(q.get("ate"));
-      const qs = window.location.search;
-      if (o === "dono" || (ate > 0 && ate * 1000 <= Date.now())) {
-        setFaixa({ valor: "R$ 48,50", prazo: "a metade, porque o ebook já é seu", qs });
-      } else if (ate > 0) {
-        const fim = new Date(ate * 1000).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
-        setFaixa({ valor: "R$ 27", prazo: `o valor do ebook, até ${fim}`, qs });
-      } else {
-        setFaixa({ valor: "R$ 27", prazo: "o valor do ebook, dentro das 48 horas do seu email", qs });
-      }
-    } catch {
-      /* sem query */
-    }
-  }, []);
-  if (!faixa) return null;
-  return (
-    <>
-      <style>{`.lp-faixa{position:sticky;top:0;z-index:60;background:#E0701F;color:#FFF7F2;font:15px/1.4 system-ui,-apple-system,sans-serif;padding:10px 16px;text-align:center}.lp-faixa b{font-weight:800}.lp-faixa a{color:inherit;text-decoration:underline;margin-left:8px;white-space:nowrap}`}</style>
-      <div className="lp-faixa">
-        Você já tem o ebook: o app dele sai por <b>{faixa.valor}</b>, {faixa.prazo}.
-        <a href={CHECKOUT + faixa.qs} onClick={ctaClick}>Quero o app →</a>
-      </div>
-    </>
-  );
-}
-
 export default function AppLp() {
   useEffect(() => {
     try {
@@ -201,10 +165,6 @@ export default function AppLp() {
     }
     const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('a[href="' + CHECKOUT + '"]'));
     links.forEach((a) => a.addEventListener("click", ctaClick));
-    // c4-20k/37 (HC 08/09/26): a campanha chega na LP com ?oferta e ?src; os dois seguem pro checkout.
-    // Sem estado aqui: um re-render reescreve o innerHTML do golden e apaga hrefs e listeners.
-    const qs = window.location.search;
-    if (qs) links.forEach((a) => { a.href = CHECKOUT + qs; });
     // exit-intent do golden (c4-20k/19): o modal dispara CustomEvents, a ponte grava os beacons
     const exitViu = () => sendBeacon(APP.slug, "app-lp-exit");
     const exitCta = () => sendBeacon(APP.slug, "app-lp-exit-cta", { eventType: "converteu" });
@@ -238,7 +198,6 @@ export default function AppLp() {
   return (
     <>
       <PageBeacon slug={APP.slug} step="app-lp" source="app" />
-      <FaixaDono />
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
       <div dangerouslySetInnerHTML={{ __html: HTML }} />
       <LpWidgets

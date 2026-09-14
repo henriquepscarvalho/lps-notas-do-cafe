@@ -325,13 +325,13 @@ export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", cta, 
 
       {chamada && !aberto && (
         <button className="lpw-balao" onClick={() => setAberto(true)}>
-          Quer perguntar algo antes de decidir? Escreva aqui.
+          Alguma dúvida antes de decidir? Pergunte aqui.
         </button>
       )}
 
       <button
         className="lpw-fab"
-        aria-label={aberto ? "Fechar o chat" : "Fazer uma pergunta"}
+        aria-label={aberto ? "Fechar o chat" : "Tirar uma dúvida"}
         aria-expanded={aberto}
         onClick={() => setAberto((a) => !a)}
       >
@@ -349,18 +349,18 @@ export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", cta, 
       </button>
 
       {aberto && (
-        <section className="lpw-chat" role="dialog" aria-label="Perguntas antes de decidir">
+        <section className="lpw-chat" role="dialog" aria-label="Dúvidas sobre a compra">
           <header className="lpw-h">
             <div>
-              <b>Perguntas sobre {objeto}</b>
-              <span>como pago, como recebo, garantia</span>
+              <b>Dúvidas sobre {objeto}</b>
+              <span>pagamento, entrega, garantia</span>
             </div>
             <button className="lpw-close" aria-label="Fechar o chat" onClick={() => setAberto(false)}>
               ×
             </button>
           </header>
           <div className="lpw-lista" ref={lista}>
-            <div className="lpw-m lpw-bot">Oi! Respondo rápido sobre {objeto}: como pago, como recebo, garantia. O que você quer saber?</div>
+            <div className="lpw-m lpw-bot">Oi! Tiro dúvidas rápidas sobre {objeto}: pagamento, entrega e garantia. O que você quer saber?</div>
             {msgs.map((m, i) => (
               <div key={i} className={"lpw-m " + (m.role === "user" ? "lpw-eu" : "lpw-bot")}>
                 {m.content}
@@ -399,9 +399,9 @@ export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", cta, 
               value={texto}
               onChange={(e) => setTexto(e.target.value)}
               maxLength={600}
-              placeholder="Sua pergunta antes de decidir"
+              placeholder="Sua dúvida antes de comprar"
               disabled={ocupado || esgotou}
-              aria-label="Sua pergunta"
+              aria-label="Sua dúvida"
               autoFocus
             />
             <button type="submit" disabled={ocupado || esgotou || !texto.trim()} aria-label="Enviar">
