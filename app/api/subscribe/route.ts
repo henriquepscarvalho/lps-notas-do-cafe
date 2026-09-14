@@ -151,6 +151,47 @@ function fromReferer(ref: string) {
   }
 }
 
+// sorteio-braco (pfa/23, 14/09/26): braço de experimento no cadastro. O mapa mora no combo
+// (_combo/public/braco_map.json, uma cópia só pras LPs e o combo); sem entrada pra esta pub e
+// esta automação, nada muda. Mapa fora do ar = comportamento de hoje, nunca derruba o cadastro.
+// Braço = sha256(lower(email) + ":" + exp), 8 hex, módulo n (a mesma conta do srm.py).
+type EntradaBraco = { exp: string; de: string; bracos: Record<string, string>; so_com_exp?: boolean };
+const BRACO_MAP_URL = process.env.BRACO_MAP_URL || "https://scriptorium-combo.vercel.app/braco_map.json";
+let bracoMapa: { em: number; pubs: Record<string, EntradaBraco[]> } | null = null;
+
+async function mapaDeBracos(): Promise<Record<string, EntradaBraco[]>> {
+  if (bracoMapa && Date.now() - bracoMapa.em < 60_000) return bracoMapa.pubs;
+  let pubs = bracoMapa?.pubs || {};
+  try {
+    const r = await fetch(BRACO_MAP_URL, { cache: "no-store", signal: AbortSignal.timeout(1500) });
+    if (r.ok) pubs = ((await r.json()) as { pubs?: Record<string, EntradaBraco[]> })?.pubs || {};
+  } catch {
+    // segue com a última cópia boa (ou nenhuma) e tenta de novo em 60 s
+  }
+  bracoMapa = { em: Date.now(), pubs };
+  return pubs;
+}
+
+async function sortearBraco(email: string, pubId: string, autoId: string | undefined, exp?: string) {
+  if (!autoId) return null;
+  try {
+    const e = ((await mapaDeBracos())[pubId] || []).find(
+      (x) => x && x.de === autoId && (exp ? x.exp === exp : !x.so_com_exp),
+    );
+    if (!e) return null;
+    const letras = Object.keys(e.bracos || {})
+      .filter((k) => /^[A-C]$/.test(k) && /^aut_/.test(e.bracos[k]))
+      .sort();
+    if (letras.length < 2) return null;
+    const dig = await globalThis.crypto.subtle.digest("SHA-256", new TextEncoder().encode(`${email}:${e.exp}`));
+    const hex = Array.from(new Uint8Array(dig).slice(0, 4), (b) => b.toString(16).padStart(2, "0")).join("");
+    const braco = letras[parseInt(hex, 16) % letras.length];
+    return { exp: e.exp, braco, automationId: e.bracos[braco] };
+  } catch {
+    return null;
+  }
+}
+
 export async function POST(req: Request) {
   const body = await req.json().catch(() => ({} as any));
 
@@ -178,7 +219,7 @@ export async function POST(req: Request) {
 
   const apiKey = process.env.BEEHIIV_API_KEY;
   const pubId = process.env.BEEHIIV_PUBLICATION_ID;
-  const autoId = body?.automationId || process.env.BEEHIIV_AUTOMATION_ID;
+  let autoId: string | undefined = body?.automationId || process.env.BEEHIIV_AUTOMATION_ID;
 
   if (!apiKey || !pubId) {
     return NextResponse.json(
@@ -232,6 +273,13 @@ export async function POST(req: Request) {
   if (nome) custom_fields.push({ name: "nome", value: nome });
   const quizEstagio = clean(body?.quiz_estagio);
   if (quizEstagio) custom_fields.push({ name: "quiz_estagio", value: quizEstagio });
+
+  // sorteio-braco (pfa/23): braço do experimento desta pub, se o braco_map.json tiver entrada
+  const sorteio = await sortearBraco(email, pubId, autoId, clean(body?.exp));
+  if (sorteio) {
+    autoId = sorteio.automationId;
+    custom_fields.push({ name: "braco", value: sorteio.braco }, { name: "braco_exp", value: sorteio.exp });
+  }
 
   const headers = {
     Authorization: `Bearer ${apiKey}`,
