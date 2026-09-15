@@ -64,6 +64,10 @@ export async function POST(req: Request) {
   const src = curto(body?.src);
   if (journey) params["metadata[journey]"] = journey;
   params["metadata[src]"] = src || "lp-app";
+  // app-scriptorium/55: o braço do checkout ("golden" sem split, "hA-bB" quando as chaves
+  // ligarem) viaja na metadata da session pra separar A e B por jornada no rio do C4.
+  const variante = curto(body?.checkout_variant);
+  if (variante) params["metadata[checkout_variant]"] = variante;
   // funil-pixel: fbp, fbc, IP e user agent pra CAPI casar a venda com o clique.
   const cookies = req.headers.get("cookie") || "";
   const cookie = (k: string) => cookies.match(new RegExp(`(?:^|;\\s*)${k}=([^;]+)`))?.[1] || "";
