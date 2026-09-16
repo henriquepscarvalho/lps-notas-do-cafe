@@ -156,6 +156,58 @@ function ctaClick() {
   sendBeacon(APP.slug, "app-lp-cta", { eventType: "converteu" });
 }
 
+// c4-20k/103: oferta que chega por link (molde da LP da EE, c4-20k/57 e 93; regra HC 08/09: campanha manda
+// pra LP, a LP repassa a query pro checkout). Só as chaves da oferta seguem; quem decide preço e prazo é
+// o /app/checkout com a rota. Censo de 16/09: os links sem prazo da campanha do c4-20k/37 (email de 08 a
+// 11/09) e do WhatsApp (09 e 10/09) seguem recebendo clique depois da janela, e repassar daria o bônus e a
+// metade pra sempre. Seguem só dono e dono27 (a rota confere posse e janela no banco) e bonus com prazo
+// legível (fim=<dia>-<HHMM> ou ate=<epoch>, que a rota confere de novo). metade e leitor não têm prazo na
+// rota: param aqui, como antes. O resto: CTAs em /app/checkout limpo.
+const PRAZO_FIM = /^(seg|ter|qua|qui|sex|sab|dom)-([01]\d|2[0-3])([0-5]\d)$/;
+function leOferta(search: string): string {
+  const q = new URLSearchParams(search);
+  const o = (q.get("oferta") || "").trim();
+  const comPrazo = PRAZO_FIM.test((q.get("fim") || "").trim()) || Number((q.get("ate") || "").trim()) > 0;
+  if (!(o === "dono" || o === "dono27" || (o === "bonus" && comPrazo))) return "";
+  const keep = new URLSearchParams();
+  for (const k of ["oferta", "e", "ate", "fim", "src"]) {
+    const v = (q.get(k) || "").trim().slice(0, 200);
+    if (v) keep.set(k, v);
+  }
+  return "?" + keep.toString();
+}
+
+// Vitrine (chat + prova social) com o checkout da oferta. Componente próprio, como a faixa do D+3: o estado
+// dele não re-renderiza a LP (o innerHTML do golden fica). Efeito de filho roda antes do da LP, então os
+// CTAs do golden já levam a query quando o JS do golden liga e o beacon de clique pendura.
+function Vitrine() {
+  const [qs, setQs] = useState("");
+  useEffect(() => {
+    try {
+      const o = leOferta(window.location.search);
+      if (!o) return;
+      document
+        .querySelectorAll<HTMLAnchorElement>('a[href="' + CHECKOUT + '"]')
+        .forEach((a) => a.setAttribute("href", CHECKOUT + o));
+      setQs(o);
+    } catch {
+      /* sem query */
+    }
+  }, []);
+  return (
+    <LpWidgets
+      slug={APP.slug}
+      produto="app"
+      checkout={CHECKOUT + qs}
+      cor="#E0701F"
+      corTexto="#FFF7F2"
+      cta={CTA_LABEL}
+      ficha={fichaDoApp(APP, "Notas do Café", PRECO, CTA_LABEL)}
+      depoimentos={DEPOIMENTOS}
+    />
+  );
+}
+
 // c4-20k/58: o D+3 da Escada chega com ?oferta=dono27&e=<email>&ate=<epoch>&src=poscompra-d3.
 // A faixa mostra o valor e o prazo; quem decide se ainda vale é a rota do checkout, pela linha do
 // banco. Componente próprio: o estado dele não re-renderiza a LP (o innerHTML do golden fica).
@@ -199,7 +251,8 @@ export default function AppLp() {
     } catch (e) {
       console.error("[app-lp] golden js:", e);
     }
-    const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('a[href="' + CHECKOUT + '"]'));
+    // o href pode já levar a query da oferta (Vitrine, c4-20k/103)
+    const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('a[href^="' + CHECKOUT + '"]'));
     links.forEach((a) => a.addEventListener("click", ctaClick));
     // exit-intent do golden (c4-20k/19): o modal dispara CustomEvents, a ponte grava os beacons
     const exitViu = () => sendBeacon(APP.slug, "app-lp-exit");
@@ -237,16 +290,7 @@ export default function AppLp() {
       <FaixaDono />
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
       <div dangerouslySetInnerHTML={{ __html: HTML }} />
-      <LpWidgets
-        slug={APP.slug}
-        produto="app"
-        checkout={CHECKOUT}
-        cor="#E0701F"
-        corTexto="#FFF7F2"
-        cta={CTA_LABEL}
-        ficha={fichaDoApp(APP, "Notas do Café", PRECO, CTA_LABEL)}
-        depoimentos={DEPOIMENTOS}
-      />
+      <Vitrine />
     </>
   );
 }
