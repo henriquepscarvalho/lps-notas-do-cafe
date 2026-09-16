@@ -68,6 +68,24 @@ function resolveDono(oferta: string, compra: { created_at: string } | null, agor
   return Number.isFinite(t) && agoraMs < t + JANELA_DONO27_S * 1000 ? "dono27" : "dono";
 }
 
+/* c4-20k/93 (HC 15/09/26, EXP de cadência da Monetização): o bônus da `oferta=bonus` pode vir com
+   prazo. `fim=<dia>-<HHMM>` é a gramática do contador do email: vale da segunda 00:00 até <dia>
+   HH:MM:59 da mesma semana, relógio BRT (UTC-3 fixo). `ate=<epoch>` vale até o instante. Com os
+   dois, os dois valem; sem nenhum, ou ilegível, sem prazo (a recuperação do app segue igual). */
+function bonusNoPrazo(fim: unknown, ate: unknown, agoraMs: number): boolean {
+  const f = /^(seg|ter|qua|qui|sex|sab|dom)-([01]\d|2[0-3])([0-5]\d)$/.exec(String(fim ?? "").trim());
+  if (f) {
+    const brt = new Date(agoraMs - 3 * 3600 * 1000);
+    const hoje = (brt.getUTCDay() + 6) % 7; // segunda = 0, domingo = 6
+    const dia = ["seg", "ter", "qua", "qui", "sex", "sab", "dom"].indexOf(f[1]);
+    const agoraS = brt.getUTCHours() * 3600 + brt.getUTCMinutes() * 60 + brt.getUTCSeconds();
+    if (hoje > dia || (hoje === dia && agoraS > Number(f[2]) * 3600 + Number(f[3]) * 60 + 59)) return false;
+  }
+  let a = Number(String(ate ?? "").trim());
+  if (a > 1e12) a = Math.floor(a / 1000); // epoch em ms, como o contador aceita
+  return !(Number.isFinite(a) && a > 0 && agoraMs >= a * 1000);
+}
+
 export async function POST(req: Request) {
   // Conta Stripe = News Makers (decisão HC 31/08, ticket app/14), nunca a VDN.
   const apiKey = process.env.STRIPE_API_KEY_NM;
@@ -89,6 +107,9 @@ export async function POST(req: Request) {
   if (oferta === "dono" || oferta === "dono27") {
     oferta = resolveDono(oferta, emailOk ? await compraDoEbook(email) : null, Date.now());
   }
+  // c4-20k/93: `oferta=bonus` com `fim`/`ate` vencido sai sem o bônus (app cheio, bump card de volta).
+  const bonusVencido = oferta === "bonus" && !bonusNoPrazo(body?.fim, body?.ate, Date.now());
+  if (bonusVencido) oferta = "";
   const bump = body?.bump === true && oferta !== "bonus";
   const valorApp =
     oferta === "metade" || oferta === "leitor" || oferta === "dono" ? VALOR_METADE : oferta === "dono27" ? VALOR_DONO27 : VALOR_APP;
@@ -108,6 +129,7 @@ export async function POST(req: Request) {
   };
   if (bump || oferta === "bonus") params["metadata[bump]"] = BUMP_SC;
   if (oferta) params["metadata[oferta]"] = oferta;
+  if (bonusVencido) params["metadata[oferta_vencida]"] = "bonus";
   // O dono paga com o email que tem o ebook: a linha do app cai no mesmo email e a posse fecha sozinha.
   if (oferta === "dono" || oferta === "dono27") params.customer_email = email;
 

@@ -106,6 +106,34 @@ function jornada() {
   }
 }
 
+/* c4-20k/93 (HC 15/09/26, EXP de cadência da Monetização): o bônus da `oferta=bonus` pode vir com
+   prazo. `fim=<dia>-<HHMM>` é a gramática do contador do email: vale da segunda 00:00 até <dia>
+   HH:MM:59 da mesma semana, relógio BRT (UTC-3 fixo). `ate=<epoch>` vale até o instante. Com os
+   dois, os dois valem; sem nenhum, ou ilegível, sem prazo (a recuperação do app segue igual). */
+function bonusNoPrazo(fim: unknown, ate: unknown, agoraMs: number): boolean {
+  const f = /^(seg|ter|qua|qui|sex|sab|dom)-([01]\d|2[0-3])([0-5]\d)$/.exec(String(fim ?? "").trim());
+  if (f) {
+    const brt = new Date(agoraMs - 3 * 3600 * 1000);
+    const hoje = (brt.getUTCDay() + 6) % 7; // segunda = 0, domingo = 6
+    const dia = ["seg", "ter", "qua", "qui", "sex", "sab", "dom"].indexOf(f[1]);
+    const agoraS = brt.getUTCHours() * 3600 + brt.getUTCMinutes() * 60 + brt.getUTCSeconds();
+    if (hoje > dia || (hoje === dia && agoraS > Number(f[2]) * 3600 + Number(f[3]) * 60 + 59)) return false;
+  }
+  let a = Number(String(ate ?? "").trim());
+  if (a > 1e12) a = Math.floor(a / 1000); // epoch em ms, como o contador aceita
+  return !(Number.isFinite(a) && a > 0 && agoraMs >= a * 1000);
+}
+
+/* c4-20k/93: o prazo do bônus viaja da URL pro corpo; a rota confere de novo com o relógio do servidor. */
+function prazoDaUrl() {
+  try {
+    const q = new URLSearchParams(window.location.search);
+    return { fim: (q.get("fim") || "").trim().slice(0, 16), ate: (q.get("ate") || "").trim().slice(0, 16) };
+  } catch {
+    return {};
+  }
+}
+
 export default function AppCheckout() {
   const [bump, setBump] = useState(false);
   // ticket 35: a recuperação chega com ?oferta=bonus (o guia da ALQ de graça) ou ?oferta=metade (R$ 48,50);
@@ -114,11 +142,14 @@ export default function AppCheckout() {
   // A rota decide o preço e a Stripe mostra; o cabeçalho não repete valor nenhum.
   const [oferta, setOferta] = useState("");
   const [email, setEmail] = useState("");
+  // c4-20k/93: bônus com prazo vencido (relógio do aparelho primeiro, a rota decide por último)
+  const [vencido, setVencido] = useState(false);
   useEffect(() => {
     try {
       const q = new URLSearchParams(window.location.search);
       const o = q.get("oferta");
       if (o === "bonus" || o === "metade" || o === "dono" || o === "dono27" || o === "leitor") setOferta(o);
+      if (o === "bonus") setVencido(!bonusNoPrazo(q.get("fim"), q.get("ate"), Date.now()));
       setEmail((q.get("e") || "").replace(/ /g, "+").trim());
     } catch {
       /* sem query */
@@ -171,6 +202,7 @@ export default function AppCheckout() {
               bump,
               oferta,
               email,
+              ...prazoDaUrl(),
               // "golden" = sem split; "hA-bB" etc. quando as chaves ligam (h = cabeçalho, b = bump)
               checkout_variant: SPLIT.cabecalho || SPLIT.bump ? `h${braco}-b${pos}` : "golden",
               ...jornada(),
@@ -179,6 +211,7 @@ export default function AppCheckout() {
             .then((r) => r.json())
             .then((d) => {
               if (!d.clientSecret) throw new Error(d.error || "sem clientSecret");
+              if (oferta === "bonus" && typeof d.oferta === "string") setVencido(d.oferta !== "bonus");
               return d.clientSecret;
             }),
       })
@@ -221,7 +254,7 @@ export default function AppCheckout() {
 
   const configurado = Boolean(PK);
   const depo = PROVA.depoimento;
-  const bonus = oferta === "bonus";
+  const bonus = oferta === "bonus" && !vencido;
 
   /* Card do bump (C do protótipo de 12/09): a ponte, a cena com a capa grande e o celular,
      o nome do guia, de que news vem e o que ensina, preço e a barra de marcar. Com
