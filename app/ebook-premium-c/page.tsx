@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import PageBeacon, { sendBeacon } from "../PageBeacon";
+import ExitIntent from "../ebook-premium/checkout/ExitIntent";
 
 /* ============================================================
    TOKENS DA NEWS (única parte que a fábrica troca por news)
@@ -307,6 +308,9 @@ export default function EbookPremium() {
   return (
     <>
       <PageBeacon slug={EBOOK.slug} step="ebook-premium" source="ebook-premium" />
+
+      {/* saída da LP (c4-20k/106): capítulo 1 na versão web, uma vez por sessão, só no gesto de sair */}
+      <ExitIntent slug={EBOOK.slug} titulo={EBOOK.titulo} origem="lp" />
       <div className="grain" aria-hidden="true" />
 
       <nav>

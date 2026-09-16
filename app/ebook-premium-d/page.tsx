@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import PageBeacon, { sendBeacon } from "../PageBeacon";
+import ExitIntent from "../ebook-premium/checkout/ExitIntent";
 import LpWidgets, { fichaDoEbook } from "../LpWidgets";
 
 /* ============================================================
@@ -384,6 +385,9 @@ export default function EbookPremiumD() {
   return (
     <>
       <PageBeacon slug={EBOOK.slug} step="ebook-premium-d" source="ebook-premium" />
+
+      {/* saída da LP (c4-20k/106): capítulo 1 na versão web, uma vez por sessão, só no gesto de sair */}
+      <ExitIntent slug={EBOOK.slug} titulo={EBOOK.titulo} origem="lp" />
       {/* .lpd: toda regra da D vive sob este wrapper, acima do globals.css da casa */}
       <div className="lpd">
       <div className="grain" aria-hidden="true" />

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { sendBeacon } from "../../PageBeacon";
 
 /* Saída do checkout do ebook (c4-20k/40, destino B do 39; rollout 41): quem faz o gesto de sair sem
@@ -13,14 +13,83 @@ import { sendBeacon } from "../../PageBeacon";
    porque o src da jornada é first-touch: ?src=cap1-volta só grava em sessão nova. */
 const HREF = "/ebook-premium-capitulo-1?src=ck-ebook-exit";
 
-export default function ExitIntent({ slug, titulo }: { slug: string; titulo: string }) {
+/* Na LP do ebook (c4-20k/106) o mesmo modal entra com origem="lp": href, beacons e chave de sessão
+   próprios. A chave do checkout segue ebook_ck_exit de propósito: quem viu o modal na LP e chegou ao
+   checkout ainda pode ver o dele, e a leitura do 42 não perde denominador. */
+const ORIGEM = {
+  ck: { href: HREF, chave: "ebook_ck_exit", viu: "ebook-checkout-exit", cta: "ebook-checkout-exit-cta", lp: false },
+  lp: { href: "/ebook-premium-capitulo-1?src=lp-ebook-exit", chave: "ebook_lp_exit", viu: "ebook-lp-exit", cta: "ebook-lp-exit-cta", lp: true },
+} as const;
+
+type Cor = number[];
+
+/* Pele da LP: o que a página pinta atrás do leitor (fundo da seção no meio da tela, tinta do texto,
+   botão que leva ao checkout), com os tokens do :root só de reserva e contraste garantido. Nunca os
+   tokens do checkout: o globals.css da casa é escuro e os braços B e C do split do 62 são papel claro. */
+function peleDaLp(): CSSProperties {
+  const sonda = document.createElement("i");
+  document.body.appendChild(sonda);
+  const rgb = (c: string | null | undefined): Cor | null => {
+    if (!c) return null;
+    sonda.style.color = "";
+    sonda.style.color = c.trim();
+    if (!sonda.style.color) return null;
+    const m = getComputedStyle(sonda).color.match(/[\d.]+/g);
+    return m && m.length >= 3 && (m.length < 4 || Number(m[3]) >= 0.9) ? m.slice(0, 3).map(Number) : null;
+  };
+  const lum = (c: Cor) => {
+    const [r, g, b] = c.map((x) => (x / 255 <= 0.03928 ? x / 255 / 12.92 : ((x / 255 + 0.055) / 1.055) ** 2.4));
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  };
+  const contraste = (a: Cor, b: Cor) => (Math.max(lum(a), lum(b)) + 0.05) / (Math.min(lum(a), lum(b)) + 0.05);
+  const mistura = (a: Cor, b: Cor, p: number) => a.map((x, i) => Math.round(x * p + b[i] * (1 - p)));
+  const css = (c: Cor) => `rgb(${c.join(",")})`;
+  const raiz = getComputedStyle(document.documentElement);
+  const token = (...nomes: string[]) => nomes.map((n) => rgb(raiz.getPropertyValue(n))).find(Boolean) || null;
+  const fonte = (...nomes: string[]) => nomes.map((n) => raiz.getPropertyValue(n).trim()).find(Boolean) || "";
+
+  let fundo: Cor | null = null;
+  for (let el = document.elementFromPoint(innerWidth / 2, innerHeight / 2); el && !fundo; el = el.parentElement) {
+    if (el.getBoundingClientRect().width >= innerWidth * 0.6) fundo = rgb(getComputedStyle(el).backgroundColor);
+  }
+  fundo = fundo || rgb(getComputedStyle(document.body).backgroundColor) || token("--bg", "--fundo", "--papel", "--paper") || [255, 255, 255];
+  const base = fundo;
+  const claro = lum(base) > 0.4;
+  const legivel = (c: Cor | null, min: number) => (c && contraste(c, base) >= min ? c : null);
+  const h1 = document.querySelector("h1");
+  const tinta = legivel(rgb(getComputedStyle(document.body).color), 4.5) || legivel(token("--text", "--tinta", "--ink"), 4.5) || (claro ? [34, 30, 28] : [232, 228, 224]);
+  const titulo = legivel(h1 ? rgb(getComputedStyle(h1).color) : null, 4.5) || tinta;
+
+  let acento: Cor | null = null, sobre: Cor | null = null;
+  for (const a of Array.from(document.querySelectorAll<HTMLElement>('a[href*="checkout"]'))) {
+    const s = getComputedStyle(a), bg = rgb(s.backgroundColor), fg = rgb(s.color);
+    if (bg && fg && contraste(bg, fg) >= 3 && contraste(bg, base) >= 1.3) { acento = bg; sobre = fg; break; }
+  }
+  if (!acento) {
+    acento = legivel(token("--acc", "--bright", "--vinho", "--terra"), 1.3) || tinta;
+    const btn = token("--btn-text", "--sobre-vinho");
+    sobre = btn && contraste(btn, acento) >= 3 ? btn : contraste(acento, [255, 255, 255]) >= contraste(acento, [17, 17, 17]) ? [255, 255, 255] : [17, 17, 17];
+  }
+  sonda.remove();
+  return {
+    "--sx-bg": css(base), "--sx-ink": css(tinta), "--sx-head": css(titulo), "--sx-dim": css(mistura(tinta, base, 0.72)),
+    "--sx-acc": css(acento), "--sx-acc-ink": css(sobre || [255, 255, 255]), "--sx-kick": css(legivel(acento, 3) || tinta),
+    "--sx-hair": css(mistura(acento, base, 0.35)),
+    "--sx-serif": (h1 && getComputedStyle(h1).fontFamily) || fonte("--serif", "--display") || "Georgia,serif",
+    "--sx-mono": fonte("--mono") || "ui-monospace,monospace", "--sx-sans": getComputedStyle(document.body).fontFamily || "system-ui,sans-serif",
+  } as CSSProperties;
+}
+
+export default function ExitIntent({ slug, titulo, origem = "ck" }: { slug: string; titulo: string; origem?: "ck" | "lp" }) {
+  const o = ORIGEM[origem];
   const [aberta, setAberta] = useState(false);
+  const [pele, setPele] = useState<CSSProperties | undefined>(undefined);
   const ja = useRef(false);
   const caixa = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     try {
-      if (new URLSearchParams(window.location.search).get("src") === "cap1-volta") {
+      if (!o.lp && new URLSearchParams(window.location.search).get("src") === "cap1-volta") {
         sendBeacon(slug, "ebook-checkout-volta-cap1");
       }
     } catch {
@@ -29,14 +98,21 @@ export default function ExitIntent({ slug, titulo }: { slug: string; titulo: str
     const abre = () => {
       if (ja.current) return;
       try {
-        if (sessionStorage.getItem("ebook_ck_exit")) return;
-        sessionStorage.setItem("ebook_ck_exit", "1");
+        if (sessionStorage.getItem(o.chave)) return;
+        sessionStorage.setItem(o.chave, "1");
       } catch {
         /* modo privado: o guard fica só no ref */
       }
       ja.current = true;
+      if (o.lp) {
+        try {
+          setPele(peleDaLp());
+        } catch {
+          /* sem computed style: o modal abre na pele padrão */
+        }
+      }
       setAberta(true);
-      sendBeacon(slug, "ebook-checkout-exit");
+      sendBeacon(slug, o.viu);
     };
     const onLeave = (e: MouseEvent) => {
       if (e.clientY <= 0) abre();
@@ -61,7 +137,7 @@ export default function ExitIntent({ slug, titulo }: { slug: string; titulo: str
       document.removeEventListener("mouseleave", onLeave);
       if (onScroll) window.removeEventListener("scroll", onScroll);
     };
-  }, [slug]);
+  }, [slug, o]);
 
   useEffect(() => {
     if (!aberta) return;
@@ -76,7 +152,8 @@ export default function ExitIntent({ slug, titulo }: { slug: string; titulo: str
   if (!aberta) return null;
   return (
     <div
-      className="saida aberta"
+      className={pele ? "saida aberta saida-lp" : "saida aberta"}
+      style={pele}
       role="dialog"
       aria-modal="true"
       aria-labelledby="saida-titulo"
@@ -93,8 +170,8 @@ export default function ExitIntent({ slug, titulo }: { slug: string; titulo: str
         </p>
         <a
           className="saida-cta"
-          href={HREF}
-          onClick={() => sendBeacon(slug, "ebook-checkout-exit-cta", { eventType: "converteu" })}
+          href={o.href}
+          onClick={() => sendBeacon(slug, o.cta, { eventType: "converteu" })}
         >
           Ler o capítulo 1 →
         </a>
@@ -114,6 +191,14 @@ export default function ExitIntent({ slug, titulo }: { slug: string; titulo: str
         .saida-cta:hover{filter:brightness(1.08)}
         .saida-fechar{margin-top:16px;background:none;border:0;color:var(--text-dim,#8E8688);font-family:var(--sans,inherit);font-size:14px;cursor:pointer;text-decoration:underline;text-underline-offset:4px}
         @media (max-width:480px){.saida{align-items:flex-end;padding:0}.saida-box{max-width:none;border-radius:20px 20px 0 0;padding:28px 20px calc(24px + env(safe-area-inset-bottom))}}
+        .saida-lp .saida-box{background:var(--sx-bg);border-color:var(--sx-hair);box-shadow:0 30px 70px rgba(0,0,0,.4)}
+        .saida-lp .saida-x,.saida-lp .saida-fechar{color:var(--sx-dim);font-family:var(--sx-sans)}
+        .saida-lp .saida-kicker{color:var(--sx-kick);font-family:var(--sx-mono)}
+        .saida-lp .saida-box h2{color:var(--sx-head);font-family:var(--sx-serif)}
+        .saida-lp .saida-texto{color:var(--sx-ink);font-family:var(--sx-sans)}
+        .saida-lp .saida-texto em{color:var(--sx-head)}
+        .saida-lp .saida-cta{background:var(--sx-acc);color:var(--sx-acc-ink);font-family:var(--sx-sans)}
+        .saida-lp .saida-cta:hover{background:var(--sx-acc);filter:brightness(1.08)}
       `}</style>
     </div>
   );
