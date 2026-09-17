@@ -34,6 +34,12 @@ const CFG = {
   ],
   "escada": [
     {
+      "n": 1,
+      "em": "🖼️",
+      "premio": "Pack de wallpapers da casa",
+      "promessa": "10 artes da casa pra tela de bloqueio do celular e pro desktop"
+    },
+    {
       "n": 3,
       "em": "🥇",
       "premio": "Edição de Colecionador do mês",
@@ -44,12 +50,6 @@ const CFG = {
       "em": "📕",
       "premio": "Ebook Café de Balcão no Coador de Casa",
       "promessa": "A técnica completa sem máquina de R$ 2 mil"
-    },
-    {
-      "n": 10,
-      "em": "💎",
-      "premio": "Colecionador vitalício + ebook Brasa Pronta em 20 Minutos, da Brasa Certa",
-      "promessa": ""
     }
   ],
   "theme": {
@@ -239,8 +239,10 @@ export default function VotoPauta() {
             O que você destrava indicando
           </p>
 
-          {CFG.escada.map((d) => (
-            <div key={d.n} style={{ display: "flex", gap: 12, alignItems: "flex-start", padding: ".55rem 0", borderTop: d.n === 3 ? "none" : "1px solid rgba(255,255,255,0.06)" }}>
+          {CFG.escada.map((d, i) => (
+            /* divisória pelo ÍNDICE, não pelo número do degrau: com o pack ligado a
+               escada abre no degrau 1 e o `d.n === 3` desenhava linha no topo do card. */
+            <div key={d.n} style={{ display: "flex", gap: 12, alignItems: "flex-start", padding: ".55rem 0", borderTop: i === 0 ? "none" : "1px solid rgba(255,255,255,0.06)" }}>
               <span style={{ fontSize: 18, lineHeight: 1.35 }}>{d.em}</span>
               <span style={{ fontFamily: t.font, fontWeight: 800, fontSize: 15, color: t.accent, lineHeight: 1.35, minWidth: 22 }}>{d.n}</span>
               <span style={{ flex: 1 }}>
