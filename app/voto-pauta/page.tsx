@@ -18,6 +18,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import PageBeacon from "../PageBeacon";
+import AssinaComo from "../AssinaComo";
 
 const CFG = {
   "slug": "notas-do-cafe",
@@ -129,6 +130,8 @@ export default function VotoPauta() {
       /* modo privado etc. — segue e grava */
     }
 
+    const pautaId = crypto.randomUUID();
+    try { sessionStorage.setItem(`pauta_id_${CFG.slug}_${v.ed}`, pautaId); } catch {}
     (async () => {
       let subHash: string | null = null;
       let emailMask: string | null = null;
@@ -150,7 +153,7 @@ export default function VotoPauta() {
           Prefer: "return=minimal",
         },
         body: JSON.stringify({
-          id: crypto.randomUUID(),
+          id: pautaId,
           slug: CFG.slug,
           edition: v.ed,
           opt: v.opt,
@@ -231,6 +234,7 @@ export default function VotoPauta() {
         <p style={{ fontSize: "1.125rem", color: t.text, maxWidth: 480, lineHeight: 1.7, marginBottom: "2rem", animation: "vpUp .9s ease-out .9s both", position: "relative" }}>
           A pauta com mais votos vira a edição de amanhã, e a edição abre nomeando o resultado.
         </p>
+        {letra ? <div style={{ width: "100%", maxWidth: 480, animation: "vpUp .9s ease-out 1s both", position: "relative" }}><AssinaComo slug={CFG.slug} modo="pauta" tema={{ accent: t.accent, heading: t.heading, text: t.text, btnBg: t.btnBg, btnText: t.btnText }} /></div> : null}
 
         {/* Escada de indicação: o prêmio de cada degrau NOMEADO (vem do premios.json,
             mesma SOT que a /indique resolve), pra o clique saber o que está comprando. */}

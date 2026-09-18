@@ -3,6 +3,7 @@
 import { useState } from "react";
 import PageBeacon from "../PageBeacon";
 import VoteBeacon, { submitVoteComment } from "../VoteBeacon";
+import AssinaComo, { enviarAssinatura } from "../AssinaComo"; // exo/25
 
 export default function VotoMelhoria() {
   const [comment, setComment] = useState("");
@@ -13,6 +14,7 @@ export default function VotoMelhoria() {
     if (sending || !comment.trim()) return;
     setSending(true);
     await submitVoteComment("notas-do-cafe", comment);
+    await enviarAssinatura("notas-do-cafe"); // exo/25
     setSent(true);
     setSending(false);
   }
@@ -163,6 +165,7 @@ export default function VotoMelhoria() {
                   marginBottom: "1rem",
                 }}
               />
+              <AssinaComo slug="notas-do-cafe" />
               <button
                 onClick={handleSubmit}
                 disabled={sending || !comment.trim()}

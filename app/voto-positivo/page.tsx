@@ -21,6 +21,7 @@
 import { useState } from "react";
 import PageBeacon from "../PageBeacon";
 import VoteBeacon, { submitVoteComment } from "../VoteBeacon";
+import AssinaComo, { enviarAssinatura } from "../AssinaComo";
 
 const CFG = {
   "slug": "notas-do-cafe",
@@ -87,6 +88,7 @@ export default function VotoPositivo() {
     if (sending || !comment.trim()) return;
     setSending(true);
     await submitVoteComment(CFG.slug, comment);
+    await enviarAssinatura(CFG.slug);
     setSent(true);
     setSending(false);
     fireConfetti();
@@ -183,6 +185,7 @@ export default function VotoPositivo() {
                 maxLength={2000}
                 style={{ color: t.heading, marginBottom: "1rem" }}
               />
+              <AssinaComo slug={CFG.slug} />
               <button
                 className="vp-btn"
                 onClick={handleSubmit}
