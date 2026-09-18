@@ -36,7 +36,35 @@ function valid(v: string | undefined | null): Arm | null {
   return x === "d" || x === "b" || x === "c" ? x : null;
 }
 
+/**
+ * LP do app (flb/20): sorteio 50/50, por visitante, do braço do vídeo no bloco de recursos.
+ *   a → o celular com as cenas de hoje (controle)
+ *   b → o mesmo celular tocando a gravação do app (flb/19)
+ * Hero, oferta, preço, botões e checkout são iguais nos dois; a página lê o cookie e marca o
+ * bloco antes de pintar. Cookie PRÓPRIO (`lp_app`), 1 ano, lax: não toca o `lp_v` da porta do
+ * ebook. Sem cookie a página serve o a, então este bloco é o interruptor do teste inteiro.
+ * `?v=a|b` força a revisão sem gravar. Freio da ficha: `APP_B_NO_AR = false` serve só o a e
+ * regrava o cookie de quem tinha caído no b.
+ */
+const APP_COOKIE = "lp_app";
+const APP_B_NO_AR = true;
+
+function appVideo(req: NextRequest): NextResponse {
+  const res = NextResponse.next();
+  const f = (req.nextUrl.searchParams.get("v") || "").toLowerCase();
+  if (f === "a" || f === "b") return res;
+  const atual = req.cookies.get(APP_COOKIE)?.value || "";
+  const ano = { path: "/", maxAge: 60 * 60 * 24 * 365, sameSite: "lax" as const };
+  if (!APP_B_NO_AR) {
+    if (atual !== "a") res.cookies.set(APP_COOKIE, "a", ano);
+  } else if (atual !== "a" && atual !== "b") {
+    res.cookies.set(APP_COOKIE, Math.random() < 0.5 ? "a" : "b", ano);
+  }
+  return res;
+}
+
 export function middleware(req: NextRequest) {
+  if (req.nextUrl.pathname === "/app") return appVideo(req); // flb/20
   const { pathname, searchParams } = req.nextUrl;
   const forced = valid(searchParams.get("v"));
   const routeArm = (ARMS as readonly string[]).find((a) => pathname === ROUTE[a as Arm]) as Arm | undefined;
@@ -61,5 +89,5 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/ebook-premium", "/ebook-premium-b", "/ebook-premium-c", "/ebook-premium-d"],
+  matcher: ["/app", "/ebook-premium", "/ebook-premium-b", "/ebook-premium-c", "/ebook-premium-d"],
 };

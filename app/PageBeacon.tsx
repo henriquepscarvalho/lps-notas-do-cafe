@@ -5,6 +5,15 @@ import { useEffect } from "react";
 // variant lido inline do localStorage (sem acoplar no lib/exp014, que nem toda LP tem)
 function getVariant(): string | null {
   try {
+    // LP do app (flb/20): nas rotas /app o braço é o do vídeo no bloco de recursos (cookie `lp_app` do
+    // middleware; `?v=a|b` força a revisão na /app). Série `app-a`/`app-b`, separada das letras do lp_eb.
+    const p = window.location.pathname;
+    if (p === "/app" || p.startsWith("/app/")) {
+      const f = p === "/app" ? (new URLSearchParams(window.location.search).get("v") || "").toLowerCase() : "";
+      if (f === "a" || f === "b") return "app-" + f;
+      const a = document.cookie.match(/(?:^|;\s*)lp_app=([ab])(?:;|$)/);
+      return a ? "app-" + a[1] : null;
+    }
     const m = document.cookie.match(/(?:^|;\s*)lp_eb=([ABC])(?:;|$)/);
     return m ? m[1] : null;
   } catch {

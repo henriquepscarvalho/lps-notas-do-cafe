@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import PageBeacon, { sendBeacon } from "../PageBeacon";
 import LpWidgets, { fichaDoApp } from "../LpWidgets";
-import { CSS, HTML, JS } from "./ouro";
+import { BRACO, CSS, HTML, JS } from "./ouro";
 
 /* LP do par EBOOK + APP da Notas do Café (app-scriptorium/13, rollout da ouro-ee aprovada pelo HC em 04/09/26).
    Markup, CSS e JS vêm de ./ouro.ts, emitidos pela fábrica rollout/lp-app/build_lp_app.py; a página só
@@ -290,6 +290,8 @@ export default function AppLp() {
       <FaixaDono />
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
       <div dangerouslySetInnerHTML={{ __html: HTML }} />
+      {/* flb/20: marca o braço do vídeo (cookie lp_app do middleware) no bloco de recursos antes da pintura */}
+      <script dangerouslySetInnerHTML={{ __html: BRACO }} />
       <Vitrine />
     </>
   );
