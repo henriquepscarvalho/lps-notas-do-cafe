@@ -150,6 +150,18 @@ export async function POST(req: Request) {
     // mostrava US$ na frente e escondia Pix e Boleto pra browser em inglês; comprador e
     // entrega são em português, então a session fica só em BRL.
     params["adaptive_pricing[enabled]"] = "false";
+    // HC 18/09/26 (nota fiscal): o eNotas emite a NF com nome, CPF/CNPJ e endereço com CEP.
+    // Nome e endereço pelo bloco nativo da Stripe (Customer criado sempre, que é onde o eNotas
+    // lê); CPF por custom field, porque o tax_id_collection da Stripe não cobre o Brasil.
+    // O webhook central do Pharos transforma tudo em metadata user_* na venda.
+    params["billing_address_collection"] = "required";
+    params["customer_creation"] = "always";
+    params["custom_fields[0][key]"] = "cpf";
+    params["custom_fields[0][label][type]"] = "custom";
+    params["custom_fields[0][label][custom]"] = "CPF ou CNPJ (só números)";
+    params["custom_fields[0][type]"] = "numeric";
+    params["custom_fields[0][numeric][minimum_length]"] = "11";
+    params["custom_fields[0][numeric][maximum_length]"] = "14";
     const r = await fetch("https://api.stripe.com/v1/checkout/sessions", {
       method: "POST",
       headers: {
