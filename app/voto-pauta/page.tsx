@@ -36,21 +36,21 @@ const CFG = {
   "escada": [
     {
       "n": 1,
-      "em": "🖼️",
-      "premio": "Pack de wallpapers da casa",
-      "promessa": "10 artes da casa pra tela de bloqueio do celular e pro desktop"
+      "glifo": "●",
+      "img": "https://ecmveymyzdqiehvtqxms.supabase.co/storage/v1/object/public/assets/news/notas-do-cafe/premio-1-pack.webp",
+      "premio": "Pack de wallpapers"
     },
     {
       "n": 3,
-      "em": "🥇",
-      "premio": "Edição de Colecionador do mês",
-      "promessa": ""
+      "glifo": "■",
+      "img": "https://ecmveymyzdqiehvtqxms.supabase.co/storage/v1/object/public/assets/news/notas-do-cafe/premio-3-colecionador.webp",
+      "premio": "Edição de Colecionador do mês"
     },
     {
       "n": 5,
-      "em": "📕",
-      "premio": "Ebook Café de Balcão no Coador de Casa",
-      "promessa": "A técnica completa sem máquina de R$ 2 mil"
+      "glifo": "▲",
+      "img": "https://ecmveymyzdqiehvtqxms.supabase.co/storage/v1/object/public/assets/news/notas-do-cafe/notas-do-cafe-ebook-capa.webp",
+      "premio": "Ebook Café de Balcão no Coador de Casa"
     }
   ],
   "theme": {
@@ -68,7 +68,7 @@ const CFG = {
   emojis: string[]; escada: Degrau[]; theme: Record<string, string>;
 };
 
-interface Degrau { n: number; em: string; premio: string; promessa: string; }
+interface Degrau { n: number; glifo: string; img: string; premio: string; }
 
 interface Piece { id: number; left: number; delay: number; duration: number; size: number; emoji: string; }
 
@@ -243,20 +243,20 @@ export default function VotoPauta() {
             O que você destrava indicando
           </p>
 
-          {CFG.escada.map((d, i) => (
-            /* divisória pelo ÍNDICE, não pelo número do degrau: com o pack ligado a
-               escada abre no degrau 1 e o `d.n === 3` desenhava linha no topo do card. */
-            <div key={d.n} style={{ display: "flex", gap: 12, alignItems: "flex-start", padding: ".55rem 0", borderTop: i === 0 ? "none" : "1px solid rgba(255,255,255,0.06)" }}>
-              <span style={{ fontSize: 18, lineHeight: 1.35 }}>{d.em}</span>
-              <span style={{ fontFamily: t.font, fontWeight: 800, fontSize: 15, color: t.accent, lineHeight: 1.35, minWidth: 22 }}>{d.n}</span>
-              <span style={{ flex: 1 }}>
-                <span style={{ display: "block", fontSize: ".95rem", color: t.heading, lineHeight: 1.4 }}>{d.premio}</span>
-                {d.promessa ? (
-                  <span style={{ display: "block", fontSize: ".82rem", color: t.text, opacity: .75, lineHeight: 1.45, marginTop: 2 }}>{d.promessa}</span>
-                ) : null}
-              </span>
-            </div>
-          ))}
+          {/* As mesmas 3 peças do bloco «Indique e destrave» da edição, em 3 colunas: glifo e número
+              na serif da casa, peça em 3:4, legenda curta. */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, alignItems: "start" }}>
+            {CFG.escada.map((d) => (
+              <div key={d.n} style={{ textAlign: "center" }}>
+                <div style={{ fontFamily: t.font, fontWeight: 700, fontSize: 20, color: t.accent, lineHeight: 1, marginBottom: 9 }}>
+                  <span style={{ fontSize: 10, verticalAlign: 3, marginRight: 6 }}>{d.glifo}</span>{d.n}
+                </div>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={d.img} alt="" width={600} height={800} loading="lazy" style={{ width: "100%", height: "auto", aspectRatio: "3 / 4", objectFit: "cover", borderRadius: 10, display: "block", boxShadow: "0 6px 16px rgba(0,0,0,.14)" }} />
+                <div style={{ fontSize: 12.5, lineHeight: 1.35, marginTop: 9, color: t.heading, opacity: .85 }}>{d.premio}</div>
+              </div>
+            ))}
+          </div>
         </div>
 
         <a
