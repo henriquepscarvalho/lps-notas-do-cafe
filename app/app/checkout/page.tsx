@@ -107,6 +107,19 @@ function jornada() {
   }
 }
 
+/* EXP-072 (app-scriptorium/66): braço do destino do clique do banner, pra metadata da session. `?d=lp|ck`
+   (revisão, viaja na query do 307 do middleware) manda; sem ele vale o cookie `app_dst`. Sem os dois, nada. */
+function destino(): { dst?: "lp" | "ck" } {
+  try {
+    const d = (new URLSearchParams(window.location.search).get("d") || "").toLowerCase();
+    if (d === "lp" || d === "ck") return { dst: d };
+    const m = document.cookie.match(/(?:^|;\s*)app_dst=(lp|ck)(?:;|$)/);
+    return m ? { dst: m[1] as "lp" | "ck" } : {};
+  } catch {
+    return {};
+  }
+}
+
 /* c4-20k/93 (HC 15/09/26, EXP de cadência da Monetização): o bônus da `oferta=bonus` pode vir com
    prazo. `fim=<dia>-<HHMM>` é a gramática do contador do email: vale da segunda 00:00 até <dia>
    HH:MM:59 da mesma semana, relógio BRT (UTC-3 fixo). `ate=<epoch>` vale até o instante. Com os
@@ -207,6 +220,7 @@ export default function AppCheckout() {
               // "golden" = sem split; "hA-bB" etc. quando as chaves ligam (h = cabeçalho, b = bump)
               checkout_variant: SPLIT.cabecalho || SPLIT.bump ? `h${braco}-b${pos}` : "golden",
               ...jornada(),
+              ...destino(),
             }),
           })
             .then((r) => r.json())
@@ -231,6 +245,38 @@ export default function AppCheckout() {
       handle?.destroy();
     };
   }, [stripeOk, bump, oferta, email, braco]);
+
+  // Início de pagamento (EXP-072, app-scriptorium/66): beacon `app-ck-pagar`, 1 vez por jornada, no primeiro
+  // toque no formulário da Stripe. O formulário mora num iframe de outra origem, então o toque nunca chega aqui
+  // como clique: o que a página enxerga é a janela perder o foco (blur) com o iframe de dentro do #checkout-box
+  // como elemento ativo. Trocar de aba, abrir o chat ou tocar fora do formulário não conta, porque aí o elemento
+  // ativo é outro (os iframes de controle e de modal da Stripe ficam fora do #checkout-box). Duas redes pro mesmo
+  // predicado: a conferência no próximo tick cobre o motor que só atualiza o activeElement depois do blur, e a
+  // de 1 em 1 segundo cobre o que não entrega o blur da janela (webview que ainda não tinha o foco da página).
+  // Dedupe: a chave de sessão do sendBeacon (mesma vida do journey_id) + o ref, pra aba sem sessionStorage.
+  const pagarJa = useRef(false);
+  useEffect(() => {
+    let relogio = 0;
+    const para = () => {
+      window.removeEventListener("blur", onBlur);
+      window.clearInterval(relogio);
+    };
+    const confere = () => {
+      if (pagarJa.current) return;
+      const el = document.activeElement;
+      if (!el || el.tagName !== "IFRAME" || !el.closest("#checkout-box")) return;
+      pagarJa.current = true;
+      para();
+      sendBeacon(APP.slug, "app-ck-pagar", { eventType: "converteu" });
+    };
+    function onBlur() {
+      confere();
+      window.setTimeout(confere, 0);
+    }
+    window.addEventListener("blur", onBlur);
+    relogio = window.setInterval(confere, 1000);
+    return para;
+  }, []);
 
   // Saída do checkout (ticket 25, ponto 3 do downsell): abriu o embedded e fez o
   // gesto de sair sem pagar. Uma vez por sessão; o corpo da página não cita o ebook.

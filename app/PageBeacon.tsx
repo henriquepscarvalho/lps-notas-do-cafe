@@ -9,6 +9,12 @@ function getVariant(): string | null {
     // middleware; `?v=a|b` força a revisão na /app). Série `app-a`/`app-b`, separada das letras do lp_eb.
     const p = window.location.pathname;
     if (p === "/app" || p.startsWith("/app/")) {
+      // EXP-072 (app-scriptorium/66): destino do clique do banner. Quem caiu no braço checkout (cookie `app_dst=ck`
+      // do middleware; `?d=ck|lp` força a revisão e viaja na query do 307) sai carimbado `app-k` em toda rota /app,
+      // inclusive se voltar pra LP: o EXP-071 lê só `app-a|app-b`, então essa jornada fica fora dele.
+      const q = new URLSearchParams(window.location.search);
+      const d = (q.get("d") || "").toLowerCase();
+      if (d === "ck" || (d !== "lp" && /(?:^|;\s*)app_dst=ck(?:;|$)/.test(document.cookie))) return "app-k";
       const f = p === "/app" ? (new URLSearchParams(window.location.search).get("v") || "").toLowerCase() : "";
       if (f === "a" || f === "b") return "app-" + f;
       const a = document.cookie.match(/(?:^|;\s*)lp_app=([ab])(?:;|$)/);

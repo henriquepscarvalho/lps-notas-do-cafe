@@ -145,6 +145,10 @@ export async function POST(req: Request) {
   // ligarem) viaja na metadata da session pra separar A e B por jornada no rio do C4.
   const variante = curto(body?.checkout_variant);
   if (variante) params["metadata[checkout_variant]"] = variante;
+  // EXP-072 (app-scriptorium/66): braço do destino do clique do banner (lp = passou pela LP, ck = caiu direto
+  // aqui), lido pela página do `?d=` ou do cookie `app_dst`. Viaja na metadata pra compra ficar colada no braço.
+  const dst = body?.dst === "lp" || body?.dst === "ck" ? String(body.dst) : "";
+  if (dst) params["metadata[dst]"] = dst;
   // funil-pixel: fbp, fbc, IP e user agent pra CAPI casar a venda com o clique.
   const cookies = req.headers.get("cookie") || "";
   const cookie = (k: string) => cookies.match(new RegExp(`(?:^|;\\s*)${k}=([^;]+)`))?.[1] || "";
