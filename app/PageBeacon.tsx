@@ -81,10 +81,11 @@ export function captureSource(defaultSource?: string): void {
     const uCont = (q.get("utm_content") || "").trim().slice(0, 56);
     const uCamp = (q.get("utm_campaign") || "").trim().slice(0, 56);
     const ehMeta = ["facebook", "instagram", "meta", "fb", "ig"].indexOf(uSrc) >= 0;
+    // gam/170: link de indicação (?ref=) sem src entra com a origem "indicacao"
     const param =
       ehMeta && uCont
         ? "ad:" + uCont
-        : q.get("src") || (uSrc === "beehiiv" && uCamp ? "email-" + uCamp : uCamp);
+        : q.get("src") || (q.get("ref") ? "indicacao" : "") || (uSrc === "beehiiv" && uCamp ? "email-" + uCamp : uCamp);
     const src = (param || "").trim().slice(0, 60);
     if (src && !sessionStorage.getItem("vdn_source")) {
       sessionStorage.setItem("vdn_source", src);

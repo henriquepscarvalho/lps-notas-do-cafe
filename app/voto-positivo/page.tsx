@@ -11,6 +11,10 @@
  * ENVIAR a resposta aparecem a mensagem de agradecimento, o confete e o
  * botão de compartilhar no WhatsApp. A recompensa vem após o engajamento.
  *
+ * Carimbo do compartilhar (gam/170): o botão grava o passo `voto-whatsapp` em
+ * lp_page_views (apareceu quando surge, converteu no clique) e o link que o leitor
+ * manda leva `?src=voto-whatsapp` (build.py), então o funil do amigo sai com a origem.
+ *
  * Faixa do guia (c4-20k/72, posição C, variante D): abaixo da caixa, nos dois
  * estados, um bloco tingido com a capa, o título e a promessa do guia da casa
  * e um botão pequeno levando pra /ebook-premium?src=edicao-voto. Sem preço:
@@ -19,7 +23,7 @@
  * ============================================================ */
 
 import { useState } from "react";
-import PageBeacon from "../PageBeacon";
+import PageBeacon, { sendBeacon } from "../PageBeacon";
 import VoteBeacon, { submitVoteComment } from "../VoteBeacon";
 import AssinaComo, { enviarAssinatura } from "../AssinaComo";
 
@@ -34,7 +38,7 @@ const CFG = {
   "highlight": "voto.",
   "paragraph": "Saber que a edição de hoje acertou na xícara é o que faz cada manhã valer a pena.",
   "tagline": "Bom café. Até amanhã.",
-  "shareUrl": "https://api.whatsapp.com/send/?text=A%20Notas%20do%20Caf%C3%A9%20traz%20o%20gr%C3%A3o%2C%20o%20m%C3%A9todo%20e%20a%20curadoria%20pra%20sua%20x%C3%ADcara%20render%20mais.%20https%3A%2F%2Flp.notasdocafe.com.br%2Fcadastro",
+  "shareUrl": "https://api.whatsapp.com/send/?text=A%20Notas%20do%20Caf%C3%A9%20traz%20o%20gr%C3%A3o%2C%20o%20m%C3%A9todo%20e%20a%20curadoria%20pra%20sua%20x%C3%ADcara%20render%20mais.%20https%3A%2F%2Flp.notasdocafe.com.br%2Fcadastro%3Fsrc%3Dvoto-whatsapp",
   "emojis": [
     "☕",
     "🫘",
@@ -90,6 +94,7 @@ export default function VotoPositivo() {
     await submitVoteComment(CFG.slug, comment);
     await enviarAssinatura(CFG.slug);
     setSent(true);
+    sendBeacon(CFG.slug, "voto-whatsapp");
     setSending(false);
     fireConfetti();
   }
@@ -203,7 +208,7 @@ export default function VotoPositivo() {
           <>
             <p style={{ fontSize: "1.125rem", color: t.text, maxWidth: 480, lineHeight: 1.7, marginBottom: "2.5rem", animation: "vpUp .7s ease-out .05s both", position: "relative" }}>{CFG.paragraph}</p>
 
-            <a href={CFG.shareUrl} target="_blank" rel="noopener noreferrer" className="vp-btn" style={{ background: t.btnBg, color: t.btnText, animation: "vpUp .7s ease-out .25s both", position: "relative" }}>
+            <a href={CFG.shareUrl} target="_blank" rel="noopener noreferrer" onClick={() => sendBeacon(CFG.slug, "voto-whatsapp", { eventType: "converteu" })} className="vp-btn" style={{ background: t.btnBg, color: t.btnText, animation: "vpUp .7s ease-out .25s both", position: "relative" }}>
               Indicar pra um amigo no WhatsApp
             </a>
 
