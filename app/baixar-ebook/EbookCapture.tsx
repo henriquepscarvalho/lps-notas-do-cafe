@@ -178,7 +178,7 @@ export default function EbookCapture() {
   .ebk .ebk-bookw{display:flex;justify-content:center;perspective:1400px}
   .ebk .ebk-book{width:330px;transform:rotateY(-15deg) rotateX(3deg);transition:.5s;filter:drop-shadow(28px 34px 60px rgba(0,0,0,.6))}
   .ebk .ebk-book:hover{transform:rotateY(-6deg) rotateX(1deg)}
-  .ebk .ebk-book img{width:100%;display:block}
+  .ebk .ebk-book picture{display:block}.ebk .ebk-book img{width:100%;height:auto;display:block}
   .ebk .ebk-sec{padding:64px 0;border-top:1px solid var(--hair)}
   .ebk .ebk-sech{text-align:center;margin-bottom:44px}
   .ebk .ebk-seck{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-br);font-weight:600;margin-bottom:12px}
@@ -270,7 +270,16 @@ export default function EbookCapture() {
             </div>
             <div className="ebk-bookw">
               <div className="ebk-book">
-                <img src="/images/mockup-ebook.png" alt="Guia A Xícara Certa" />
+                <picture>
+                  <source srcSet="/images/mockup-ebook.webp" type="image/webp" />
+                  <img
+                    src="/images/mockup-ebook.png"
+                    alt="Guia A Xícara Certa"
+                    width={1080}
+                    height={1080}
+                    fetchPriority="high"
+                  />
+                </picture>
               </div>
             </div>
           </div>
