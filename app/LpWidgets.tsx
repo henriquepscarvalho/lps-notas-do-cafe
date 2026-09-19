@@ -7,6 +7,11 @@ import { sendBeacon } from "./PageBeacon";
    LpWidgets · vitrine das LPs de venda (ebook premium e app), 02/09/26.
    - canto inferior direito: chat de dúvidas (Haiku, via Pharos /api/lp/chat),
      que chama o visitante depois de 60 s sem interação;
+   - `local="checkout"` (19/09/26): o mesmo chat na página de checkout, enxuto.
+     Sem card de prova e sem botão de compra (a pessoa já está no formulário),
+     beacons próprios (`ebook-checkout-chat`, `app-checkout-chat`), o atendente
+     recebe `local` e leva ao formulário. No celular o botão some enquanto o foco
+     está dentro do formulário da Stripe, pra nunca cobrir campo nem o "Pagar";
    - canto inferior esquerdo: prova social (compras ou visitantes via
      /api/lp/prova) + depoimentos da news em carrossel: os VIVOS que a rota
      devolver (curadoria do HC em lp_depoimentos, ticket 48) e, sem eles, os
@@ -19,6 +24,9 @@ import { sendBeacon } from "./PageBeacon";
 
 const PHAROS = "https://hc-pharos.vercel.app";
 const OCIO_MS = 60_000; // HC: mais de 1 minuto sem interação = o chat chama
+// Checkout: com o foco dentro do iframe da Stripe a página não enxerga toque nem tecla,
+// e preencher o cartão leva mais de 1 min. Ali a chamada espera o dobro.
+const OCIO_FORM_MS = 120_000;
 const GIRO_MS = 7_000; // troca de depoimento no carrossel
 const MAX_TURNOS = 10; // perguntas por conversa; depois manda pro /contato
 const FALHA = "Não consegui responder agora. Escreva pra gente pela página /contato.";
@@ -108,15 +116,24 @@ type Props = {
   produto: "ebook" | "app";
   cor: string;
   corTexto?: string;
-  cta: string;
+  /** "checkout" = só o chat, sem prova nem botão de compra; cta, ficha e depoimentos ficam de fora */
+  local?: "lp" | "checkout";
+  cta?: string;
   /** href do checkout: o botão de compra vive dentro do chat (HC 02/09: chat vende, não dá suporte) */
   checkout?: string;
-  ficha: Ficha;
-  depoimentos: Depo[];
+  ficha?: Ficha;
+  depoimentos?: Depo[];
 };
 
-export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", cta, checkout, ficha, depoimentos }: Props) {
-  const step = produto === "app" ? "app-lp" : "ebook-premium-d";
+const SEM_DEPOS: Depo[] = [];
+
+function focoNoForm(): boolean {
+  return document.activeElement?.tagName === "IFRAME";
+}
+
+export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", local = "lp", cta = "", checkout, ficha, depoimentos = SEM_DEPOS }: Props) {
+  const noCheckout = local === "checkout";
+  const step = noCheckout ? (produto === "app" ? "app-checkout" : "ebook-checkout") : produto === "app" ? "app-lp" : "ebook-premium-d";
   const objeto = produto === "app" ? "o app" : "o guia";
   const sugestoes =
     produto === "app" ? ["Como instalo?", "Funciona no iPhone?", "Como pago?"] : ["Como pago?", "Como recebo?", "Tem garantia?"];
@@ -136,6 +153,8 @@ export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", cta, 
   const [celular, setCelular] = useState(false);
   // a D tem barra de compra fixa no celular (.dsticky); a vitrine sobe pra não cobri-la
   const [comSticky, setComSticky] = useState(false);
+  // checkout no celular: foco dentro do formulário da Stripe = o botão do chat sai da frente
+  const [noForm, setNoForm] = useState(false);
   const lista = useRef<HTMLDivElement>(null);
   const abertoRef = useRef(false);
   const perguntas = msgs.filter((m) => m.role === "user").length;
@@ -148,6 +167,7 @@ export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", cta, 
     } catch {
       /* sessionStorage indisponível */
     }
+    if (noCheckout) return; // o checkout já tem o reforço dele acima do formulário
     const t = setTimeout(() => {
       fetch(`${PHAROS}/api/lp/prova?slug=${encodeURIComponent(slug)}&produto=${produto}`)
         .then((r) => (r.ok ? r.json() : null))
@@ -163,7 +183,7 @@ export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", cta, 
         });
     }, 1500);
     return () => clearTimeout(t);
-  }, [slug, produto]);
+  }, [slug, produto, noCheckout]);
 
   // celular: o card de prova só entra depois que o CTA do herói sai da tela (senão
   // cobre o botão na primeira dobra) e some sozinho em 12 s; no desktop fica até o ×
@@ -207,7 +227,8 @@ export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", cta, 
     const toca = () => {
       ultimo = Date.now();
     };
-    const evs: (keyof WindowEventMap)[] = ["pointerdown", "keydown", "scroll", "touchstart"];
+    // blur = o foco entrou no iframe da Stripe (o último gesto que a página enxerga)
+    const evs: (keyof WindowEventMap)[] = ["pointerdown", "keydown", "scroll", "touchstart", "blur"];
     evs.forEach((e) => window.addEventListener(e, toca, { passive: true }));
     let esconde: ReturnType<typeof setTimeout> | undefined;
     const t = setInterval(() => {
@@ -215,7 +236,7 @@ export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", cta, 
         ultimo = Date.now();
         return;
       }
-      if (Date.now() - ultimo < OCIO_MS) return;
+      if (Date.now() - ultimo < (noCheckout && focoNoForm() ? OCIO_FORM_MS : OCIO_MS)) return;
       clearInterval(t);
       setChamada(true);
       try {
@@ -230,7 +251,21 @@ export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", cta, 
       clearInterval(t);
       if (esconde) clearTimeout(esconde);
     };
-  }, []);
+  }, [noCheckout]);
+
+  // checkout: acompanha o foco entrando e saindo do formulário da Stripe
+  useEffect(() => {
+    if (!noCheckout) return;
+    // o activeElement só vira o iframe depois que o blur termina
+    const entrou = () => setTimeout(() => setNoForm(focoNoForm()), 0);
+    const saiu = () => setNoForm(false);
+    window.addEventListener("blur", entrou);
+    window.addEventListener("focus", saiu);
+    return () => {
+      window.removeEventListener("blur", entrou);
+      window.removeEventListener("focus", saiu);
+    };
+  }, [noCheckout]);
 
   useEffect(() => {
     abertoRef.current = aberto;
@@ -271,7 +306,7 @@ export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", cta, 
         method: "POST",
         headers: { "Content-Type": "application/json" },
         // os últimos 15 turnos: ímpar, então começa e termina em pergunta
-        body: JSON.stringify({ slug, produto, ficha, mensagens: novo.slice(-15), journey, internal }),
+        body: JSON.stringify({ slug, produto, local, ficha, mensagens: novo.slice(-15), journey, internal }),
         signal: ctl.signal,
       });
       clearTimeout(to);
@@ -283,7 +318,9 @@ export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", cta, 
     setOcupado(false);
   }
 
-  const temProva = provaOn && (!celular || rolou) && (prova !== null || frases.length > 0);
+  const temProva = !noCheckout && provaOn && (!celular || rolou) && (prova !== null || frases.length > 0);
+  // some só enquanto a pessoa preenche; a chamada por ócio e o chat aberto trazem de volta
+  const fabFora = noCheckout && celular && noForm && !aberto && !chamada;
   const depo = frases.length ? frases[idx % frases.length] : null;
 
   return (
@@ -329,24 +366,26 @@ export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", cta, 
         </button>
       )}
 
-      <button
-        className="lpw-fab"
-        aria-label={aberto ? "Fechar o chat" : "Tirar uma dúvida"}
-        aria-expanded={aberto}
-        onClick={() => setAberto((a) => !a)}
-      >
-        {aberto ? (
-          <span className="lpw-fx">×</span>
-        ) : (
-          <>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M4 5h16v11H9l-5 4V5Z" />
-              <path d="M8 9h8M8 12.5h5" />
-            </svg>
-            <span className="lpw-on" aria-hidden="true" />
-          </>
-        )}
-      </button>
+      {!fabFora && (
+        <button
+          className="lpw-fab"
+          aria-label={aberto ? "Fechar o chat" : "Tirar uma dúvida"}
+          aria-expanded={aberto}
+          onClick={() => setAberto((a) => !a)}
+        >
+          {aberto ? (
+            <span className="lpw-fx">×</span>
+          ) : (
+            <>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M4 5h16v11H9l-5 4V5Z" />
+                <path d="M8 9h8M8 12.5h5" />
+              </svg>
+              <span className="lpw-on" aria-hidden="true" />
+            </>
+          )}
+        </button>
+      )}
 
       {aberto && (
         <section className="lpw-chat" role="dialog" aria-label="Dúvidas sobre a compra">
@@ -408,7 +447,7 @@ export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", cta, 
               ➤
             </button>
           </form>
-          {checkout && (
+          {checkout && ficha && (
             <a
               className="lpw-cta"
               href={checkout}
@@ -434,7 +473,7 @@ export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", cta, 
 .lpw-on{position:absolute;top:2px;right:2px;width:12px;height:12px;border-radius:50%;background:#3BD66E;border:2px solid var(--lpw-acc);animation:lpw-on 1.6s ease-out infinite}
 @keyframes lpw-on{0%{box-shadow:0 0 0 0 rgba(59,214,110,.6)}100%{box-shadow:0 0 0 10px rgba(59,214,110,0)}}
 @media(prefers-reduced-motion:reduce){.lpw-on{animation:none}}
-.lpw-chat{position:fixed;right:18px;bottom:86px;z-index:71;width:360px;max-width:calc(100vw - 36px);height:auto;max-height:min(520px,calc(100vh - 110px));display:flex;flex-direction:column;background:var(--bg,#111);color:var(--text,var(--ink,#eee));border:1px solid var(--hair,rgba(255,255,255,.14));border-radius:16px;box-shadow:0 18px 48px rgba(0,0,0,.45);overflow:hidden;animation:lpw-pop .2s ease}
+.lpw-chat{padding:0;position:fixed;right:18px;bottom:86px;z-index:71;width:360px;max-width:calc(100vw - 36px);height:auto;max-height:min(520px,calc(100vh - 110px));display:flex;flex-direction:column;background:var(--bg,#111);color:var(--text,var(--ink,#eee));border:1px solid var(--hair,rgba(255,255,255,.14));border-radius:16px;box-shadow:0 18px 48px rgba(0,0,0,.45);overflow:hidden;animation:lpw-pop .2s ease}
 .lpw-h{padding:12px 14px 12px 16px;border-bottom:1px solid var(--hair,rgba(255,255,255,.14));display:flex;align-items:center;justify-content:space-between;gap:10px}
 .lpw-h div{display:flex;flex-direction:column;gap:1px}
 .lpw-h b{font-size:15px}.lpw-h span{font-size:12px;color:var(--dim,#999)}

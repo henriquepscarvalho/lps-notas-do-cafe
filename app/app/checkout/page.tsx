@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import PageBeacon, { sendBeacon } from "../../PageBeacon";
+import LpWidgets from "../../LpWidgets";
 import PROVA from "../../../checkout-prova.json";
 import MANIFEST from "../../../proof-manifest.json";
 
@@ -419,6 +420,9 @@ export default function AppCheckout() {
       <footer className="ck-foot">
         <p>{APP.despedida}</p>
       </footer>
+
+      {/* chat de dúvidas também no checkout (HC 19/09/26): só o chat, sem prova nem botão de compra */}
+      <LpWidgets slug={APP.slug} produto="app" local="checkout" cor="#E0701F" corTexto="#FFF7F2" />
 
       <style>{`
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700;1,900&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
