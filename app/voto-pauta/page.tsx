@@ -37,13 +37,13 @@ const CFG = {
     {
       "n": 1,
       "glifo": "●",
-      "img": "https://ecmveymyzdqiehvtqxms.supabase.co/storage/v1/object/public/assets/news/notas-do-cafe/premio-1-pack.webp",
+      "img": "https://ecmveymyzdqiehvtqxms.supabase.co/storage/v1/object/public/assets/news/notas-do-cafe/premio-1-pack.webp?v=2",
       "premio": "Pack de wallpapers"
     },
     {
       "n": 3,
       "glifo": "■",
-      "img": "https://ecmveymyzdqiehvtqxms.supabase.co/storage/v1/object/public/assets/news/notas-do-cafe/premio-3-colecionador.webp",
+      "img": "https://ecmveymyzdqiehvtqxms.supabase.co/storage/v1/object/public/assets/news/notas-do-cafe/premio-3-colecionador.webp?v=2",
       "premio": "Edição de Colecionador do mês"
     },
     {
