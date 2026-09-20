@@ -63,8 +63,54 @@ function appVideo(req: NextRequest): NextResponse {
   return res;
 }
 
+/**
+ * Destino do clique do banner ebook + app (EXP-072, app-scriptorium/66): sorteio 50/50, por visitante.
+ *   lp → a LP /app de sempre (controle); segue pro sorteio do vídeo logo acima (flb/20)
+ *   ck → 307 pro /app/checkout com a query inteira (?src, utm, ?j, ?internal)
+ * Só entra no sorteio quem chega em /app com o `src` do banner da edição (`edicao-app*`), menos o formato D
+ * (`edicao-app-d`: o botão dele promete sortear uma fonte e só a LP cumpre). Email de campanha, WhatsApp e acesso
+ * direto seguem pra LP sem sorteio. Cookie PRÓPRIO (`app_dst`), 1 ano, lax: não toca o `lp_app` nem o `lp_v`.
+ * Ordem: destino primeiro, vídeo depois. O braço ck sai no 307 sem passar pelo `appVideo`, então não recebe o
+ * `lp_app` e fica fora do EXP-071; o PageBeacon carimba `app-k` em quem tem `app_dst=ck`.
+ * `?d=lp|ck` força a revisão sem gravar cookie (o `d` segue na query do 307 pra página carimbar o braço).
+ * Freio da ficha: `APP_CK_NO_AR = false` não sorteia ninguém e regrava pra lp quem tinha caído no ck.
+ */
+const DST_COOKIE = "app_dst";
+const APP_CK_NO_AR = false;
+const APP_CK_ROTA = "/app/checkout";
+
+/** `src` do banner da edição que entra no sorteio de destino: `edicao-app*`, menos o formato D. */
+function srcDoBanner(src: string | null): boolean {
+  const s = (src || "").trim().toLowerCase();
+  return s.startsWith("edicao-app") && s !== "edicao-app-d";
+}
+
+function appDestino(req: NextRequest): NextResponse {
+  const q = req.nextUrl.searchParams;
+  const paraCheckout = () => {
+    const url = req.nextUrl.clone(); // preserva a query inteira (?src, utm, ?j, ?internal, ?d)
+    url.pathname = APP_CK_ROTA;
+    return NextResponse.redirect(url, 307);
+  };
+  const f = (q.get("d") || "").toLowerCase();
+  if (f === "ck") return paraCheckout(); // revisão: nunca grava cookie
+  if (f === "lp") return appVideo(req);
+  const ano = { path: "/", maxAge: 60 * 60 * 24 * 365, sameSite: "lax" as const };
+  const atual = req.cookies.get(DST_COOKIE)?.value || "";
+  if (!APP_CK_NO_AR) {
+    const res = appVideo(req);
+    if (atual === "ck") res.cookies.set(DST_COOKIE, "lp", ano);
+    return res;
+  }
+  if (!srcDoBanner(q.get("src"))) return appVideo(req);
+  const dst = atual === "lp" || atual === "ck" ? atual : Math.random() < 0.5 ? "lp" : "ck";
+  const res = dst === "ck" ? paraCheckout() : appVideo(req);
+  if (dst !== atual) res.cookies.set(DST_COOKIE, dst, ano);
+  return res;
+}
+
 export function middleware(req: NextRequest) {
-  if (req.nextUrl.pathname === "/app") return appVideo(req); // flb/20
+  if (req.nextUrl.pathname === "/app") return appDestino(req); // EXP-072 (destino) e, no braço lp, flb/20 (vídeo)
   const { pathname, searchParams } = req.nextUrl;
   const forced = valid(searchParams.get("v"));
   const routeArm = (ARMS as readonly string[]).find((a) => pathname === ROUTE[a as Arm]) as Arm | undefined;
