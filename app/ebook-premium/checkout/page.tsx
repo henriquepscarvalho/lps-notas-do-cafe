@@ -17,7 +17,7 @@ const EBOOK = {
   "capaAlt": "Capa do guia Café de Balcão no Coador de Casa",
   "titulo": "Café de Balcão no Coador de Casa",
   "kicker": "Guia Notas do Café",
-  "preco": "R$ 27",
+  "preco": "R$ 47",
   "resumo": "Guia completo, web + PDF.",
   "garantiaNome": "7 dias de garantia.",
   // riscado removido junto com a âncora da LP D (critique 01/09): sem base

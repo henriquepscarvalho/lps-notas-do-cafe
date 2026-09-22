@@ -24,5 +24,5 @@ window.NC_CONFIG = {
   offerDelaySeconds: 0,
 
   productDisplayName: "Café de Balcão no Coador de Casa",
-  priceLabel: "R$ 27",
+  priceLabel: "R$ 47",
 };

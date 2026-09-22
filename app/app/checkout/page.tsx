@@ -42,8 +42,8 @@ const APP = {
   downsell: {
     kicker: "Antes de ir",
     titulo: "Prefere começar menor?",
-    texto: "O mesmo guia em ebook: versão web + PDF, com as 8 variáveis da coada pra imprimir, por R$ 27.",
-    cta: "Começar pelo ebook de R$ 27",
+    texto: "O mesmo guia em ebook: versão web + PDF, com as 8 variáveis da coada pra imprimir, por R$ 47.",
+    cta: "Começar pelo ebook de R$ 47",
     href: "/ebook-premium?src=downsell-app-checkout",
   },
   despedida: "Sem frescura. Bom café. Notas do Café",
@@ -152,7 +152,7 @@ export default function AppCheckout() {
   const [bump, setBump] = useState(false);
   // ticket 35: a recuperação chega com ?oferta=bonus (o guia da ALQ de graça) ou ?oferta=metade (R$ 48,50);
   // ticket 41: o dono do ebook chega com ?oferta=dono&e=<email> (R$ 48,50, posse conferida na rota);
-  // c4-20k/57: `dono27` = a janela de 48 h do D+3 (R$ 27); ticket c4-20k/22: `leitor` (R$ 48,50, sem email).
+  // c4-20k/57: `dono27` = a janela de 48 h do D+3 (R$ 47); ticket c4-20k/22: `leitor` (R$ 48,50, sem email).
   // A rota decide o preço e a Stripe mostra; o cabeçalho não repete valor nenhum.
   const [oferta, setOferta] = useState("");
   const [email, setEmail] = useState("");

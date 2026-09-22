@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
    do ticket 12 do build-ebooks-premium)
    ============================================================ */
 const SC = "NC";
-const PRICE_CHEIO = "price_1UAtYd40q2kXDh5BA5GWzAQr"; // R$ 27 (live)
+const PRICE_CHEIO = "price_1UEgZy40q2kXDh5B4jJNnbcd"; // R$ 47 (live · teste c4-20k/64, 22/09 a 22/10; volta = preco_flip.py --preco 27)
 const TITULO = "Café de Balcão no Coador de Casa";
 // Bump = ebook irmão SELADO (bump-pareamento.json, HC 19/07): WS → BZ
 const BUMP_SC = "BC";
@@ -14,7 +14,7 @@ const BUMP_TITULO = "Brasa Pronta em 20 Minutos";
 
 // Valor em centavos, espelho dos prices live. O create-session e o unico que sabe se
 // teve bump, entao carimba o total no return_url e a /obrigado dispara o Purchase certo.
-const VALOR_CHEIO = 2700;
+const VALOR_CHEIO = 4700;
 const VALOR_BUMP = 1350;
 // Onda mensal (c4-20k/11): o o3 abre a janela de 24h a R$ 13,50 com
 // ?oferta=metade&ate=<epoch> no link. O PageBeacon guarda os dois em sessionStorage,

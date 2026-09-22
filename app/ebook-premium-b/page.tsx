@@ -16,7 +16,7 @@ import { CSS, HTML, JS } from "./lp";
 const SLUG = "notas-do-cafe";
 const STEP = "ebook-premium-b";
 const CHECKOUT = "/ebook-premium/checkout";
-const PRECO = "R$ 27";
+const PRECO = "R$ 47";
 const CTA_LABEL = "Quero o guia →";
 // objeto {__html} ESTÁVEL: o React 19 re-seta o innerHTML quando a identidade muda
 const CSS_PROP = { __html: CSS };
@@ -66,7 +66,7 @@ const EBOOK = {
     "itens": [
       {
         "q": "Pix, cartão ou boleto?",
-        "a": "Os três, uma vez só, R$ 27, pela Stripe. No pix e no cartão o acesso abre na hora; no boleto, quando o banco confirma."
+        "a": "Os três, uma vez só, R$ 47, pela Stripe. No pix e no cartão o acesso abre na hora; no boleto, quando o banco confirma."
       },
       {
         "q": "Como recebo depois de confirmar?",

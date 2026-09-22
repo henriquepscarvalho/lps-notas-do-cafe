@@ -118,14 +118,14 @@ const EBOOK = {
       "desc": "As quatro frases que encerram o assunto na copa, com botão de copiar ao lado de cada uma."
     }
   ],
-  "garantia": "Leu o guia e não encontrou nenhuma variável pra corrigir na sua coada? Responda o email da compra em até 7 dias e devolvemos os R$ 27.",
+  "garantia": "Leu o guia e não encontrou nenhuma variável pra corrigir na sua coada? Responda o email da compra em até 7 dias e devolvemos os R$ 47.",
   "fecho": "Sem frescura.",
   "despedida": "Bom café. Até sábado.",
   "manchete": "O coador de papel da sua cozinha repete a xícara do balcão, sem a máquina de R$ 2 mil.",
   "subApoio": "As oito variáveis da coada, uma por uma, com o ajuste que muda a xícara já na próxima manhã.",
   "retorno": "Custa menos que um pacote de grão especial.",
   "autoridade": "Do time da news Notas do Café, no seu email todo dia às 8h08.",
-  "fechoAncora": "R$ 27 pra tirar do coador o que a máquina cara promete. Pagamento único, sem assinatura.",
+  "fechoAncora": "R$ 47 pra tirar do coador o que a máquina cara promete. Pagamento único, sem assinatura.",
   "custoEspera": "Toda manhã sem o ajuste é a mesma xícara mediana de novo.",
   "garantiaNome": "Melhorou a coada ou devolve · 7 dias",
   "amostra": {
@@ -245,8 +245,8 @@ const EBOOK = {
   }
 };
 
-const PRECO = "R$ 27";
-const PRECO_DE = "R$ 47"; // âncora riscada; vazio = sem desconto, render V2 intacto
+const PRECO = "R$ 47";
+const PRECO_DE = ""; // âncora riscada; vazio = sem desconto, render V2 intacto
 // CTA sem preço (HC 24/07): o valor mora na etiqueta riscada, não no botão
 const CTA_LABEL = "Quero o guia";
 const CHECKOUT = "/ebook-premium/checkout";

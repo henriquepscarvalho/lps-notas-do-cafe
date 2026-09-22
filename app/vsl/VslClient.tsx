@@ -23,8 +23,8 @@ const CFG = {
   skipSemQuizSeconds: 1.8,
   checkout: "/ebook-premium/checkout",
   produto: "Café de Balcão no Coador de Casa",
-  preco: "R$ 27",
-  precoDe: "R$ 47",
+  preco: "R$ 47",
+  precoDe: "",
   capa: "/ebook-web/capa-notas-do-cafe.webp",
   bullets: [
     "As 8 variáveis da coada, uma por uma, com o defeito nomeado em cada xícara",
@@ -34,7 +34,7 @@ const CFG = {
   ],
   garantiaNome: "Melhorou a coada ou devolve · 7 dias",
   garantia:
-    "Leu o guia e não encontrou nenhuma variável pra corrigir na sua coada? Responda o email da compra em até 7 dias e devolvemos os R$ 27.",
+    "Leu o guia e não encontrou nenhuma variável pra corrigir na sua coada? Responda o email da compra em até 7 dias e devolvemos os R$ 47.",
   fontes:
     "ABIC e Instituto Axxus (2025) · Cotter, Batali, Ristenpart & Guinard (2021) · Batali, Ristenpart & Guinard (2020) · Uman e colegas (2016)",
   disclaimer:

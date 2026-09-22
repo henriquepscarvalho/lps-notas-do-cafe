@@ -19,7 +19,7 @@ const EBOOK = {
   "capaAlt": "Capa do guia Café de Balcão no Coador de Casa",
   "ctaMicro": "Acesso imediato. Prove a diferença na segunda coada.",
   "manchete": "Depois desse guia, o coador da cozinha vira xícara de balcão que você faz sozinho.",
-  "subApoio": "O mesmo controle que o barista tem na máquina, traduzido pro papel e a água quente da sua manhã: R$ 27, uma vez só.",
+  "subApoio": "O mesmo controle que o barista tem na máquina, traduzido pro papel e a água quente da sua manhã: R$ 47, uma vez só.",
   "prova": {
     "leitores": "2,4 mil",
     "barra": "Do time da news Notas do Café · 2,4 mil leitores todo dia às 8h08",
@@ -312,27 +312,27 @@ const EBOOK = {
       },
       {
         "q": "É assinatura?",
-        "a": "Não. Uma vez só, R$ 27, pela Stripe. O guia e o kit são seus."
+        "a": "Não. Uma vez só, R$ 47, pela Stripe. O guia e o kit são seus."
       },
       {
         "q": "E se a minha coada já estiver no ponto?",
-        "a": "Vale a garantia: responda o email da compra em até 7 dias e devolvemos os R$ 27."
+        "a": "Vale a garantia: responda o email da compra em até 7 dias e devolvemos os R$ 47."
       }
     ]
   },
-  "garantia": "Leu o guia e não encontrou nenhuma variável pra corrigir na sua coada? Responda o email da compra em até 7 dias e devolvemos os R$ 27.",
+  "garantia": "Leu o guia e não encontrou nenhuma variável pra corrigir na sua coada? Responda o email da compra em até 7 dias e devolvemos os R$ 47.",
   "garantiaNome": "Melhorou a coada ou devolve · 7 dias",
   "fecho": "Sem frescura.",
-  "fechoAncora": "R$ 27 pra tirar do coador o que a máquina cara promete. Uma vez só, sem assinatura.",
+  "fechoAncora": "R$ 47 pra tirar do coador o que a máquina cara promete. Uma vez só, sem assinatura.",
   "custoEspera": "Toda manhã sem o ajuste é a mesma xícara mediana de novo.",
   "despedida": "Bom café. Até sábado.",
   "kicker": "Café de Balcão no Coador de Casa · Guia Notas do Café",
   "titulo": "Café de Balcão no Coador de Casa"
 };
 
-const PRECO = "R$ 27";
+const PRECO = "R$ 47";
 // riscado R$ 47 removido (critique 01/09): âncora sem base declarada; a página
-// vende R$ 27 seco. Voltar só com condição real (preço de tabela + prazo).
+// vende R$ 47 seco. Voltar só com condição real (preço de tabela + prazo).
 // botão nunca carrega preço (HC 11/08): seta pra direita, preço reforça AO REDOR
 const CTA_LABEL = "Quero o guia →";
 const CHECKOUT = "/ebook-premium/checkout";
