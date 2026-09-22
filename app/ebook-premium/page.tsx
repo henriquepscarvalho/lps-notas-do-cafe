@@ -123,7 +123,7 @@ const EBOOK = {
   "despedida": "Bom café. Até sábado.",
   "manchete": "O coador de papel da sua cozinha repete a xícara do balcão, sem a máquina de R$ 2 mil.",
   "subApoio": "As oito variáveis da coada, uma por uma, com o ajuste que muda a xícara já na próxima manhã.",
-  "retorno": "Custa menos que um pacote de grão especial.",
+  "retorno": "Custa menos que a máquina cara que espera o salário cair pra tirar o amargo.",
   "autoridade": "Do time da news Notas do Café, no seu email todo dia às 8h08.",
   "fechoAncora": "R$ 47 pra tirar do coador o que a máquina cara promete. Pagamento único, sem assinatura.",
   "custoEspera": "Toda manhã sem o ajuste é a mesma xícara mediana de novo.",
