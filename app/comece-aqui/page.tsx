@@ -439,7 +439,7 @@ export default function ComeceAqui() {
               marginBottom: "1rem",
             }}
           >
-            Próximo sábado
+            Amanhã de manhã
           </p>
           <h3
             style={{
@@ -453,7 +453,7 @@ export default function ComeceAqui() {
             Uma edição por dia. Direto no seu email.
           </h3>
           <p style={{ fontSize: "1rem", color: "var(--text-secondary)", lineHeight: 1.75, marginBottom: "1.5rem" }}>
-            Comece no próximo sábado de manhã. Cancele quando quiser. Sem taxa, sem patrocínio, sem elitismo.
+            Comece amanhã de manhã. Cancele quando quiser. Sem taxa, sem patrocínio, sem elitismo.
           </p>
           <a
             href="/cadastro"
