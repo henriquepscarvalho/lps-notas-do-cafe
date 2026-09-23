@@ -33,7 +33,7 @@ const COL = {
   },
   despedida: "Sem frescura. Bom café. Notas do Café",
 };
-const BUILD = "colecao-20260923-0955";
+const BUILD = "colecao-20260923-1737";
 
 /* Saída do checkout (HC 23/09, JSON col_exit_intent): quem faz o gesto de sair ANTES de tocar no formulário
    recebe o guia da casa e o botão abre direto o /ebook-premium/checkout. O preço vem do token `preco` da
@@ -296,6 +296,15 @@ export default function ColecaoCheckout() {
 
       {SPLIT && <script dangerouslySetInnerHTML={{ __html: PINTA }} />}
       <main className="ck-page" data-build={BUILD}>
+        {/* col/11 (molde do c4-20k/127 e 130): no celular a tira (capa, kicker e título) abre a página e o
+            formulário da Stripe vem logo abaixo, dentro da 1ª tela; acima de 640 px a tira some. */}
+        <div className="ck-tira">
+          <span className="ck-tira-capa"><img src={COL.capa} alt={COL.capaAlt} width={44} height={59} /></span>
+          <div className="ck-tira-in">
+            <span className="ck-tira-kick">{COL.kicker}</span>
+            <span className="ck-tira-tit">{COL.titulo}</span>
+          </div>
+        </div>
         <header className="hd hd-cena">
           <div className="hd-par hd-solo">
             <img className="hd-pcapa" src={COL.capa} alt={COL.capaAlt} width={900} height={1200} />
@@ -531,6 +540,22 @@ a{color:inherit;text-decoration:none}
         .saida-cta:hover{filter:brightness(1.08)}
         .saida-fechar{margin-top:16px;background:none;border:0;color:var(--text-dim);font-family:var(--sans);font-size:14px;cursor:pointer;text-decoration:underline;text-underline-offset:4px}
         @media (max-width:480px){.saida{align-items:flex-end;padding:0}.saida-box{max-width:none;border-radius:20px 20px 0 0;padding:28px 20px calc(24px + env(safe-area-inset-bottom))}}
+        /* tira e ordem do celular (col/11, molde do c4-20k/127 e 130): formulário na 1ª tela nos dois braços; desktop segue como está */
+        .ck-tira{display:none}
+        @media (max-width:639px){
+          .ck-page{display:flex;flex-direction:column}
+          .ck-tira{display:grid;grid-template-columns:44px 1fr;gap:12px;align-items:center;padding:12px 0 14px;order:1}
+          .ck-tira-capa{display:block;width:44px}
+          .ck-tira-capa img{display:block;width:100%;height:auto;aspect-ratio:3/4;object-fit:cover;border-radius:3px 5px 5px 3px;box-shadow:0 10px 22px rgba(0,0,0,.6)}
+          .ck-tira-in{min-width:0}
+          .ck-tira-kick{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--bright);line-height:1.3}
+          .ck-tira-tit{display:block;font-family:var(--serif);font-style:italic;font-weight:900;font-size:19px;line-height:1.15;color:#fff;letter-spacing:-.01em;margin:2px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+          .ck-box{order:2}
+          .bumpcard{order:3;margin:18px 0 0}
+          .amostra{order:4;margin:22px 0 0}
+          .hd{order:5;margin:18px 0 0}
+          .ck-prova{order:6;margin:18px 0 0}
+        }
         .ck-foot{padding:2.5rem 1.5rem;text-align:center;border-top:1px solid var(--hair);background:var(--bg-deep)}
         .ck-foot p{font-family:var(--serif);font-style:italic;font-size:1rem;color:var(--sage)}
       `}</style>
