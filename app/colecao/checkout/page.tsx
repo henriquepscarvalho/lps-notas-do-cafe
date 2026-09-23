@@ -33,7 +33,20 @@ const COL = {
   },
   despedida: "Sem frescura. Bom café. Notas do Café",
 };
-const BUILD = "colecao-20260923-0916";
+const BUILD = "colecao-20260923-0955";
+
+/* Saída do checkout (HC 23/09, JSON col_exit_intent): quem faz o gesto de sair ANTES de tocar no formulário
+   recebe o guia da casa e o botão abre direto o /ebook-premium/checkout. O preço vem do token `preco` da
+   página do guia e a fábrica confere contra o VALOR_CHEIO da rota /api/create-session (o que a Stripe cobra).
+   Uma vez por sessão. Computador = mouse cruza o topo; celular = volta pra aba depois de 3 s fora, ou subida
+   rápida (320 px em 350 ms, molde do ExitIntent do checkout do guia). Nunca depois do primeiro toque no
+   formulário da Stripe: no Pix e no 3DS a pessoa vai ao app do banco e volta pagando.
+   Beacons: colecao-exit-topo|volta|rolagem (abriu, por gatilho) e colecao-exit-cta (clicou). A venda do guia
+   carrega a origem da jornada (email-colecao-… no vdn_source), que separa quem veio daqui.
+   Desligar = EXIT false e subir. ALQ fora (âncora, Regra 2). */
+const EXIT = true;
+const GUIA = { titulo: "Café de Balcão no Coador de Casa", capa: "/ebook-web/capa-notas-do-cafe.webp", resumo: "Guia completo, web + PDF.", preco: "R$ 47" };
+const GUIA_HREF = "/ebook-premium/checkout?src=colecao-exit";
 
 /* col/08 (HC 23/09): «Qual checkout vende mais: com as páginas do volume ou só com a capa?»
    A = só a capa (controle, o golden de 22/09); B = capa + 3 páginas do PDF entregue (sumário
@@ -189,6 +202,63 @@ export default function ColecaoCheckout() {
     return para;
   }, []);
 
+  // Saída (HC 23/09): o guia da casa pra quem sai antes de tocar no formulário.
+  const [saida, setSaida] = useState(false);
+  const caixaSaida = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!EXIT) return;
+    let ja = false;
+    const abre = (gatilho: "topo" | "volta" | "rolagem") => {
+      if (ja || pagarJa.current) return;
+      try {
+        if (sessionStorage.getItem("col_exit")) return;
+        sessionStorage.setItem("col_exit", "1");
+      } catch {
+        /* modo privado: o guard fica só na variável */
+      }
+      ja = true;
+      setSaida(true);
+      sendBeacon(COL.slug, `colecao-exit-${gatilho}`);
+    };
+    const onLeave = (e: MouseEvent) => {
+      if (e.clientY <= 0) abre("topo");
+    };
+    let fora = 0;
+    const onVis = () => {
+      if (document.visibilityState === "hidden") fora = Date.now();
+      else if (fora && Date.now() - fora >= 3000) abre("volta");
+    };
+    let uy = window.scrollY, ry = uy, rt = 0;
+    const onScroll = () => {
+      const y = window.scrollY, t = Date.now();
+      if (y < uy) {
+        if (!rt) { rt = t; ry = uy; }
+        if (ry - y >= 320 && t - rt <= 350) abre("rolagem");
+      } else rt = 0;
+      uy = y;
+    };
+    const toque = "ontouchstart" in window || window.matchMedia("(pointer:coarse)").matches;
+    document.addEventListener("mouseleave", onLeave);
+    if (toque) {
+      document.addEventListener("visibilitychange", onVis);
+      window.addEventListener("scroll", onScroll, { passive: true });
+    }
+    return () => {
+      document.removeEventListener("mouseleave", onLeave);
+      document.removeEventListener("visibilitychange", onVis);
+      window.removeEventListener("scroll", onScroll);
+    };
+  }, []);
+  useEffect(() => {
+    if (!saida) return;
+    caixaSaida.current?.focus();
+    const esc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setSaida(false);
+    };
+    document.addEventListener("keydown", esc);
+    return () => document.removeEventListener("keydown", esc);
+  }, [saida]);
+
   const configurado = Boolean(PK);
   const depo = PROVA.depoimento;
 
@@ -324,6 +394,38 @@ export default function ColecaoCheckout() {
         <p>{COL.despedida}</p>
       </footer>
 
+      {saida && (
+        <div
+          className="saida"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="saida-titulo"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setSaida(false);
+          }}
+        >
+          <div className="saida-box" ref={caixaSaida} tabIndex={-1}>
+            <button type="button" className="saida-x" aria-label="Fechar" onClick={() => setSaida(false)}>×</button>
+            <p className="saida-kicker">Antes de sair</p>
+            <h2 id="saida-titulo">Comece pelo guia da {COL.news}.</h2>
+            <div className="saida-guia">
+              <img src={GUIA.capa} alt="" width={78} height={104} />
+              <div>
+                <b>{GUIA.titulo}</b>
+                <span>{GUIA.resumo}</span>
+              </div>
+            </div>
+            <p className="saida-preco">{GUIA.preco}, uma vez só · pix ou cartão</p>
+            <a className="saida-cta" href={GUIA_HREF} onClick={() => sendBeacon(COL.slug, "colecao-exit-cta", { eventType: "converteu" })}>
+              Quero o guia →
+            </a>
+            <button type="button" className="saida-fechar" onClick={() => setSaida(false)}>
+              Continuar na Coleção
+            </button>
+          </div>
+        </div>
+      )}
+
       <style>{`
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700;1,900&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
 :root{--bg:#14110C;--bg-deep:#19170F;--text:#E9EAE3;--text-dim:#96917E;--sage:#96917E;--hair:rgba(233,234,227,.12);--hair-accent:rgba(226,120,44,.30);--bright:#E2782C;--serif:"Playfair Display",Georgia,serif;--sans:"Inter",system-ui,sans-serif;--mono:"IBM Plex Mono",ui-monospace,monospace}
@@ -415,6 +517,20 @@ a{color:inherit;text-decoration:none}
         .am-row figure{margin:0}
         .am-row img{display:block;width:100%;height:auto;aspect-ratio:600/850;border-radius:3px;background:#fff;box-shadow:0 12px 28px rgba(0,0,0,.55)}
         .am-row figcaption{font-size:11.5px;color:var(--text-dim);margin-top:7px;line-height:1.3}
+        .saida{position:fixed;inset:0;z-index:9999;background:rgba(6,4,5,.82);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:24px}
+        .saida-box{position:relative;width:100%;max-width:420px;background:var(--bg-deep);border:1px solid var(--hair-accent);border-radius:20px;padding:32px 24px;text-align:center;outline:none;box-shadow:0 30px 70px rgba(0,0,0,.6)}
+        .saida-x{position:absolute;top:8px;right:16px;background:none;border:0;color:var(--text-dim);font-size:24px;line-height:1;cursor:pointer}
+        .saida-kicker{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:var(--bright);margin:0 0 12px}
+        .saida-box h2{font-family:var(--serif);font-style:italic;font-weight:900;font-size:24px;line-height:1.2;color:#fff;margin:0 0 18px;letter-spacing:-.01em;text-wrap:balance}
+        .saida-guia{display:flex;align-items:center;gap:14px;text-align:left;margin:0 0 16px}
+        .saida-guia img{width:78px;height:104px;object-fit:cover;border-radius:3px 6px 6px 3px;box-shadow:0 12px 28px rgba(0,0,0,.55);flex:none}
+        .saida-guia b{display:block;font-family:var(--serif);font-weight:700;font-size:17px;line-height:1.25;color:#fff;margin-bottom:4px}
+        .saida-guia span{display:block;font-size:13px;line-height:1.45;color:var(--text)}
+        .saida-preco{font-size:14px;color:var(--text-dim);margin:0 0 18px}
+        .saida-cta{display:block;width:100%;box-sizing:border-box;padding:16px 24px;border-radius:999px;background:var(--bright);color:#140408;font-weight:700;font-size:17px;text-decoration:none;transition:filter .16s ease}
+        .saida-cta:hover{filter:brightness(1.08)}
+        .saida-fechar{margin-top:16px;background:none;border:0;color:var(--text-dim);font-family:var(--sans);font-size:14px;cursor:pointer;text-decoration:underline;text-underline-offset:4px}
+        @media (max-width:480px){.saida{align-items:flex-end;padding:0}.saida-box{max-width:none;border-radius:20px 20px 0 0;padding:28px 20px calc(24px + env(safe-area-inset-bottom))}}
         .ck-foot{padding:2.5rem 1.5rem;text-align:center;border-top:1px solid var(--hair);background:var(--bg-deep)}
         .ck-foot p{font-family:var(--serif);font-style:italic;font-size:1rem;color:var(--sage)}
       `}</style>
