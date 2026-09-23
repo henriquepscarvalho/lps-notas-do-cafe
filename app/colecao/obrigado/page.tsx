@@ -9,8 +9,8 @@ const COL = {
   news: "Notas do Café",
   kicker: "Coleção completa",
   n: "115",
-  bumpTitulo: "Café de Balcão no Coador de Casa",
-  appUrl: "/app/d25d111a",
+  bumpTitulo: "Coleção completa · Brasa Certa",
+  appUrl: "",
   despedida: "Sem frescura. Bom café. Notas do Café",
 };
 const VALOR_COM_BUMP = 14550;
@@ -71,7 +71,7 @@ export default function ColecaoObrigado() {
 
         <ul className="ob-itens">
           <li>Coleção completa da {COL.news}: {COL.n} edições num PDF</li>
-          {comBump && COL.bumpTitulo && <li>{COL.bumpTitulo} · ebook + app</li>}
+          {comBump && COL.bumpTitulo && <li>{COL.bumpTitulo}: PDF em email separado</li>}
         </ul>
 
         <p className="ob-texto">

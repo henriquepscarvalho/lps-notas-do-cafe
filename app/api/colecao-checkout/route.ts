@@ -9,8 +9,9 @@ const SC = "NC";
 const NEWS = "Notas do Café";
 const PRICE_COLECAO = "price_1UIZpt40q2kXDh5Bxl3KLipz"; // R$ 97 (live, NM)
 // Bump = o ebook premium + app da PRÓPRIA casa pela metade (HC 22/09/26)
-const BUMP_PRICE = "price_1UC5G340q2kXDh5Bh4c2QQsy"; // R$ 48,50 (live, NM); vazio = casa sem app, sem bump
-const BUMP_TITULO = "Café de Balcão no Coador de Casa";
+const BUMP_PRICE = "price_1UIojp40q2kXDh5BbZVpodcE"; // R$ 48,50 (live, NM); vazio = casa sem app, sem bump
+const BUMP_TITULO = "Coleção completa · Brasa Certa";
+const BUMP_SC = "BC"; // a news do par (colecao-rede, col/08)
 const VALOR_COLECAO = 9700;
 const VALOR_BUMP = 4850;
 // A janela da campanha: depois de sexta 25/09/26 23:59:59 (BRT) a rota recusa criar session (a copy
@@ -48,7 +49,12 @@ export async function POST(req: Request) {
     "metadata[sc]": SC,
     "adaptive_pricing[enabled]": "false",
   };
-  if (bump) params["metadata[bump]"] = "app";
+  // Bump = coleção completa da news do par pela metade (HC 23/09/26, col/08): a vigia entrega o PDF
+  // pela automação 💎 [Entrega] da news do par, lendo metadata bump_sc.
+  if (bump) {
+    params["metadata[bump]"] = "colecao";
+    params["metadata[bump_sc]"] = BUMP_SC;
+  }
 
   // Jornada e origem (mesmo desenho do app-checkout): a vigia grava em ebook_purchases.journey_id/src.
   const curto = (v: unknown) => (typeof v === "string" && v.trim() ? v.trim().slice(0, 120) : "");
@@ -70,7 +76,7 @@ export async function POST(req: Request) {
   if (ip) params["metadata[ip]"] = ip;
   if (ua) params["metadata[ua]"] = ua;
 
-  params["payment_intent_data[description]"] = `Colecao completa ${NEWS} (${SC})` + (bump ? ` + bump ebook e app` : "");
+  params["payment_intent_data[description]"] = `Colecao completa ${NEWS} (${SC})` + (bump ? ` + bump colecao ${BUMP_SC}` : "");
   params["payment_intent_data[statement_descriptor_suffix]"] = `COLECAO ${SC}`.slice(0, 22);
 
   // ponytail: price IDs live não existem em test mode; rk_test_ usa price_data inline com os mesmos valores.
@@ -82,7 +88,7 @@ export async function POST(req: Request) {
     if (bump) {
       params["line_items[1][price_data][currency]"] = "brl";
       params["line_items[1][price_data][unit_amount]"] = String(VALOR_BUMP);
-      params["line_items[1][price_data][product_data][name]"] = `${BUMP_TITULO} · ebook + app`;
+      params["line_items[1][price_data][product_data][name]"] = `${BUMP_TITULO}`;
       params["line_items[1][quantity]"] = "1";
     }
   } else {

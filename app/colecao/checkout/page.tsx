@@ -22,20 +22,18 @@ const COL = {
   capaAlt: "Capa da Coleção completa da Notas do Café",
   leva: "115 edições, de abril de 2026 até esta semana, inteiras e em ordem, com sumário por mês",
   bump: {
-      "titulo": "Café de Balcão no Coador de Casa",
-      "ponte": "Você está levando todas as edições. Este é o guia premium da casa, com o app pra aplicar.",
-      "frase": "Da Notas do Café: o ebook Café de Balcão no Coador de Casa em PDF e versão web, mais o app no celular, pela metade do preço.",
-      "formato": "Ebook + app, entrega separada por email",
-      "capa": "/ebook-web/capa-notas-do-cafe.webp",
-      "capaAlt": "Capa do ebook Café de Balcão no Coador de Casa",
-      "tela": "/ebook-web/capa-app-notas-do-cafe.webp",
-      "telaAlt": "O app Café de Balcão no Coador de Casa no celular",
+      "titulo": "Coleção completa · Brasa Certa",
+      "ponte": "Você está levando todas as edições. Leve junto a coleção completa de outra newsletter, pela metade do preço.",
+      "frase": "Churrasco todo dia: cortes, técnicas, equipamentos e harmonizações. 117 edições, de abril de 2026 até esta semana, num PDF só.",
+      "formato": "PDF, entrega separada por email",
+      "capa": "https://ecmveymyzdqiehvtqxms.supabase.co/storage/v1/object/public/assets/scriptorium/colecao/brasa-certa-capa.png",
+      "capaAlt": "Capa da Coleção completa: Brasa Certa",
       "preco": "R$ 48,50",
       "de": "R$ 97"
   },
   despedida: "Sem frescura. Bom café. Notas do Café",
 };
-const BUILD = "colecao-20260923-0038";
+const BUILD = "colecao-20260923-0916";
 
 /* col/08 (HC 23/09): «Qual checkout vende mais: com as páginas do volume ou só com a capa?»
    A = só a capa (controle, o golden de 22/09); B = capa + 3 páginas do PDF entregue (sumário
@@ -199,9 +197,7 @@ export default function ColecaoCheckout() {
       <span className="btag">Adicione ao pedido</span>
       <p className="bponte">{COL.bump.ponte}</p>
       <div className="hd-par b-par">
-        <img className="hd-pcapa" src={COL.bump.capa} alt={COL.bump.capaAlt} width={1800} height={2400} loading="lazy" />
-        <span className="hd-mais" aria-hidden="true">+</span>
-        <span className="hd-fone"><img src={COL.bump.tela} alt={COL.bump.telaAlt} width={780} height={1688} loading="lazy" /></span>
+        <img className="hd-pcapa" src={COL.bump.capa} alt={COL.bump.capaAlt} width={900} height={1200} loading="lazy" />
       </div>
       <span className="bformato">{COL.bump.formato}</span>
       <span className="bnome">{COL.bump.titulo}</span>
