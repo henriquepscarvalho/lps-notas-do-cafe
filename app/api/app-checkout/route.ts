@@ -203,6 +203,10 @@ export async function POST(req: Request) {
     params["custom_fields[0][type]"] = "numeric";
     params["custom_fields[0][numeric][minimum_length]"] = "11";
     params["custom_fields[0][numeric][maximum_length]"] = "14";
+    // c4-20k/126 (HC 23/09/26): cartão salvo religado só no cartão, pro upsell de um clique da obrigado.
+    // No nível do PaymentIntent a Stripe tirava o Pix da session inteira (24/08); no nível do cartão
+    // Pix e boleto seguem na session e só o cartão fica ligado ao Customer.
+    params["payment_method_options[card][setup_future_usage]"] = "off_session";
     const r = await fetch("https://api.stripe.com/v1/checkout/sessions", {
       method: "POST",
       headers: {
