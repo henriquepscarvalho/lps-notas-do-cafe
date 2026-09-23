@@ -205,8 +205,18 @@ const SET = (k: string, v: string) => { try { sessionStorage.setItem(k, v); } ca
 
 type Ctx = "news" | "ebook";
 const STEP1_P: Record<Ctx, string> = {
-  news: `A primeira edição já está pronta. Procure o email de confirmação e clique no link. Sem ele, nada chega às ${HORA}.`,
+  news: `Seu email de boas-vindas já saiu. Não achou na caixa de entrada? Olhe em Promoções e arraste pra Principal: assim a primeira edição chega na frente, às ${HORA}.`,
   ebook: `Seu material está a caminho. Procure o email de confirmação e clique no link pra liberar o envio. A primeira edição chega logo depois, às ${HORA}.`,
+};
+/* lpca/m02 (HC 22/09/26): double opt-in desligado, o 1o email sai na hora. No contexto news o
+   passo do email manda abrir a caixa. O contexto ebook segue igual ate 07/10 (EXP-053, EXP-076). */
+const STEP1_H: Record<Ctx, string> = {
+  news: "Abra seu email",
+  ebook: "Confirme seu email",
+};
+const STEP1_BTN: Record<Ctx, string> = {
+  news: "Abrir meu email",
+  ebook: "Confirmar email",
 };
 const FINAL_NOTE: Record<Ctx, string> = {
   news: `Você está dentro. A primeira edição cai direto na sua caixa às ${HORA}, todo dia.`,
@@ -542,10 +552,10 @@ export default function OnboardingWizard({
                 {idx === 1 && (
                   <div className="cc-step" key="email">
                     <div className="cc-n">{`Passo ${stepNo} de ${TOTAL} · essencial`}</div>
-                    <h2>Confirme seu email</h2>
+                    <h2>{STEP1_H[context]}</h2>
                     <p>{STEP1_P[context]}</p>
                     {!emailOpen ? (
-                      <button className="cc-btnP" onClick={() => setEmailOpen(true)}>Confirmar email</button>
+                      <button className="cc-btnP" onClick={() => setEmailOpen(true)}>{STEP1_BTN[context]}</button>
                     ) : (
                       <div className="cc-reveal">
                         <button className="cc-btnP" onClick={() => confirmEmail(gmail)}>Abrir Gmail →</button>
