@@ -35,7 +35,45 @@ const COL = {
   },
   despedida: "Sem frescura. Bom café. Notas do Café",
 };
-const BUILD = "colecao-20260922-1710";
+const BUILD = "colecao-20260923-0038";
+
+/* col/08 (HC 23/09): «Qual checkout vende mais: com as páginas do volume ou só com a capa?»
+   A = só a capa (controle, o golden de 22/09); B = capa + 3 páginas do PDF entregue (sumário
+   por mês, abertura de uma edição, uma página do texto). Sorteio 50/50 no localStorage (a pessoa
+   vê sempre o mesmo); `?v=A|B` força o braço (prova). O braço viaja no create-session como
+   `checkout_variant` ("capa" | "amostra") e o beacon `colecao-split-a|b` carimba a jornada
+   (1 por sessão). Desligar = SPLIT false e subir: todo mundo volta pro A, carimbo "golden". */
+const SPLIT = true;
+type Braco = "A" | "B";
+let sorteioOk = true;
+function sorteia(): Braco {
+  if (!SPLIT) return "A";
+  try {
+    const f = new URLSearchParams(location.search).get("v");
+    if (f === "A" || f === "B") {
+      localStorage.setItem("col_ck", f);
+      return f;
+    }
+    const v = localStorage.getItem("col_ck");
+    if (v === "A" || v === "B") return v;
+    const b: Braco = Math.random() < 0.5 ? "A" : "B";
+    localStorage.setItem("col_ck", b);
+    return b;
+  } catch {
+    sorteioOk = false;
+    return "A";
+  }
+}
+/* Pintura do braço antes do primeiro quadro: o script roda no parse do HTML (antes da hidratação),
+   sorteia com a mesma regra do `sorteia()` e injeta no <head> o CSS do braço B. Sem ele, o B piscaria
+   com a linha «N edições» e o chip por um instante e as páginas entrariam empurrando a tela. */
+const PINTA = `(function(){try{var q=new URLSearchParams(location.search).get("v"),b=(q==="A"||q==="B")?q:localStorage.getItem("col_ck");if(b!=="A"&&b!=="B")b=Math.random()<.5?"A":"B";localStorage.setItem("col_ck",b);if(b==="B"){var s=document.createElement("style");s.textContent="html .hd-leva,html .hd-chip{display:none}html .hd-h1{margin-top:22px}html .amostra{display:block}";document.head.appendChild(s)}}catch(e){}})();`;
+const AMOSTRA = [
+  { src: "/colecao/amostra-1.webp", rot: "Sumário por mês", alt: "Página do sumário da Coleção completa, edições agrupadas por mês" },
+  { src: "/colecao/amostra-2.webp", rot: "Abertura da edição", alt: "Primeira página de uma edição dentro do volume" },
+  { src: "/colecao/amostra-3.webp", rot: "O texto inteiro", alt: "Página do meio de uma edição, com o texto como foi enviado" },
+];
+
 const AVATARES = (MANIFEST.avatares || []).slice(0, 5);
 
 // Publishable key da conta News Makers (a coleção cobra pela NM, como o app).
@@ -65,6 +103,12 @@ function jornada() {
 
 export default function ColecaoCheckout() {
   const [bump, setBump] = useState(false);
+  const [braco, setBraco] = useState<Braco | null>(null); // null até o sorteio: sem piscar de um braço pro outro
+  useEffect(() => {
+    const b = sorteia();
+    setBraco(b);
+    if (SPLIT) sendBeacon(COL.slug, sorteioOk ? `colecao-split-${b.toLowerCase()}` : "colecao-split-x");
+  }, []);
   const [stripeOk, setStripeOk] = useState(false);
   const [montado, setMontado] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
@@ -85,7 +129,7 @@ export default function ColecaoCheckout() {
 
   // monta (e remonta quando o bump muda: session nova com line_items[1])
   useEffect(() => {
-    if (!stripeOk || !PK || !window.Stripe) return;
+    if (!stripeOk || !PK || !window.Stripe || !braco) return;
     let handle: CheckoutHandle | null = null;
     let vivo = true;
     setErro(null);
@@ -97,7 +141,7 @@ export default function ColecaoCheckout() {
           fetch("/api/colecao-checkout", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ bump, checkout_variant: "golden", ...jornada() }),
+            body: JSON.stringify({ bump, checkout_variant: SPLIT ? (braco === "B" ? "amostra" : "capa") : "golden", ...jornada() }),
           })
             .then((r) => r.json())
             .then((d) => {
@@ -119,7 +163,7 @@ export default function ColecaoCheckout() {
       vivo = false;
       handle?.destroy();
     };
-  }, [stripeOk, bump]);
+  }, [stripeOk, bump, braco]);
 
   // Início de pagamento: beacon `colecao-ck-pagar`, 1 vez por jornada, no primeiro toque no formulário da
   // Stripe (iframe de outra origem: a página enxerga o blur da janela com o iframe do #checkout-box ativo).
@@ -184,6 +228,7 @@ export default function ColecaoCheckout() {
         </div>
       </nav>
 
+      {SPLIT && <script dangerouslySetInnerHTML={{ __html: PINTA }} />}
       <main className="ck-page" data-build={BUILD}>
         <header className="hd hd-cena">
           <div className="hd-par hd-solo">
@@ -193,6 +238,20 @@ export default function ColecaoCheckout() {
           <span className="hd-chip">{COL.kicker}</span>
           <h1 className="hd-h1">{COL.titulo}</h1>
         </header>
+
+        {SPLIT && (
+          <section className="amostra" aria-label="Páginas do volume" hidden={braco === "A"}>
+            <span className="am-k">Por dentro do volume</span>
+            <div className="am-row">
+              {AMOSTRA.map((p) => (
+                <figure key={p.src}>
+                  <img src={p.src} alt={p.alt} width={600} height={850} />
+                  <figcaption>{p.rot}</figcaption>
+                </figure>
+              ))}
+            </div>
+          </section>
+        )}
 
         {PROVA.exibir && PROVA.exibir_nota && (
           <section className="ck-prova" aria-label={`O que os leitores da ${COL.news} dizem`}>
@@ -353,6 +412,13 @@ a{color:inherit;text-decoration:none}
         .ck-depo blockquote::before{content:open-quote;color:var(--bright)}
         .ck-depo blockquote::after{content:close-quote;color:var(--bright)}
         .ck-depo figcaption{margin-top:5px;font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim)}
+        .amostra{display:none;margin:0 0 18px;text-align:center}
+        .amostra[hidden]{display:none!important}
+        .am-k{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px}
+        .am-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+        .am-row figure{margin:0}
+        .am-row img{display:block;width:100%;height:auto;aspect-ratio:600/850;border-radius:3px;background:#fff;box-shadow:0 12px 28px rgba(0,0,0,.55)}
+        .am-row figcaption{font-size:11.5px;color:var(--text-dim);margin-top:7px;line-height:1.3}
         .ck-foot{padding:2.5rem 1.5rem;text-align:center;border-top:1px solid var(--hair);background:var(--bg-deep)}
         .ck-foot p{font-family:var(--serif);font-style:italic;font-size:1rem;color:var(--sage)}
       `}</style>
