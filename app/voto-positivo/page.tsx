@@ -26,6 +26,7 @@ import { useState } from "react";
 import PageBeacon, { sendBeacon } from "../PageBeacon";
 import VoteBeacon, { submitVoteComment } from "../VoteBeacon";
 import AssinaComo, { enviarAssinatura } from "../AssinaComo";
+import { useEffect as useEfCam, useState as useStCam } from "react";
 
 const CFG = {
   "slug": "notas-do-cafe",
@@ -61,11 +62,46 @@ const CFG = {
     "promessa": "A técnica completa sem máquina de R$ 2 mil",
     "capa": "https://ecmveymyzdqiehvtqxms.supabase.co/storage/v1/object/public/assets/rede/capas/notas-do-cafe.webp",
     "href": "/ebook-premium?src=edicao-voto"
+  },
+  "camiseta": {
+    "href": "https://q.notasdocafe.com.br/camiseta",
+    "img": "https://q.notasdocafe.com.br/camiseta-artes/notas-do-cafe/n2-escura.webp"
   }
 };
 
 type Oferta = { titulo: string; promessa: string; capa: string; href: string };
 const OFERTA: Oferta | null = CFG.oferta;
+/* Lista de espera da camiseta da casa (camiseta-da-casa/03, mecânica m1): card abaixo da faixa
+ * do guia, nos dois estados. O link leva o email do voto (?s=) e a edição pra rota do app do
+ * quiz, que grava só no envio do formulário. A peça ainda não existe: sem preço, sem prazo. */
+type Camiseta = { href: string; img: string };
+const CAMISETA: Camiseta | null = (CFG as { camiseta?: Camiseta | null }).camiseta ?? null;
+function CamisetaCard({ t, delay }: { t: typeof CFG.theme; delay: string }) {
+  const [href, setHref] = useStCam(CAMISETA ? `${CAMISETA.href}?src=voto` : "");
+  useEfCam(() => {
+    if (!CAMISETA) return;
+    const p = new URLSearchParams(window.location.search);
+    const q = new URLSearchParams({ src: "voto" });
+    const s = (p.get("s") || "").trim();
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s)) q.set("e", s);
+    const ed = p.get("ed");
+    if (ed && /^\d+$/.test(ed)) q.set("ed", ed);
+    setHref(`${CAMISETA.href}?${q.toString()}`);
+    sendBeacon(CFG.slug, "voto-camiseta");
+  }, []);
+  if (!CAMISETA) return null;
+  return (
+    <div className="vp-cm" style={{ borderColor: `${t.accent}33`, animation: `vpUp .9s ease-out ${delay} both` }}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={CAMISETA.img} alt="Camiseta da casa" width={72} height={72} />
+      <div>
+        <b style={{ fontFamily: t.font, color: t.heading }}>Qual dessas camisetas você usaria?</b>
+        <small>Queremos criar uma comunidade forte e unida. Logo, escolha a arte e o tamanho da camiseta e entre na lista de espera. Se leitores suficientes pedirem, nós faremos essas camisetas.</small>
+      </div>
+      <a href={href} onClick={() => sendBeacon(CFG.slug, "voto-camiseta", { eventType: "converteu" })} className="vp-btn" style={{ background: "transparent", color: t.heading, border: `1px solid ${t.accent}66` }}>Ver as artes</a>
+    </div>
+  );
+}
 
 interface Piece { id: number; left: number; delay: number; duration: number; size: number; emoji: string; }
 
@@ -134,6 +170,11 @@ export default function VotoPositivo() {
         .vp-of b { display:block; font-size:1.1rem; line-height:1.15; margin-bottom:4px }
         .vp-of small { display:block; font-size:.8rem; line-height:1.45; color:var(--vp-text) }
         .vp-of .vp-btn { grid-column:1 / -1; justify-self:start; width:auto; max-width:none; font-size:13.5px; padding:10px 14px }
+        .vp-cm { display:grid; grid-template-columns:72px 1fr; gap:12px 14px; align-items:center; text-align:left; width:100%; max-width:480px; box-sizing:border-box; margin-top:1rem; padding:12px 14px; border-radius:12px; border:1px solid; font-family:var(--font-body, system-ui, sans-serif); position:relative }
+        .vp-cm img { width:72px; height:72px; border-radius:8px; object-fit:cover }
+        .vp-cm b { display:block; font-size:1rem; line-height:1.2; margin-bottom:4px }
+        .vp-cm small { display:block; font-size:.8rem; line-height:1.45; color:var(--vp-text) }
+        .vp-cm .vp-btn { grid-column:1 / -1; justify-self:start; width:auto; max-width:none; font-size:13.5px; padding:10px 14px }
         @media (max-width:480px){ .vp-btn{ width:100%; max-width:340px } }
       `}</style>
 
@@ -202,6 +243,7 @@ export default function VotoPositivo() {
             </div>
 
             {guia("1.3s")}
+            <CamisetaCard t={t} delay="1.35s" />
           </>
         ) : (
           /* ESTADO B, pós-envio: agradecimento + WhatsApp */
@@ -213,6 +255,7 @@ export default function VotoPositivo() {
             </a>
 
             {guia(".35s")}
+            <CamisetaCard t={t} delay=".4s" />
 
             <p style={{ fontFamily: t.font, fontStyle: "italic", fontSize: "1rem", color: t.text, opacity: .7, marginTop: "3rem", animation: "vpUp .7s ease-out .45s both", position: "relative" }}>{CFG.tagline}</p>
           </>
