@@ -34,6 +34,11 @@ export default function Privacidade() {
           canais trazem leitores, nada além.
         </p>
 
+        <h2 id="celular" style={h2}>Celular e WhatsApp</h2>
+        <p style={p}>
+          Se você informa o celular na pesquisa ou entra no nosso grupo de WhatsApp, o número fica guardado junto do seu email. Ele serve pra mandar o lembrete da edição e cuidar da sua assinatura. O grupo roda na Sendflow, como operadora. Pra ver, corrigir ou apagar o número, escreva pra leia@notasdocafe.com.br.
+        </p>
+
         <h2 style={h2}>Como usamos</h2>
         <p style={p}>
           O email é usado para enviar a newsletter diária e comunicados sobre ela. Você pode cancelar
