@@ -171,12 +171,17 @@ export default function AppCheckout() {
   }, []);
   const [braco, setBraco] = useState<Braco | null>(null); // null até o sorteio: sem piscar de um braço pro outro
   const [pos, setPos] = useState<Braco>("A"); // A = bump depois do formulário, B = antes
+  // app/75 (HC 23/09, molde do c4-20k/127): abaixo de 640 px a ordem é fixa (tira, formulário, bump,
+  // cena, nota), sem sorteio (A + A); checkout_variant "cel" carimba a session.
+  const [celular, setCelular] = useState(false);
   useEffect(() => {
-    const h = sorteia("app_ck_h", SPLIT.cabecalho);
-    const b = sorteia("app_ck_b", SPLIT.bump);
+    const cel = window.matchMedia("(max-width: 639px)").matches;
+    setCelular(cel);
+    const h: Braco = cel ? "A" : sorteia("app_ck_h", SPLIT.cabecalho);
+    const b: Braco = cel ? "A" : sorteia("app_ck_b", SPLIT.bump);
     setBraco(h);
     setPos(b);
-    if (SPLIT.cabecalho || SPLIT.bump) sendBeacon(APP.slug, sorteioOk ? `app-ck-split-h${h}-b${b}` : "app-ck-split-x");
+    if (SPLIT.cabecalho || SPLIT.bump) sendBeacon(APP.slug, cel ? "app-ck-split-cel" : sorteioOk ? `app-ck-split-h${h}-b${b}` : "app-ck-split-x");
   }, []);
   const [stripeOk, setStripeOk] = useState(false);
   const [montado, setMontado] = useState(false);
@@ -218,7 +223,7 @@ export default function AppCheckout() {
               email,
               ...prazoDaUrl(),
               // "golden" = sem split; "hA-bB" etc. quando as chaves ligam (h = cabeçalho, b = bump)
-              checkout_variant: SPLIT.cabecalho || SPLIT.bump ? `h${braco}-b${pos}` : "golden",
+              checkout_variant: celular ? "cel" : SPLIT.cabecalho || SPLIT.bump ? `h${braco}-b${pos}` : "golden",
               ...jornada(),
               ...destino(),
             }),
@@ -347,6 +352,18 @@ export default function AppCheckout() {
       </nav>
 
       <main className="ck-page">
+        {/* app/75: no celular a tira (capa, chip, título e a nota numa linha) abre a página e o formulário
+            da Stripe vem logo abaixo, dentro da 1ª tela; acima de 640 px a tira some. */}
+        <div className="ck-tira">
+          <span className="ck-tira-capa"><span className="ck-lomb" aria-hidden="true" /><img src={APP.capa} alt={APP.capaAlt} width={44} height={59} /></span>
+          <div className="ck-tira-in">
+            <span className="ck-tira-kick">{APP.kicker}</span>
+            <span className="ck-tira-tit">{APP.titulo}</span>
+            {PROVA.exibir && PROVA.exibir_nota && (
+              <span className="ck-tira-nota"><b>{PROVA.media_exibido}</b><span className="ck-stars" style={{ "--f": `${PROVA.media_pct}%` } as React.CSSProperties} aria-label={`${PROVA.media_exibido} de 5`}><span className="st-b" aria-hidden="true">★★★★★</span><span className="st-f" aria-hidden="true">★★★★★</span></span><span>{PROVA.votos} votos</span></span>
+            )}
+          </div>
+        </div>
         {/* cabeçalho: A = a cena da LP (par ebook + app, chip "Ebook + app", título; HC 12/09, protótipo C);
             B = capa ao lado (só quando o split ligar) */}
         {braco === "B" ? (
@@ -563,6 +580,26 @@ a{color:inherit;text-decoration:none}
         .ck-depo blockquote::before{content:open-quote;color:var(--bright)}
         .ck-depo blockquote::after{content:close-quote;color:var(--bright)}
         .ck-depo figcaption{margin-top:5px;font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim)}
+        /* tira e ordem do celular (app/75, molde do c4-20k/127): formulário na 1ª tela; desktop segue como está */
+        .ck-tira{display:none}
+        @media (max-width:639px){
+          .ck-page{display:flex;flex-direction:column}
+          .ck-tira{display:grid;grid-template-columns:44px 1fr;gap:12px;align-items:center;padding:12px 0 14px;order:1}
+          .ck-tira-capa{position:relative;display:block;width:44px}
+          .ck-tira-capa img{display:block;width:100%;height:auto;border-radius:4px;box-shadow:0 10px 22px rgba(0,0,0,.6)}
+          .ck-tira-in{min-width:0}
+          .ck-tira-kick{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--bright);line-height:1.3}
+          .ck-tira-tit{display:block;font-family:var(--serif);font-style:italic;font-weight:900;font-size:19px;line-height:1.15;color:#fff;letter-spacing:-.01em;margin:2px 0 3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+          .ck-tira-nota{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-dim);line-height:1}
+          .ck-tira-nota b{color:#fff;font-family:var(--serif);font-size:14px}
+          .ck-tira-nota .ck-stars{font-size:13px;letter-spacing:.5px}
+          .ck-box{order:2}
+          .bumpcard{order:3;margin:18px 0 0}
+          .bumpcard.antes{margin:18px 0 0}
+          .hd{order:4;margin:18px 0 0}
+          .hd-cena{padding:6px 0 4px}
+          .ck-prova{order:5;margin:18px 0 0}
+        }
         .ck-foot{padding:2.5rem 1.5rem;text-align:center;border-top:1px solid var(--hair);background:var(--bg-deep)}
         .ck-foot p{font-family:var(--serif);font-style:italic;font-size:1rem;color:var(--sage)}
 
