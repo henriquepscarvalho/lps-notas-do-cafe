@@ -208,17 +208,18 @@ const SET = (k: string, v: string) => { try { sessionStorage.setItem(k, v); } ca
 type Ctx = "news" | "ebook";
 const STEP1_P: Record<Ctx, string> = {
   news: `Seu email de boas-vindas já saiu. Não achou na caixa de entrada? Olhe em Promoções e arraste pra Principal: assim a primeira edição chega na frente, às ${HORA}.`,
-  ebook: `Seu material está a caminho. Procure o email de confirmação e clique no link pra liberar o envio. A primeira edição chega logo depois, às ${HORA}.`,
+  ebook: `Seu material já saiu pro seu email. Não achou na caixa de entrada? Olhe em Promoções e arraste pra Principal. A primeira edição chega no mesmo lugar, às ${HORA}.`,
 };
 /* lpca/m02 (HC 22/09/26): double opt-in desligado, o 1o email sai na hora. No contexto news o
-   passo do email manda abrir a caixa. O contexto ebook segue igual ate 07/10 (EXP-053, EXP-076). */
+   passo do email manda abrir a caixa. */
+/* lpca/m02e (HC 24/09/26): news e ebook mandam abrir a caixa, nenhum passo pede confirmacao. */
 const STEP1_H: Record<Ctx, string> = {
   news: "Abra seu email",
-  ebook: "Confirme seu email",
+  ebook: "Abra seu email",
 };
 const STEP1_BTN: Record<Ctx, string> = {
   news: "Abrir meu email",
-  ebook: "Confirmar email",
+  ebook: "Abrir meu email",
 };
 const FINAL_NOTE: Record<Ctx, string> = {
   news: `Você está dentro. A primeira edição cai direto na sua caixa às ${HORA}, todo dia.`,
