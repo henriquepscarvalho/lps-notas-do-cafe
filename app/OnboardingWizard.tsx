@@ -466,7 +466,25 @@ export default function OnboardingWizard({
     "--cc-border": C.border, "--cc-fh": FH, "--cc-fb": FB,
   } as CSSProperties;
 
-  const stepNo = Math.min(idx + 2, TOTAL); // cadastro = passo 1, já vencido
+  // jornada-ad/05: «Passo N de M» conta só os passos que existem pra este leitor. O predicado é a parte
+  // estrutural do isHandled (sem as linhas de sessão): o controle do combo não vê o REC e abria em «Passo 3 de 7».
+  const ausente = (k: StepKey): boolean => {
+    if (k === "rec") {
+      // sem email salvo nao ha POST possivel: nao renderiza NESTA visita, sem gravar skip
+      // (gravar skip queimava o passo na sessao se o lead abria a rota antes do cadastro)
+      let em: string | null = null;
+      try { em = localStorage.getItem("vdn_lead_email"); } catch {}
+      if (!em) return true;
+      if (recBraco === "controle") return true; // wiz/23: o controle não vê o passo
+    }
+    if (k === "ebook" && !EB.url) return true; // news sem LP de venda: passo nao existe
+    return false;
+  };
+  const vis = ORDER.filter((k) => !ausente(k));
+  const pos = Math.max(0, vis.indexOf(ORDER[idx]));
+  const TOT = vis.length + 1;
+  const stepNo = Math.min(pos + 2, TOT); // cadastro = passo 1, já vencido
+  const nRec = bh.status === "ready" ? bh.recs.length : 4; // jornada-ad/12: 1 recomendação fala no singular
 
   return (
     <>
@@ -486,19 +504,19 @@ export default function OnboardingWizard({
             <>
               <div className="cc-prog">
                 <div className="cc-bars">
-                  {Array.from({ length: TOTAL }, (_, i) => (
-                    <span key={i} className={"cc-bar" + (i <= idx ? " done" : i === idx + 1 ? " cur" : "")}><i /></span>
+                  {Array.from({ length: TOT }, (_, i) => (
+                    <span key={i} className={"cc-bar" + (i <= pos ? " done" : i === pos + 1 ? " cur" : "")}><i /></span>
                   ))}
                 </div>
-                <span className="cc-ptxt">Passo <b>{stepNo}</b> de {TOTAL}</span>
+                <span className="cc-ptxt">Passo <b>{stepNo}</b> de {TOT}</span>
               </div>
               <div className="cc-chip">✓ Cadastro feito, você está dentro!</div>
               <div className="cc-stage">
                 {idx === 0 && (
                   <div className="cc-step" key="rec">
                     <div className="cc-n">Você foi convidado</div>
-                    <h2>Quem lê a {NAME} também lê <em>estas {bh.status === "ready" ? bh.recs.length : 4}</em></h2>
-                    <p>Escolhemos outras {bh.status === "ready" ? bh.recs.length : 4} news que mais combinam com a {NAME}. {bh.status === "ready" ? "Deixamos todas marcadas. Desmarque a que não quiser e confirme." : (<>Deixamos a primeira marcada. {recCap === 2 ? "Escolha até 2 e confirme." : "Marque as outras que você quiser receber e confirme."}</>)}</p>
+                    <h2>Quem lê a {NAME} também lê <em>{nRec === 1 ? "esta" : `estas ${nRec}`}</em></h2>
+                    <p>{nRec === 1 ? <>Escolhemos uma news que combina com a {NAME}.</> : <>Escolhemos outras {nRec} news que mais combinam com a {NAME}.</>} {bh.status === "ready" ? (nRec === 1 ? "Deixamos marcada. Desmarque se não quiser e confirme." : "Deixamos todas marcadas. Desmarque a que não quiser e confirme.") : (<>Deixamos a primeira marcada. {recCap === 2 ? "Escolha até 2 e confirme." : "Marque as outras que você quiser receber e confirme."}</>)}</p>
                     {bh.status === "loading" && <div className="cc-recgrid" aria-busy="true"><p className="cc-recerr">Carregando as recomendações...</p></div>}
                     {bh.status === "ready" && (
                       <div className="cc-recgrid">
@@ -554,7 +572,7 @@ export default function OnboardingWizard({
                 )}
                 {idx === 1 && (
                   <div className="cc-step" key="email">
-                    <div className="cc-n">{`Passo ${stepNo} de ${TOTAL} · essencial`}</div>
+                    <div className="cc-n">{`Passo ${stepNo} de ${TOT} · essencial`}</div>
                     <h2>{STEP1_H[context]}</h2>
                     <p>{STEP1_P[context]}</p>
                     {!emailOpen ? (
@@ -573,7 +591,7 @@ export default function OnboardingWizard({
                 )}
                 {idx === 2 && (
                   <div className="cc-step" key="whatsapp">
-                    <div className="cc-n">{`Passo ${stepNo} de ${TOTAL} · recomendado`}</div>
+                    <div className="cc-n">{`Passo ${stepNo} de ${TOT} · recomendado`}</div>
                     <h2>Receba no seu WhatsApp</h2>
                     <p>Um toque pessoal antes de cada edição, direto no seu WhatsApp. Sem grupo, sem barulho. Leva 10 segundos.</p>
                     <a className="cc-btnP" href={WHATS} target="_blank" rel="noopener noreferrer"
@@ -584,7 +602,7 @@ export default function OnboardingWizard({
                 )}
                 {idx === 3 && (
                   <div className="cc-step" key="pesquisa">
-                    <div className="cc-n">{`Passo ${stepNo} de ${TOTAL} · 1 minuto`}</div>
+                    <div className="cc-n">{`Passo ${stepNo} de ${TOT} · 1 minuto`}</div>
                     <h2>Deixe no ponto pra você</h2>
                     <p>Conta rápido quem é você. Cada edição passa a chegar mais no ponto pro seu interesse.</p>
                     <a className="cc-btnP" href="/pesquisa">Responder (1 min) →</a>
@@ -593,7 +611,7 @@ export default function OnboardingWizard({
                 )}
                 {idx === 4 && (
                   <div className="cc-step" key="ebook">
-                    <div className="cc-n">{`Passo ${stepNo} de ${TOTAL} · guia completo`}</div>
+                    <div className="cc-n">{`Passo ${stepNo} de ${TOT} · guia completo`}</div>
                     <a className="cc-ebhero" href={ebHref()} target="_blank" rel="noopener"
                       aria-label={`Conhecer o guia ${EB.titulo}`} onClick={abrirGuia}
                     >
@@ -610,7 +628,7 @@ export default function OnboardingWizard({
                 )}
                 {idx === 5 && (
                   <div className="cc-step" key="edicoes">
-                    <div className="cc-n">{`Passo ${stepNo} de ${TOTAL} · enquanto espera`}</div>
+                    <div className="cc-n">{`Passo ${stepNo} de ${TOT} · enquanto espera`}</div>
                     <h2>Leia enquanto espera</h2>
                     <p>A próxima edição chega às {HORA}. Até lá, leia a última e já saia na frente.</p>
                     <a className="cc-btnP" href={ULTIMA} target="_blank" rel="noopener noreferrer"
@@ -626,11 +644,11 @@ export default function OnboardingWizard({
             <>
               <div className="cc-prog">
                 <div className="cc-bars">
-                  {Array.from({ length: TOTAL }, (_, i) => (
+                  {Array.from({ length: TOT }, (_, i) => (
                     <span key={i} className="cc-bar done"><i /></span>
                   ))}
                 </div>
-                <span className="cc-ptxt"><b>{TOTAL}</b> de {TOTAL}</span>
+                <span className="cc-ptxt"><b>{TOT}</b> de {TOT}</span>
               </div>
               <p className="cc-kicker" style={{ marginTop: 2 }}>Tudo pronto</p>
               <div className="cc-pair">

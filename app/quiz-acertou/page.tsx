@@ -42,7 +42,7 @@ export default function QuizAcertou() {
       </div>
 
       <main style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "4rem 24px", textAlign: "center", background: "#2C1810", position: "relative" }}>
-        <div style={{ position: "absolute", top: "30%", left: "50%", transform: "translate(-50%, -50%)", width: 500, height: 500, background: `radial-gradient(circle, rgba(200,150,62,0.22), transparent 70%)`, pointerEvents: "none" }} />
+        <div style={{ position: "absolute", top: "30%", left: "50%", transform: "translate(-50%, -50%)", width: "min(500px, 100vw)", height: 500, background: `radial-gradient(circle, rgba(200,150,62,0.22), transparent 70%)`, pointerEvents: "none" }} />
 
         <a href="/" style={{ position: "relative" }}>
           <Image src="/images/logo/simbolo.png" alt="Notas do Café" width={64} height={64} style={{ marginBottom: "2rem", animation: "fadeUp 0.9s ease-out 0.3s both" }} />

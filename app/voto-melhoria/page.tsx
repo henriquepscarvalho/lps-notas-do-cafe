@@ -56,7 +56,7 @@ export default function VotoMelhoria() {
             top: "30%",
             left: "50%",
             transform: "translateX(-50%)",
-            width: "500px",
+            width: "min(500px, 100vw)",
             height: "500px",
             background: "radial-gradient(circle, rgba(200,150,62,0.10) 0%, transparent 65%)",
             pointerEvents: "none",
