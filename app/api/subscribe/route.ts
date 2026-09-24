@@ -192,12 +192,46 @@ async function sortearBraco(email: string, pubId: string, autoId: string | undef
   }
 }
 
+// denylist-rv11 (reputacao-vigiada/11, HC 24/09/26): quem denunciou spam em qualquer casa da rede
+// está na email_denylist (Supabase) e nenhuma página nossa aceita o email de volta. A RPC
+// is_email_denied é SECURITY DEFINER e só devolve boolean; a anon key é pública por desenho.
+// Fail-open: erro, timeout de 1,5 s ou resposta que não seja `true` liberam o cadastro
+// (lead nunca se perde por falha da checagem).
+const DENYLIST_RPC = "https://ecmveymyzdqiehvtqxms.supabase.co/rest/v1/rpc/is_email_denied";
+const DENYLIST_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjbXZleW15emRxaWVodnRxeG1zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk3MTA0MTAsImV4cCI6MjA4NTI4NjQxMH0.Po6pTYlWVwBpPn1PsKhwF4zYj5XMva9n9alLHskuqbE";
+
+async function emailNaDenylist(email: string): Promise<boolean> {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 1500);
+  try {
+    const res = await fetch(DENYLIST_RPC, {
+      method: "POST",
+      headers: { apikey: DENYLIST_ANON_KEY, "Content-Type": "application/json" },
+      body: JSON.stringify({ p_email: email }),
+      signal: ctrl.signal,
+      cache: "no-store",
+    });
+    if (!res.ok) return false;
+    return (await res.json()) === true;
+  } catch {
+    return false;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 export async function POST(req: Request) {
   const body = await req.json().catch(() => ({} as any));
 
   const email = String(body?.email ?? "").trim().toLowerCase();
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return NextResponse.json({ error: "Email inválido" }, { status: 400 });
+  }
+
+  // denylist-rv11: email da denylist recebe o mesmo sucesso do cadastro e não chega à beehiiv
+  // (o front segue o fluxo normal e a página não revela a lista).
+  if (await emailNaDenylist(email)) {
+    return NextResponse.json({ success: true });
   }
 
   const rawRef = (body?.utm as Record<string, unknown> | undefined)?.ref;
