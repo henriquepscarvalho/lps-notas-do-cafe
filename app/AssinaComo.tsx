@@ -170,7 +170,7 @@ export default function AssinaComo({ slug, modo = "voto", tema }: { slug: string
     width: "100%", boxSizing: "border-box", fontSize: 16, lineHeight: 1.3, padding: ".75rem 1rem", outline: "none",
     ...(tema ? { background: "rgba(127,127,127,.08)", border: `1px solid ${tema.accent}55`, borderRadius: 10, color: tema.heading, fontFamily: "inherit" } : campo),
   };
-  const aviso = modo === "pauta" ? "Se esta pauta vencer, seu nome pode sair na edição." : "Sua frase pode sair na próxima edição.";
+  const aviso = modo === "pauta" ? "Se esta pauta vencer, seu nome pode sair na edição." : "Seu nome fica guardado pra quando a casa abrir o espaço dos leitores.";
   const apagar = " Pra tirar o nome depois, responda qualquer edição.";
 
   if (estado === "assinado") {

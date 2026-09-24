@@ -11,9 +11,17 @@
  * Fluxo (bloco Discover do email, gamificacao-do-leitor/15):
  * o leitor clica numa das 4 pautas (p=a..d) e cai aqui. A gravação
  * é no load (best-effort, tabela public.pauta_votes, insert-only);
- * a página confirma a letra escolhida e promete o resultado na
- * edição de amanhã. Sem comentário obrigatório: o voto é o
- * engajamento, fricção extra derrubaria a taxa.
+ * a página confirma a letra escolhida. Sem comentário obrigatório: o
+ * voto é o engajamento, fricção extra derrubaria a taxa.
+ *
+ * Retorno honesto (gam/219, auditoria «loop de confiança» 24/09): a
+ * página lê o discover.json da casa (discover_publica.py) e só promete
+ * o que o email promete. Voto aberto: dia em que a vencedora sai (o
+ * mesmo `sai_de` do card do email) ou «nos próximos dias»; nunca
+ * «amanhã». Voto que chega depois do fechamento (352 de 754 em
+ * setembro) não ganha confete nem «Escolha registrada»: a página diz
+ * que a votação fechou, quem venceu quando o JSON sabe, e abre as
+ * pautas da oferta que ainda está aberta.
  * ============================================================ */
 
 import { useEffect, useMemo, useState } from "react";
@@ -62,11 +70,65 @@ const CFG = {
     "font": "var(--font-heading)",
     "btnBg": "#C8963E",
     "btnText": "#2C1810"
-  }
+  },
+  "json": "https://ecmveymyzdqiehvtqxms.supabase.co/storage/v1/object/public/assets/news/notas-do-cafe/discover.json"
 } as {
   slug: string; brand: string; logo: string; logoW: number; logoH: number;
-  emojis: string[]; escada: Degrau[]; theme: Record<string, string>;
+  emojis: string[]; escada: Degrau[]; theme: Record<string, string>; json: string;
 };
+
+type Sai = { dia: string; ddmm: string } | null;
+type Oferta = { ed: number; envio?: string; fecha_em?: string; sai?: Sai; pautas?: Record<string, { titulo?: string }> };
+type Resultado = { ed_ref?: number; opt?: string; curta?: string; fecha_em?: string } | null;
+type Estado =
+  | { tipo: "aberta"; sai: Sai; fecha: string | null }
+  | { tipo: "fechada"; fechou: string | null; venceu: string | null; suaVenceu: boolean; outra: { ed: number; opcoes: { p: string; titulo: string }[] } | null }
+  | { tipo: "sem_dado" };
+
+const LETRAS = ["a", "b", "c", "d"];
+
+/** "2026-09-25T15:30:00-03:00" -> "25/09" (data de Brasília, sem depender do fuso do aparelho) */
+function ddmm(iso?: string | null): string | null {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso || "");
+  return m ? `${m[3]}/${m[2]}` : null;
+}
+
+function saiTexto(s: Sai): string {
+  if (!s) return "sai nos próximos dias";
+  const art = s.dia === "sábado" || s.dia === "domingo" ? "no" : "na";
+  return `sai ${art} ${s.dia}, ${s.ddmm}`;
+}
+
+function classifica(ed: number, d: { ofertas?: Oferta[]; resultado?: Resultado }, opt: string): Estado {
+  const agora = Date.now();
+  const ofertas = d.ofertas || [];
+  const res = d.resultado || null;
+  const aberta = (o: Oferta) => {
+    const f = o.fecha_em ? Date.parse(o.fecha_em) : NaN;
+    return Number.isFinite(f) && agora < f;
+  };
+  const of = ofertas.find((o) => o.ed === ed);
+  if (of && aberta(of)) return { tipo: "aberta", sai: of.sai || null, fecha: ddmm(of.fecha_em) };
+  const doResultado = !!res && res.ed_ref === ed;
+  const passou = !!of || doResultado || ofertas.some((o) => o.ed > ed) || (!!res && (res.ed_ref || 0) > ed);
+  if (!passou) return { tipo: "sem_dado" };
+  let outra: { ed: number; opcoes: { p: string; titulo: string }[] } | null = null;
+  const prox = ofertas.find((o) => o.ed !== ed && aberta(o));
+  if (prox) {
+    let votou = false;
+    try { votou = !!sessionStorage.getItem(`pauta_${CFG.slug}_${prox.ed}`); } catch {}
+    const ps = prox.pautas || {};
+    const opcoes = LETRAS.flatMap((p) => (ps[p] && ps[p].titulo ? [{ p, titulo: ps[p].titulo as string }] : []));
+    if (!votou && opcoes.length >= 2) outra = { ed: prox.ed, opcoes };
+  }
+  return {
+    tipo: "fechada",
+    fechou: of ? ddmm(of.fecha_em) : doResultado ? ddmm(res && res.fecha_em) : null,
+    venceu: doResultado && res && res.curta ? res.curta : null,
+    suaVenceu: doResultado && !!res && res.opt === opt,
+    outra,
+  };
+}
 
 interface Degrau { n: number; glifo: string; img: string; premio: string; }
 
@@ -98,6 +160,7 @@ export default function VotoPauta() {
   const [confetti, setConfetti] = useState<Piece[]>([]);
   const [opt, setOpt] = useState<string | null>(null);
   const [email, setEmail] = useState("");
+  const [estado, setEstado] = useState<Estado | null>(null);
 
   useEffect(() => {
     const v = parsePautaParams();
@@ -105,8 +168,13 @@ export default function VotoPauta() {
     // `s` sai do href mesmo quando p/ed vem torto: o CTA de indicação não depende do voto
     const s = (new URLSearchParams(window.location.search).get("s") || "").trim().toLowerCase();
     if (s.includes("@")) setEmail(s);
-    if (v) {
-      setConfetti(
+    // gam/219: confete só com a oferta ABERTA lida do discover.json; sem JSON em 3 s, texto neutro
+    let resolvido = false;
+    const resolve = (e: Estado) => {
+      if (resolvido) return;
+      resolvido = true;
+      setEstado(e);
+      if (e.tipo === "aberta" && v) setConfetti(
         Array.from({ length: 18 }, (_, i) => ({
           id: i,
           left: Math.random() * 100,
@@ -116,6 +184,16 @@ export default function VotoPauta() {
           emoji: CFG.emojis[Math.floor(Math.random() * CFG.emojis.length)],
         }))
       );
+    };
+    if (!v) {
+      resolve({ tipo: "sem_dado" });
+    } else {
+      const timer = window.setTimeout(() => resolve({ tipo: "sem_dado" }), 3000);
+      fetch(CFG.json, { cache: "no-store" })
+        .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+        .then((d) => resolve(classifica(v.ed, d || {}, v.opt)))
+        .catch(() => resolve({ tipo: "sem_dado" }))
+        .finally(() => window.clearTimeout(timer));
     }
 
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -171,6 +249,9 @@ export default function VotoPauta() {
 
   const t = CFG.theme;
   const letra = useMemo(() => (opt ? opt.toUpperCase() : null), [opt]);
+  const fechada = estado && estado.tipo === "fechada" ? estado : null;
+  const aberta = estado && estado.tipo === "aberta" ? estado : null;
+  const oculto = { visibility: estado ? "visible" : "hidden" } as const;
   const indiqueHref = useMemo(
     () =>
       "/indique?" +
@@ -191,7 +272,7 @@ export default function VotoPauta() {
         @media (max-width:480px){ .vp-btn{ width:100%; max-width:340px } }
       `}</style>
 
-      {/* Confetti, emojis da marca, dispara no load: o voto já está feito */}
+      {/* Confetti, emojis da marca: só com a oferta aberta confirmada no discover.json (gam/219) */}
       <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 50, overflow: "hidden" }}>
         {confetti.map((p) => (
           <span key={p.id} style={{ position: "absolute", top: -30, left: `${p.left}%`, fontSize: p.size, animation: `vpFall ${p.duration}s ease-in ${p.delay}s forwards`, opacity: 0 }}>{p.emoji}</span>
@@ -219,22 +300,54 @@ export default function VotoPauta() {
           <img src={CFG.logo} alt={CFG.brand} width={CFG.logoW} height={CFG.logoH} style={{ height: "auto", maxWidth: "70vw" }} />
         </a>
 
-        <p style={{ fontFamily: t.font, letterSpacing: ".22em", textTransform: "uppercase", fontSize: 12, fontWeight: 600, color: t.accent, marginBottom: "1rem", animation: "vpUp .9s ease-out .5s both", position: "relative" }}>
-          Escolha registrada
+        <p data-voto-estado={estado ? estado.tipo : "carregando"} style={{ fontFamily: t.font, letterSpacing: ".22em", textTransform: "uppercase", fontSize: 12, fontWeight: 600, color: t.accent, marginBottom: "1rem", animation: "vpUp .9s ease-out .5s both", position: "relative", ...oculto }}>
+          {fechada ? "Votação encerrada" : "Escolha registrada"}
         </p>
 
-        <h1 style={{ fontFamily: t.font, fontWeight: 800, fontSize: "clamp(2rem, 5vw, 3.25rem)", lineHeight: 1.1, letterSpacing: "-.015em", color: t.heading, marginBottom: "1.25rem", maxWidth: 640, animation: "vpUp .9s ease-out .7s both", position: "relative" }}>
-          {letra ? (
+        <h1 style={{ fontFamily: t.font, fontWeight: 800, fontSize: "clamp(2rem, 5vw, 3.25rem)", lineHeight: 1.1, letterSpacing: "-.015em", color: t.heading, marginBottom: "1.25rem", maxWidth: 640, animation: "vpUp .9s ease-out .7s both", position: "relative", ...oculto }}>
+          {fechada ? (
+            fechada.fechou ? (
+              <>A votação fechou em <span style={{ color: t.accent }}>{fechada.fechou}</span>.</>
+            ) : (
+              <>Esta votação <span style={{ color: t.accent }}>já fechou.</span></>
+            )
+          ) : letra ? (
             <>Seu voto: pauta <span style={{ color: t.accent }}>{letra}</span>.</>
           ) : (
             <>Voto <span style={{ color: t.accent }}>registrado.</span></>
           )}
         </h1>
 
-        <p style={{ fontSize: "1.125rem", color: t.text, maxWidth: 480, lineHeight: 1.7, marginBottom: "2rem", animation: "vpUp .9s ease-out .9s both", position: "relative" }}>
-          A pauta com mais votos vira a edição de amanhã, e a edição abre nomeando o resultado.
+        <p style={{ fontSize: "1.125rem", color: t.text, maxWidth: 480, lineHeight: 1.7, marginBottom: "2rem", animation: "vpUp .9s ease-out .9s both", position: "relative", ...oculto }}>
+          {fechada ? (
+            <>
+              {fechada.venceu ? (fechada.suaVenceu ? `Venceu a sua escolha: ${fechada.venceu}. ` : `Venceu ${fechada.venceu}. `) : null}
+              Seu voto chegou depois do fechamento e não entrou na contagem.
+            </>
+          ) : (
+            <>A pauta com mais votos {saiTexto(aberta ? aberta.sai : null)}.</>
+          )}
         </p>
-        {letra ? <div style={{ width: "100%", maxWidth: 480, animation: "vpUp .9s ease-out 1s both", position: "relative" }}><AssinaComo slug={CFG.slug} modo="pauta" tema={{ accent: t.accent, heading: t.heading, text: t.text, btnBg: t.btnBg, btnText: t.btnText }} /></div> : null}
+
+        {fechada && fechada.outra ? (
+          <div data-voto-outra style={{ width: "100%", maxWidth: 480, boxSizing: "border-box", textAlign: "left", border: `1px solid ${t.accent}55`, borderRadius: 14, padding: "1.1rem 1.1rem 1rem", marginBottom: "1.75rem", animation: "vpUp .9s ease-out 1s both", position: "relative" }}>
+            <p style={{ fontFamily: t.font, letterSpacing: ".18em", textTransform: "uppercase", fontSize: 11, fontWeight: 600, color: t.accent, marginBottom: ".5rem" }}>
+              Votação aberta agora
+            </p>
+            <p style={{ fontSize: "1rem", fontWeight: 600, color: t.heading, lineHeight: 1.4, marginBottom: ".25rem" }}>Qual dessas vira edição?</p>
+            {fechada.outra.opcoes.map((o) => (
+              <a
+                key={o.p}
+                href={`/voto-pauta?p=${o.p}&ed=${fechada.outra!.ed}${email ? `&s=${encodeURIComponent(email)}` : ""}`}
+                style={{ display: "flex", gap: 10, alignItems: "baseline", border: `1px solid ${t.accent}55`, borderRadius: 10, padding: "11px 13px", marginTop: 8, color: t.heading, textDecoration: "none", fontSize: ".95rem", lineHeight: 1.3 }}
+              >
+                <b style={{ color: t.accent, minWidth: "1.2em" }}>{o.p.toUpperCase()}</b>
+                <span>{o.titulo}</span>
+              </a>
+            ))}
+          </div>
+        ) : null}
+        {letra && aberta ? <div style={{ width: "100%", maxWidth: 480, animation: "vpUp .9s ease-out 1s both", position: "relative" }}><AssinaComo slug={CFG.slug} modo="pauta" tema={{ accent: t.accent, heading: t.heading, text: t.text, btnBg: t.btnBg, btnText: t.btnText }} /></div> : null}
 
         {/* Escada de indicação: o prêmio de cada degrau NOMEADO (vem do premios.json,
             mesma SOT que a /indique resolve), pra o clique saber o que está comprando. */}
@@ -271,9 +384,11 @@ export default function VotoPauta() {
           Do outro lado: seu link pessoal pronto pra enviar, o placar das indicações confirmadas e os prêmios abertos por degrau.
         </p>
 
-        <p style={{ fontFamily: t.font, fontStyle: "italic", fontSize: "1rem", color: t.text, opacity: .7, marginTop: "2.5rem", animation: "vpUp .9s ease-out 1.4s both", position: "relative" }}>
-          Amanhã, na sua caixa de entrada, você descobre quem venceu.
-        </p>
+        {aberta && aberta.fecha ? (
+          <p style={{ fontFamily: t.font, fontStyle: "italic", fontSize: "1rem", color: t.text, opacity: .7, marginTop: "2.5rem", animation: "vpUp .9s ease-out 1.4s both", position: "relative" }}>
+            Voto aberto até {aberta.fecha}, às 15h30.
+          </p>
+        ) : null}
       </main>
     </>
   );

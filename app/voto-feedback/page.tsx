@@ -8,11 +8,17 @@ export default function VotoFeedback() {
   const [comment, setComment] = useState("");
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
+  const [falhou, setFalhou] = useState(false);
 
   async function handleSubmit() {
     if (sending || !comment.trim()) return;
     setSending(true);
-    await submitVoteComment("notas-do-cafe", comment);
+    if (!(await submitVoteComment("notas-do-cafe", comment))) {
+      setFalhou(true);
+      setSending(false);
+      return;
+    }
+    setFalhou(false);
     setSent(true);
     setSending(false);
   }
@@ -108,7 +114,7 @@ export default function VotoFeedback() {
             position: "relative",
           }}
         >
-          Fala sem rodeio. Lemos cada resposta e a xícara de amanhã já pode sair diferente.
+          Fala sem rodeio. Lemos cada resposta, e a crítica que se repete muda a xícara.
         </p>
 
         <div
@@ -183,8 +189,13 @@ export default function VotoFeedback() {
                   transition: "background 0.3s",
                 }}
               >
-                {sending ? "Enviando..." : "Enviar resposta"}
+                {sending ? "Enviando..." : falhou ? "Tentar de novo" : "Enviar resposta"}
               </button>
+              {falhou ? (
+                <p role="alert" data-voto-erro style={{ fontSize: ".9rem", lineHeight: 1.5, marginTop: ".85rem", opacity: 0.85 }}>
+                  Sua resposta não chegou. Tente de novo; se falhar outra vez, responda o email da edição.
+                </p>
+              ) : null}
             </>
           )}
         </div>

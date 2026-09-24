@@ -110,6 +110,7 @@ export default function VotoPositivo() {
   const [comment, setComment] = useState("");
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
+  const [falhou, setFalhou] = useState(false);
 
   function fireConfetti() {
     setConfetti(
@@ -127,7 +128,12 @@ export default function VotoPositivo() {
   async function handleSubmit() {
     if (sending || !comment.trim()) return;
     setSending(true);
-    await submitVoteComment(CFG.slug, comment);
+    if (!(await submitVoteComment(CFG.slug, comment))) {
+      setFalhou(true);
+      setSending(false);
+      return;
+    }
+    setFalhou(false);
     await enviarAssinatura(CFG.slug);
     setSent(true);
     sendBeacon(CFG.slug, "voto-whatsapp");
@@ -218,7 +224,7 @@ export default function VotoPositivo() {
           /* ESTADO A, caixa de comentário primeiro */
           <>
             <p style={{ fontSize: "1.125rem", color: t.text, maxWidth: 480, lineHeight: 1.7, marginBottom: "1.75rem", animation: "vpUp .9s ease-out .9s both", position: "relative" }}>
-              O que te fez dar nota máxima hoje? Uma frase já molda a próxima edição.
+              O que te fez dar nota máxima hoje? Lemos cada resposta, e o que muita gente elogia a casa mantém.
             </p>
 
             <div style={{ width: "100%", maxWidth: 480, animation: "vpUp .9s ease-out 1.1s both", position: "relative" }}>
@@ -238,8 +244,13 @@ export default function VotoPositivo() {
                 disabled={sending || !comment.trim()}
                 style={{ background: t.btnBg, color: t.btnText }}
               >
-                {sending ? "Enviando..." : "Enviar resposta"}
+                {sending ? "Enviando..." : falhou ? "Tentar de novo" : "Enviar resposta"}
               </button>
+              {falhou ? (
+                <p role="alert" data-voto-erro style={{ fontSize: ".9rem", lineHeight: 1.5, marginTop: ".85rem", opacity: 0.85 }}>
+                  Sua resposta não chegou. Tente de novo; se falhar outra vez, responda o email da edição.
+                </p>
+              ) : null}
             </div>
 
             {guia("1.3s")}

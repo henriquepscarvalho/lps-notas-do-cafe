@@ -9,11 +9,17 @@ export default function VotoMelhoria() {
   const [comment, setComment] = useState("");
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
+  const [falhou, setFalhou] = useState(false);
 
   async function handleSubmit() {
     if (sending || !comment.trim()) return;
     setSending(true);
-    await submitVoteComment("notas-do-cafe", comment);
+    if (!(await submitVoteComment("notas-do-cafe", comment))) {
+      setFalhou(true);
+      setSending(false);
+      return;
+    }
+    setFalhou(false);
     await enviarAssinatura("notas-do-cafe"); // exo/25
     setSent(true);
     setSending(false);
@@ -110,7 +116,7 @@ export default function VotoMelhoria() {
             position: "relative",
           }}
         >
-          Quase um café perfeito. Uma frase sua sobre o que faltou já melhora a próxima edição.
+          Quase um café perfeito. Conte o que faltou: lemos cada resposta, e o pedido que volta muda a xícara.
         </p>
 
         <div
@@ -139,7 +145,7 @@ export default function VotoMelhoria() {
                 Recebido
               </h3>
               <p style={{ fontSize: "0.9375rem", color: "var(--text-secondary)", lineHeight: 1.7 }}>
-                Sua resposta vai direto pra bancada de edição. A xícara de amanhã sai melhor por sua causa.
+                Sua resposta vai pra bancada de edição. Lemos cada uma; quando o mesmo pedido volta, a xícara muda.
               </p>
             </>
           ) : (
@@ -186,8 +192,13 @@ export default function VotoMelhoria() {
                   transition: "background 0.3s",
                 }}
               >
-                {sending ? "Enviando..." : "Enviar resposta"}
+                {sending ? "Enviando..." : falhou ? "Tentar de novo" : "Enviar resposta"}
               </button>
+              {falhou ? (
+                <p role="alert" data-voto-erro style={{ fontSize: ".9rem", lineHeight: 1.5, marginTop: ".85rem", opacity: 0.85 }}>
+                  Sua resposta não chegou. Tente de novo; se falhar outra vez, responda o email da edição.
+                </p>
+              ) : null}
             </>
           )}
         </div>
