@@ -23,6 +23,10 @@ const VALOR_BUMP = 1350;
 // guia na conta NM (ebook-delivery.json, price_bump_nm).
 const PRICE_METADE = "price_1UAtYd40q2kXDh5BCjnPkn83"; // R$ 13,50 (live)
 const VALOR_METADE = 1350;
+// Email 3 da 🎣 Recuperação (rec-v2, HC 24/09/26): ?oferta=rec&ate=<epoch>, janela de 24h a
+// R$ 23,50, a metade real do cheio. O `metade` acima segue sendo o da onda mensal.
+const PRICE_REC = "price_1UJKya40q2kXDh5BCATJ5bxu"; // R$ 23,50 (live, NM)
+const VALOR_REC = 2350;
 // Bump = o app do PRÓPRIO guia pela metade (c4-20k/20, HC 04/09): price_app_leitor da
 // casa no ebook-delivery.json (R$ 48,50, conta NM, o mesmo da recuperação D2 e do
 // oferta=dono). `bump: "app"` no body; o irmão (`bump: true`) fica pras casas sem app.
@@ -46,8 +50,10 @@ export async function POST(req: Request) {
   const bumpApp = body?.bump === "app";
   const bump = body?.bump === true; // guia irmão (casas sem app)
   const extra = bumpApp ? VALOR_APP : bump ? VALOR_BUMP : 0;
-  const metade = body?.oferta === "metade" && Number(body?.ate) > Date.now() / 1000;
-  const valorBase = metade ? VALOR_METADE : VALOR_CHEIO;
+  const janela = Number(body?.ate) > Date.now() / 1000;
+  const metade = body?.oferta === "metade" && janela;
+  const rec = body?.oferta === "rec" && janela; // email 3 da recuperação (rec-v2)
+  const valorBase = rec ? VALOR_REC : metade ? VALOR_METADE : VALOR_CHEIO;
 
   // Variante do split A/B/C (EXP-027): sai do cookie lp_eb que o middleware setou
   // na borda. Carimba em metadata.variant → o webhook central persiste em
@@ -84,6 +90,7 @@ export async function POST(req: Request) {
   if (bump) params["metadata[bump]"] = BUMP_SC;
   if (bumpApp) params["metadata[bump]"] = "app";
   if (metade) params["metadata[oferta]"] = "metade";
+  if (rec) params["metadata[oferta]"] = "rec";
   // Jornada e origem (decisão HC 05/08): o webhook central persiste em
   // ebook_purchases.journey_id/src e aí cada real fica colado no caminho (teste, VSL
   // direta, LP) e no canal que trouxe a venda. Sem isso, receita por caminho é só o
@@ -120,7 +127,7 @@ export async function POST(req: Request) {
   // (metadata nao aparece la). Suffix: fatura do cartao vira "NEWSLETTER* EBOOK <SC>"
   // (prefix 10 + "* " + suffix <= 10 = teto de 22 do cartao; boleto ignora).
   params["payment_intent_data[description]"] =
-    `Ebook ${TITULO} (${SC})` + (metade ? " metade" : "") + (bumpApp ? " + app" : bump ? ` + bump ${BUMP_SC}` : "");
+    `Ebook ${TITULO} (${SC})` + (rec ? " recuperação" : metade ? " metade" : "") + (bumpApp ? " + app" : bump ? ` + bump ${BUMP_SC}` : "");
   params["payment_intent_data[statement_descriptor_suffix]"] = `EBOOK ${SC}`;
 
   // ponytail: price IDs live não existem em test mode; sk_test_ usa price_data
@@ -137,7 +144,7 @@ export async function POST(req: Request) {
       params["line_items[1][quantity]"] = "1";
     }
   } else {
-    params["line_items[0][price]"] = metade ? PRICE_METADE : PRICE_CHEIO;
+    params["line_items[0][price]"] = rec ? PRICE_REC : metade ? PRICE_METADE : PRICE_CHEIO;
     params["line_items[0][quantity]"] = "1";
     if (bump || bumpApp) {
       params["line_items[1][price]"] = bumpApp ? APP_PRICE : BUMP_PRICE;
