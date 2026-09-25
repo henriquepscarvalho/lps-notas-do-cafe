@@ -9,20 +9,20 @@ const PRICE_CHEIO = "price_1UEgZy40q2kXDh5B4jJNnbcd"; // R$ 47 (live · teste c4
 const TITULO = "Café de Balcão no Coador de Casa";
 // Bump = ebook irmão SELADO (bump-pareamento.json, HC 19/07): WS → BZ
 const BUMP_SC = "BC";
-const BUMP_PRICE = "price_1UAtYY40q2kXDh5B4mJIOaq7"; // bump BC R$ 13,50 (live)
+const BUMP_PRICE = "price_1UJO2340q2kXDh5BERAsSNvm"; // bump BC R$ 23,50 (sem-1350)
 const BUMP_TITULO = "Brasa Pronta em 20 Minutos";
 
 // Valor em centavos, espelho dos prices live. O create-session e o unico que sabe se
 // teve bump, entao carimba o total no return_url e a /obrigado dispara o Purchase certo.
 const VALOR_CHEIO = 4700;
-const VALOR_BUMP = 1350;
+const VALOR_BUMP = 2350;
 // Onda mensal (c4-20k/11): o o3 abre a janela de 24h a R$ 13,50 com
 // ?oferta=metade&ate=<epoch> no link. O PageBeacon guarda os dois em sessionStorage,
 // a página manda no body, e aqui só vale ENQUANTO a janela está aberta (ate no
 // futuro); fora dela a session nasce a preço cheio. price = R$ 13,50 do PRÓPRIO
 // guia na conta NM (ebook-delivery.json, price_bump_nm).
-const PRICE_METADE = "price_1UAtYd40q2kXDh5BCjnPkn83"; // R$ 13,50 (live)
-const VALOR_METADE = 1350;
+const PRICE_METADE = "price_1UJKya40q2kXDh5BCATJ5bxu"; // R$ 23,50, metade de R$ 47 (sem-1350, HC 24/09/26)
+const VALOR_METADE = 2350;
 // Email 3 da 🎣 Recuperação (rec-v2, HC 24/09/26): ?oferta=rec&ate=<epoch>, janela de 24h a
 // R$ 23,50, a metade real do cheio. O `metade` acima segue sendo o da onda mensal.
 const PRICE_REC = "price_1UJKya40q2kXDh5BCATJ5bxu"; // R$ 23,50 (live, NM)
