@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import PageBeacon from "../PageBeacon";
+import UmToque from "./UmToque";
 import CadastroLP from "./CadastroLP";
 
 export const metadata: Metadata = {
@@ -10,6 +11,7 @@ export const metadata: Metadata = {
 export default function Cadastro() {
   return (
     <>
+      <UmToque />
       <PageBeacon slug="notas-do-cafe" step="topo" source="cadastro" />
       <CadastroLP />
     </>
