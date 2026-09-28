@@ -33,7 +33,7 @@ const COL = {
   },
   despedida: "Sem frescura. Bom café. Notas do Café",
 };
-const BUILD = "colecao-20260923-1737";
+const BUILD = "colecao-20260928-0956";
 
 /* Saída do checkout (HC 23/09, JSON col_exit_intent): quem faz o gesto de sair ANTES de tocar no formulário
    recebe o guia da casa e o botão abre direto o /ebook-premium/checkout. O preço vem do token `preco` da

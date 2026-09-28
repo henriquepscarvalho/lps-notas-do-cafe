@@ -14,9 +14,9 @@ const BUMP_TITULO = "Coleção completa · Brasa Certa";
 const BUMP_SC = "BC"; // a news do par (colecao-rede, col/08)
 const VALOR_COLECAO = 9700;
 const VALOR_BUMP = 4850;
-// A janela da campanha: depois de sexta 25/09/26 23:59:59 (BRT) a rota recusa criar session (a copy
-// promete que o link fecha). Reabrir = trocar esta constante e subir.
-const FECHA_EM_MS = Date.UTC(2026, 8, 26, 2, 59, 59); // 25/09/26 23:59:59 BRT = 26/09 02:59:59 UTC
+// HC 28/09/26 (col/06): o checkout fica aberto depois da campanha. O 410 de sexta só mostrava o erro da
+// Stripe em inglês («Something went wrong»), sem sensação de perda pro leitor e 122 visitas em 3 dias sem
+// venda. Fechar de novo = voltar a data e o if de lp/route.ts.tpl.bak-aberto-2809.
 
 export async function POST(req: Request) {
   // Conta Stripe = News Makers (decisão HC 31/08, ticket app/14), nunca a VDN.
@@ -28,9 +28,6 @@ export async function POST(req: Request) {
   const isTestKey = apiKey.startsWith("sk_test_") || apiKey.startsWith("rk_test_");
   if (!isTestKey && process.env.EBOOK_LIVE !== "1") {
     return NextResponse.json({ error: "live_gated" }, { status: 503 });
-  }
-  if (Date.now() > FECHA_EM_MS) {
-    return NextResponse.json({ error: "janela_fechada" }, { status: 410 });
   }
 
   const body = await req.json().catch(() => ({}) as Record<string, unknown>);
