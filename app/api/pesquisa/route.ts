@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { gravaPerfil } from "../../lib/leitor-perfil";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -91,6 +92,9 @@ export async function POST(request: Request) {
         { status: 500 }
       );
     }
+
+    // perfil do leitor (plr/02): nome e celular no Supabase no mesmo passo; nunca derruba a pesquisa
+    await gravaPerfil({ email: body.email, nome: body.nome, sobrenome: body.sobrenome, fone: body.celular, fonte: "pesquisa", slug: "notas-do-cafe" });
 
     return NextResponse.json({ success: true });
   } catch {
