@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import PageBeacon, { sendBeacon } from "../PageBeacon";
+import PageBeacon, { sendBeacon, sendCtaPos } from "../PageBeacon";
 import ExitIntent from "../ebook-premium/checkout/ExitIntent";
 import LpWidgets, { fichaDoEbook } from "../LpWidgets";
 import { CSS, HTML, JS } from "./lp";
@@ -113,7 +113,11 @@ export default function EbookPremiumB() {
     } catch {
       /* o JS do molde é best-effort: a página fica legível sem ele */
     }
-    const onCta = () => sendBeacon(SLUG, STEP + "-cta", { eventType: "converteu" });
+    // lpca/29: posição do botão num beacon ao lado (`<passo>-cta@<pos>`), o passo do CTA não muda
+    const onCta = (e: Event) => {
+      sendBeacon(SLUG, STEP + "-cta", { eventType: "converteu" });
+      sendCtaPos(SLUG, STEP + "-cta", e.currentTarget);
+    };
     const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('a[href^="' + CHECKOUT + '"]'));
     links.forEach((a) => a.addEventListener("click", onCta));
     return () => links.forEach((a) => a.removeEventListener("click", onCta));
