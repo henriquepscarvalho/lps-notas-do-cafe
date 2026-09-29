@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import PageBeacon, { isInternalAccess, sendBeacon } from "../../PageBeacon";
+import PageBeacon, { sendBeacon } from "../../PageBeacon";
+import QuizComprador, { type QuizPergunta } from "../../QuizComprador";
 
 /* ============================================================
    TOKENS DO APP (ticket 10 do app-scriptorium; a fábrica troca por news)
@@ -23,7 +24,7 @@ const APP = {
    A resposta vai pro Pharos (/api/ebook/motivo) com o session_id da compra; a versão diz que veio do app. */
 const MOTIVOS = {
   "sc": "NC",
-  "versao": "nc-app-v1",
+  "versao": "nc-app-quiz-v1",
   "pergunta": "O que te fez levar o ebook + app?",
   "opcoes": [
     { "k": "promessa", "t": "Depois desse guia, o coador da cozinha vira xícara de balcão que você faz sozinho" },
@@ -35,6 +36,45 @@ const MOTIVOS = {
   "campo": "Conta em uma frase",
   "enviar": "Enviar"
 };
+
+/* Quiz do comprador (obg/12): os toques da missão 3. O 1º é o motivo (tokens acima); os outros dizem
+   pra que o comprador usa, o próximo desafio e o formato. Chave comum da rede, texto da casa. */
+const QUIZ: QuizPergunta[] = [
+  { k: "motivo", q: MOTIVOS.pergunta, opcoes: MOTIVOS.opcoes },
+  {
+    k: "uso",
+    q: "Pra que você faz café hoje?",
+    opcoes: [
+      { k: "trabalho", t: "No meu trabalho" },
+      { k: "negocio", t: "No meu negócio" },
+      { k: "estudo", t: "Estudando pra ser barista" },
+      { k: "prazer", t: "Por prazer" },
+      { k: "outro", t: "Outro uso" },
+    ],
+  },
+  {
+    k: "desafio",
+    q: "Qual é o seu próximo desafio no café?",
+    opcoes: [
+      { k: "comecar", t: "Saber por onde começar no coador" },
+      { k: "tecnica", t: "Acertar a coada toda vez" },
+      { k: "rotina", t: "Fazer um café bom todo dia" },
+      { k: "renda", t: "Ganhar dinheiro com café" },
+      { k: "outro", t: "Outro desafio" },
+    ],
+  },
+  {
+    k: "formato",
+    q: "Em que formato você aprende melhor?",
+    opcoes: [
+      { k: "guia", t: "Guia pra ler no meu tempo" },
+      { k: "modelos", t: "Receitas prontas pra seguir" },
+      { k: "video", t: "Aulas curtas em vídeo" },
+      { k: "desafio_7d", t: "Desafio de 7 dias, um passo por dia" },
+      { k: "outro", t: "Outro formato" },
+    ],
+  },
+];
 
 /* Guia de OUTRA newsletter (EXP-079, c4-20k/125): card da missão 2, abaixo do bundle quando ele existe. A venda
    cai no ebook_purchases.src = obrigado-irma-app pelo caminho de sempre; os tokens saem do mapa
@@ -143,12 +183,6 @@ export default function AppObrigado() {
   const [sessionId, setSessionId] = useState("");
   // Missão 1 cumprida = tocou em abrir o app ou o email.
   const [abriu, setAbriu] = useState(false);
-  // Pergunta de 1 clique: a escolha, o envio em curso, o «Anotado» e o campo do «Outro».
-  const [motivo, setMotivo] = useState<string | null>(null);
-  const [motivoEnviando, setMotivoEnviando] = useState(false);
-  const [motivoOk, setMotivoOk] = useState(false);
-  const [outroTexto, setOutroTexto] = useState("");
-  const [outroEnviado, setOutroEnviado] = useState(false);
 
   useEffect(() => {
     const q = new URLSearchParams(window.location.search);
@@ -166,75 +200,6 @@ export default function AppObrigado() {
     setAbriu(true);
     sendBeacon(APP.slug, "obrigado-abrir-email", { eventType: "converteu" });
   }
-
-  /* Grava a resposta no Pharos com o session_id da compra; a jornada e a origem são as mesmas do beacon.
-     ?prova=<ticket> carimba a linha como prova, que se apaga pelo carimbo. Uma linha por compra (upsert):
-     o «Outro» primeiro conta o toque e depois recebe a frase. Falha de rede: false, a página segue de pé. */
-  async function gravar(k: string, t: string | null): Promise<boolean> {
-    if (!sessionId) return false;
-    setMotivoEnviando(true);
-    try {
-      const q = new URLSearchParams(window.location.search);
-      const prova = (q.get("prova") || "").trim();
-      let journey: string | null = null;
-      let src: string | null = null;
-      try {
-        journey = sessionStorage.getItem("vdn_journey");
-        src = sessionStorage.getItem("vdn_source");
-      } catch {
-        /* storage bloqueado: vai sem jornada */
-      }
-      const r = await fetch(`${PHAROS}/api/ebook/motivo`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          session_id: sessionId,
-          sc: MOTIVOS.sc,
-          slug: APP.slug,
-          resposta: k,
-          texto: t,
-          versao: MOTIVOS.versao,
-          journey_id: journey,
-          src,
-          internal: isInternalAccess(),
-          fonte: /^[a-z0-9-]{1,30}$/.test(prova) ? `prova-${prova}` : undefined,
-        }),
-      });
-      if (!r.ok) throw new Error(String(r.status));
-      if (!motivoOk) sendBeacon(APP.slug, "obrigado-motivo", { eventType: "converteu" });
-      return true;
-    } catch {
-      return false;
-    } finally {
-      setMotivoEnviando(false);
-    }
-  }
-
-  async function responder(o: { k: string; t: string }) {
-    if (motivoEnviando || motivo === o.k) return;
-    const antes = motivo;
-    setMotivo(o.k);
-    if (o.k === "outro") setOutroEnviado(false);
-    const ok = await gravar(o.k, o.k === "outro" ? null : o.t);
-    if (ok) setMotivoOk(true);
-    else setMotivo(antes);
-  }
-
-  async function enviarOutro() {
-    const t = outroTexto.trim();
-    if (!t || motivoEnviando || outroEnviado) return;
-    const ok = await gravar("outro", t);
-    if (ok) {
-      setMotivoOk(true);
-      setOutroEnviado(true);
-    }
-  }
-
-  const motivoSub = !motivoOk
-    ? "Um toque só."
-    : motivo === "outro" && !outroEnviado
-      ? "Anotado. Se quiser, conta em uma frase."
-      : "Anotado. Obrigado por contar.";
 
   const oferta = carrinho?.oferta ?? null;
   const mostraBiblioteca = liberada || Boolean(carrinho?.jaTemBiblioteca);
@@ -437,49 +402,16 @@ export default function AppObrigado() {
         )}
 
         {sessionId && (
-          <section className="sec" aria-label={`Missão ${totalMissoes}: o que te fez levar o ebook + app`}>
-            <Missao n={totalMissoes} de={totalMissoes} ok={motivoOk} />
-            <h2 className="sec-t">{MOTIVOS.pergunta}</h2>
-            <p className="sec-sub" aria-live="polite">{motivoSub}</p>
-            <div className="mot-ops" role="group" aria-label={MOTIVOS.pergunta}>
-              {MOTIVOS.opcoes.map((o) => (
-                <button
-                  key={o.k}
-                  type="button"
-                  className={"mot-op" + (motivo === o.k ? " on" : "")}
-                  aria-pressed={motivo === o.k}
-                  disabled={motivoEnviando}
-                  onClick={() => responder(o)}
-                >
-                  <span className="mot-dot" aria-hidden="true" />
-                  {o.t}
-                </button>
-              ))}
-              {motivo === "outro" && (
-                <div className="mot-outro">
-                  <textarea
-                    aria-label={MOTIVOS.campo}
-                    placeholder={MOTIVOS.campo}
-                    maxLength={300}
-                    rows={3}
-                    value={outroTexto}
-                    onChange={(e) => {
-                      setOutroTexto(e.target.value);
-                      setOutroEnviado(false);
-                    }}
-                  />
-                  <button
-                    type="button"
-                    className="mot-enviar"
-                    disabled={!outroTexto.trim() || motivoEnviando || outroEnviado}
-                    onClick={enviarOutro}
-                  >
-                    {outroEnviado ? "Enviado ✓" : MOTIVOS.enviar}
-                  </button>
-                </div>
-              )}
-            </div>
-          </section>
+          <QuizComprador
+            sessionId={sessionId}
+            sc={MOTIVOS.sc}
+            slug={APP.slug}
+            versao={MOTIVOS.versao}
+            perguntas={QUIZ}
+            n={totalMissoes}
+            de={totalMissoes}
+            pharos={PHAROS}
+          />
         )}
 
         <p className="ob-nota">
