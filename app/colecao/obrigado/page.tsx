@@ -32,6 +32,26 @@ const GUIA = {
   url: "/ebook-premium/checkout?src=colecao-obrigado",
 };
 
+/* Missão 2 (obg/10): o bundle da família acima do guia, a R$ 70 (abate fixo de R$ 27, o molde do app). Carrinho
+   e cobrança moram no Pharos (/api/ebook/cart lê a session com o ramo produto=colecao; /api/ebook/upsell cobra e
+   carimba src=obrigado-colecao). Falha de rede deixa a página como era, sem oferta. Casa em inglês fica sem
+   (a família cobra em real). */
+const BUNDLE = { ativo: true };
+
+type Item = { sc: string; titulo: string; news: string; url: string; jaTem: boolean };
+type Oferta = {
+  nome: string;
+  itens: Item[];
+  jaTem: number;
+  novos: number;
+  precoCents: number;
+  ancoraCents: number;
+  descontoCents: number;
+};
+type Carrinho = { paga: boolean; umClique: boolean; jaTemBiblioteca: boolean; oferta: Oferta | null };
+
+const brl = (cents: number) => (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
 /* Missão 3 (obg/08): a pergunta de 1 clique. As respostas são as da rede (a coleção vende o mesmo argumento
    em toda casa); a taxonomia é a comum do /api/ebook/motivo e a versão diz que veio da coleção. */
 const MOTIVOS = {
@@ -109,11 +129,23 @@ export default function ColecaoObrigado() {
   const [motivoOk, setMotivoOk] = useState(false);
   const [outroTexto, setOutroTexto] = useState("");
   const [outroEnviado, setOutroEnviado] = useState(false);
+  // Bundle (obg/10): o carrinho do Pharos, a cobrança em curso, o erro e o «liberado».
+  const [carrinho, setCarrinho] = useState<Carrinho | null>(null);
+  const [comprando, setComprando] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
+  const [liberada, setLiberada] = useState(false);
 
   useEffect(() => {
     const p = new URLSearchParams(window.location.search);
     const sid = p.get("session_id");
     setSessionId(sid || "");
+    if (p.get("biblioteca") === "ok") setLiberada(true);
+    if (sid && BUNDLE.ativo) {
+      fetch(`${PHAROS}/api/ebook/cart?session_id=${encodeURIComponent(sid)}`)
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d: Carrinho | null) => d && setCarrinho(d))
+        .catch(() => undefined);
+    }
     const centavos = Number(p.get("v"));
     if (centavos >= VALOR_COM_BUMP) setComBump(true);
     if (!sid || !centavos || centavos < 100 || centavos > 100000) return;
@@ -201,8 +233,40 @@ export default function ColecaoObrigado() {
       ? "Anotado. Se quiser, conta em uma frase."
       : "Anotado. Obrigado por contar.";
 
-  /* Casa sem guia validado: a página tem 2 missões, e o rótulo diz «de 2». */
-  const totalMissoes = GUIA.ativo ? 3 : 2;
+  const oferta = carrinho?.oferta ?? null;
+  const mostraBiblioteca = Boolean(oferta) && (liberada || Boolean(carrinho?.jaTemBiblioteca));
+  const mostraOferta = Boolean(oferta) && carrinho?.paga === true && !mostraBiblioteca;
+  // O guia da casa está dentro do bundle: quem já levou a família não vê o guia avulso.
+  const mostraGuia = GUIA.ativo && !mostraBiblioteca;
+  const vitrine = [...(oferta?.itens ?? [])].sort((a, b) => Number(b.jaTem) - Number(a.jaTem));
+
+  async function levar() {
+    if (comprando) return;
+    setComprando(true);
+    setErro(null);
+    sendBeacon(COL.slug, "obrigado-bundle", { eventType: "converteu" });
+    try {
+      const r = await fetch(`${PHAROS}/api/ebook/upsell`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ session_id: sessionId }),
+      });
+      const d = await r.json();
+      if (d.checkout_url) {
+        window.location.href = d.checkout_url;
+        return;
+      }
+      if (!r.ok || !d.ok) throw new Error(d.error || "não deu pra concluir");
+      setLiberada(true);
+    } catch (e) {
+      setErro((e as Error).message);
+      setComprando(false);
+    }
+  }
+
+  /* Casa sem guia validado e sem bundle: a página tem 2 missões, e o rótulo diz «de 2». */
+  const temProximoPasso = mostraGuia || mostraOferta || mostraBiblioteca;
+  const totalMissoes = temProximoPasso ? 3 : 2;
 
   return (
     <>
@@ -261,33 +325,98 @@ export default function ColecaoObrigado() {
           </p>
         </section>
 
-        {GUIA.ativo && (
+        {temProximoPasso && (
           <section className="sec" aria-label="Missão 2: seu próximo passo">
             <Missao n={2} de={totalMissoes} />
             <h2 className="sec-t">Seu próximo passo</h2>
-            <p className="sec-sub">O guia da {COL.news}: o método das edições, organizado pra aplicar.</p>
+            <p className="sec-sub">
+              {mostraOferta
+                ? `O bundle com o guia da ${COL.news} dentro, ou só o guia.`
+                : mostraBiblioteca
+                  ? "Os guias da família são seus."
+                  : `O guia da ${COL.news}: o método das edições, organizado pra aplicar.`}
+            </p>
 
-            <div className="outro" aria-label={`Guia ${GUIA.titulo}`}>
-              <div className="outro-topo">
-                <span className="outro-capa">
-                  <img src={GUIA.capa} alt={`Capa do guia ${GUIA.titulo}`} width={76} height={101} loading="lazy" />
-                </span>
-                <div>
-                  <p className="outro-tag">Guia {COL.news}</p>
-                  <h3>{GUIA.titulo}</h3>
-                  <p className="outro-p">{GUIA.resumo}</p>
-                  <p className="outro-meta">Guia completo, web + PDF</p>
-                </div>
+            {mostraBiblioteca && oferta && (
+              <div className="bib bib-ok">
+                <p className="btag">Bundle liberado</p>
+                <h3>{oferta.nome}</h3>
+                <p className="bsub">
+                  Os {oferta.itens.length} guias são seus. O email com a lista inteira chega junto; abaixo já dá pra
+                  começar.
+                </p>
+                <ul className="blista blinks">
+                  {oferta.itens.map((i) => (
+                    <li key={i.sc}>
+                      <a href={i.url} target="_blank" rel="noopener">{i.titulo}</a>
+                      <span className="bnews">{i.news}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <a
-                className="ob-cheio"
-                href={GUIA.url}
-                onClick={() => sendBeacon(COL.slug, "obrigado-guia", { eventType: "converteu" })}
-              >
-                Levar por {GUIA.preco}
-              </a>
-              <p className="bnota">Abre o checkout do guia, com pix, cartão ou boleto.</p>
-            </div>
+            )}
+
+            {mostraOferta && oferta && (
+              <div className="bib">
+                <p className="btag">Só nesta página</p>
+                <h3>{oferta.nome}</h3>
+                <p className="bsub">
+                  A família inteira: {oferta.itens.length} guias no mesmo formato, com o da {COL.news} incluído.
+                </p>
+
+                <p className="bpreco">
+                  <s>{brl(oferta.ancoraCents)}</s>
+                  <b>{brl(oferta.precoCents)}</b>
+                </p>
+                {oferta.descontoCents > 0 && (
+                  <p className="bdesc">Quem levou a coleção abate {brl(oferta.descontoCents)} do bundle.</p>
+                )}
+
+                <ul className="blista">
+                  {vitrine.map((i) => (
+                    <li key={i.sc} className={i.jaTem ? "tem" : ""}>
+                      {i.titulo}
+                      {i.jaTem && <span className="tag">seu</span>}
+                      <span className="bnews">{i.news}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <button className="ob-cheio" onClick={levar} disabled={comprando}>
+                  {comprando ? "Processando…" : `Levar o bundle por ${brl(oferta.precoCents)}`}
+                </button>
+                <p className="bnota">
+                  {carrinho?.umClique
+                    ? "Um clique, no mesmo cartão que você acabou de usar. Sem redigitar nada."
+                    : "Abre um checkout rápido, com cartão ou boleto."}
+                </p>
+                {erro && <p className="berro">A cobrança não passou. {erro}</p>}
+              </div>
+            )}
+
+            {mostraGuia && (
+              <div className="outro" aria-label={`Guia ${GUIA.titulo}`}>
+                <div className="outro-topo">
+                  <span className="outro-capa">
+                    <img src={GUIA.capa} alt={`Capa do guia ${GUIA.titulo}`} width={76} height={101} loading="lazy" />
+                  </span>
+                  <div>
+                    <p className="outro-tag">Guia {COL.news}</p>
+                    <h3>{GUIA.titulo}</h3>
+                    <p className="outro-p">{GUIA.resumo}</p>
+                    <p className="outro-meta">Guia completo, web + PDF</p>
+                  </div>
+                </div>
+                <a
+                  className="ob-cheio"
+                  href={GUIA.url}
+                  onClick={() => sendBeacon(COL.slug, "obrigado-guia", { eventType: "converteu" })}
+                >
+                  Levar por {GUIA.preco}
+                </a>
+                <p className="bnota">Abre o checkout do guia, com pix, cartão ou boleto.</p>
+              </div>
+            )}
           </section>
         )}
 
@@ -418,7 +547,28 @@ a{color:inherit;text-decoration:none}
         .outro-p{font-size:13.5px;line-height:1.55;color:var(--text,inherit);margin:0}
         .outro-meta{font-family:var(--mono,ui-monospace,monospace);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);margin:8px 0 0}
         .bnota{font-size:12.5px;color:var(--text-dim);line-height:1.5;margin-top:8px;text-align:center}
-        @media (max-width:430px){.ob-recibo{gap:14px;padding:14px}.ob-capa{flex-basis:84px;width:84px}.ob-itens li{font-size:16px}.outro-topo{gap:13px}.outro-capa{flex-basis:66px;width:66px}.outro h3{font-size:17.5px}}
+
+        /* O bundle da família na missão 2 (obg/10), o mesmo cartão da obrigado do app. */
+        .bib{margin:0 0 .9rem;padding:22px 22px 24px;border:1px solid var(--bright);border-radius:14px;background:color-mix(in srgb,var(--bright) 12%,transparent)}
+        .bib .btag{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--bright);margin-bottom:10px}
+        .bib h3{font-family:var(--serif);font-weight:900;font-size:22px;color:#fff;letter-spacing:-.01em;margin-bottom:8px}
+        .bsub{font-size:14px;color:var(--text);line-height:1.6}
+        .bpreco{display:flex;align-items:baseline;gap:10px;margin:16px 0 4px;font-variant-numeric:tabular-nums}
+        .bpreco s{font-size:16px;color:var(--text-dim)}
+        .bpreco b{font-size:32px;font-weight:800;color:var(--bright);letter-spacing:-.02em}
+        .bdesc{font-size:13px;color:var(--text);line-height:1.55;margin-bottom:14px}
+        .blista{list-style:none;padding:0;margin:14px 0 4px;display:grid;grid-template-columns:1fr 1fr;gap:6px 14px}
+        .blista li{font-size:13px;color:var(--text);line-height:1.45;padding-left:14px;position:relative}
+        .blista li::before{content:"›";position:absolute;left:0;color:var(--bright)}
+        .blista li.tem{color:var(--text-dim)}
+        .blista .tag{font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--bright);margin-left:6px;vertical-align:1px}
+        .bnews{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);margin-top:1px}
+        .blinks a{color:var(--text);text-decoration:underline;text-underline-offset:2px}
+        .blinks a:hover{color:var(--bright)}
+        .ob-cheio:disabled{opacity:.6;cursor:default;transform:none}
+        .berro{font-size:13px;color:#F0A28A;margin-top:10px}
+        .bib-ok .blista{grid-template-columns:1fr}
+        @media (max-width:430px){.blista{grid-template-columns:1fr}.ob-recibo{gap:14px;padding:14px}.ob-capa{flex-basis:84px;width:84px}.ob-itens li{font-size:16px}.outro-topo{gap:13px}.outro-capa{flex-basis:66px;width:66px}.outro h3{font-size:17.5px}}
       `}</style>
     </>
   );
