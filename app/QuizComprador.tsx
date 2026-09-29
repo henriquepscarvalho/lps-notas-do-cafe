@@ -167,7 +167,7 @@ export default function QuizComprador({ sessionId, sc, slug, versao, perguntas, 
     resp[p.k] === "outro" ? frase[p.k] || p.opcoes.find((o) => o.k === "outro")?.t || "" : p.opcoes.find((o) => o.k === resp[p.k])?.t || "";
 
   return (
-    <section className="sec" aria-label={`Missão ${n}: ${total} toques sobre o que você levou`}>
+    <section className="sec" data-legivel="1" aria-label={`Missão ${n}: ${total} toques sobre o que você levou`}>{/* LEGIVEL (col/32) */}
       <p className="mis-k">
         Missão {n} de {de}
         {fim && <span className="mis-ok"> · cumprida ✓</span>}
@@ -252,23 +252,23 @@ export default function QuizComprador({ sessionId, sc, slug, versao, perguntas, 
       )}
 
       <style>{`
-        .qz-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 12px}
-        .qz-n{font-family:var(--mono,ui-monospace,monospace);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--text-dim)}
+        .qz-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 14px}
+        .qz-n{font-family:var(--mono,ui-monospace,monospace);font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--text)}
         .qz-bar{display:flex;gap:5px;flex:0 0 112px}
-        .qz-bar i{flex:1;height:4px;border-radius:2px;background:var(--hair,rgba(128,128,128,.28))}
+        .qz-bar i{flex:1;height:6px;border-radius:3px;background:var(--hair,rgba(128,128,128,.28))}
         .qz-bar i.ok{background:var(--bright)}
         .qz-bar i.at{background:color-mix(in srgb,var(--bright) 45%,transparent)}
-        .qz-links{display:flex;flex-wrap:wrap;gap:4px 22px;margin:10px 0 0;min-height:0}
-        .qz-link{display:inline-block;margin:0;padding:6px 0;border:0;background:transparent;color:var(--text-dim);font-family:var(--sans,inherit);font-size:13px;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+        .qz-links{display:flex;flex-wrap:wrap;gap:4px 24px;margin:12px 0 0;min-height:0}
+        .qz-link{display:inline-block;margin:0;padding:12px 0;border:0;background:transparent;color:var(--text);font-family:var(--sans,inherit);font-size:15px;text-decoration:underline;text-underline-offset:4px;cursor:pointer}
         .qz-link:hover{color:var(--bright)}
         .qz-tela{animation:qz-in .22s ease both}
         @keyframes qz-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
         @media (prefers-reduced-motion:reduce){.qz-tela{animation:none}}
-        .qz-fim{padding:16px 18px;border:1px solid color-mix(in srgb,var(--bright) 30%,transparent);border-radius:12px;background:color-mix(in srgb,var(--bright) 8%,transparent)}
-        .qz-fim p{margin:0;font-size:14.5px;line-height:1.5;color:#fff}
-        .qz-res{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:6px}
-        .qz-res li{font-size:13px;line-height:1.4;color:var(--text)}
-        .qz-res b{display:block;font-family:var(--mono,ui-monospace,monospace);font-size:9.5px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--text-dim)}
+        .qz-fim{padding:18px;border:1px solid color-mix(in srgb,var(--bright) 30%,transparent);border-radius:12px;background:color-mix(in srgb,var(--bright) 8%,transparent)}
+        .qz-fim p{margin:0;font-size:16px;line-height:1.5;color:#fff}
+        .qz-res{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:12px}
+        .qz-res li{font-size:15px;line-height:1.45;color:var(--text)}
+        .qz-res b{display:block;font-family:var(--mono,ui-monospace,monospace);font-size:13px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--text);line-height:1.35;text-wrap:balance;margin-bottom:2px}
       `}</style>
     </section>
   );

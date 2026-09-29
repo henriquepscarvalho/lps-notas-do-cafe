@@ -284,7 +284,7 @@ export default function EbookObrigado() {
         </div>
       </nav>
 
-      <main className="ob-page">
+      <main className="ob-page" data-legivel="1">{/* LEGIVEL (col/32) */}
         <div className="ob-selo" aria-hidden="true">✓</div>
         <p className="kicker">{EBOOK.kicker}</p>
         <h1>Compra confirmada</h1>
@@ -471,91 +471,106 @@ a{color:inherit;text-decoration:none}
 .wm .t{color:var(--bright)}.wm .s{color:#fff}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:var(--sans);font-weight:600;font-size:15px;padding:12px 22px;border-radius:6px;border:0;cursor:pointer;background:var(--bright);color:#140B04;transition:transform .16s ease,background .16s ease;letter-spacing:-.01em;white-space:nowrap}
 .btn:hover{background:#E5833D;transform:translateY(-1px)}
-.kicker{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:var(--bright)}
+.kicker{font-family:var(--mono);font-size:13px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--bright)}
         .ob-page{max-width:560px;margin:0 auto;padding:3.4rem 1.5rem 4.5rem;text-align:center}
         .ob-selo{width:52px;height:52px;margin:0 auto 1.3rem;border-radius:50%;background:rgba(200,125,146,.12);border:1px solid var(--bright);color:var(--bright);font-size:24px;font-weight:700;display:flex;align-items:center;justify-content:center}
-        .ob-page .kicker{display:block;margin-bottom:.8rem}
+        .ob-page .kicker{display:block;margin-bottom:.8rem;font-size:13px;letter-spacing:.2em}
         .ob-page h1{font-family:var(--serif);font-style:italic;font-weight:900;font-size:clamp(1.9rem,5.2vw,2.6rem);color:#fff;letter-spacing:-.02em;margin-bottom:.4rem}
-        .ob-nota{font-size:13px;color:var(--text-dim);line-height:1.6;margin-top:2.2rem}
+        .ob-nota{font-size:15px;color:var(--text);line-height:1.6;margin-top:2.2rem}
         .ob-despedida{font-family:var(--serif);font-style:italic;font-size:1.05rem;color:var(--sage,var(--text-dim));margin-top:2.4rem}
 
         /* Missões (HC 23/09/26): três seções com filete + rótulo mono + subtítulo serif. A 1ª não
            leva filete, cola no H1. */
         .sec{border-top:1px solid var(--hair);margin-top:2.1rem;padding-top:1.6rem;text-align:left}
         .sec-1{border-top:0;margin-top:1.4rem;padding-top:0}
-        .mis-k{font-family:var(--mono);font-size:10.5px;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--bright);margin:0 0 7px}
-        .mis-ok{color:var(--text-dim)}
-        .sec-t{font-family:var(--serif);font-style:normal;font-weight:900;font-size:23px;line-height:1.2;color:#fff;letter-spacing:-.01em;margin:0 0 5px}
-        .sec-sub{font-size:13.5px;color:var(--text-dim);line-height:1.5;margin:0 0 14px}
+        .mis-k{font-family:var(--mono);font-size:13px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--bright);margin:0 0 8px}
+        .mis-ok{color:var(--text)}
+        .sec-t{font-family:var(--serif);font-style:normal;font-weight:900;font-size:26px;line-height:1.2;color:#fff;letter-spacing:-.01em;margin:0 0 5px}
+        .sec-sub{font-size:16px;color:var(--text);line-height:1.55;margin:0 0 16px;text-wrap:pretty}
 
         /* Recibo: capa + o que ela levou, como um checkout mostra o produto. */
-        .ob-recibo{display:flex;gap:18px;align-items:center;margin:0;padding:16px 18px;border:1px solid var(--hair);border-radius:14px;background:rgba(255,255,255,.025)}
-        .ob-capa{flex:0 0 92px;width:92px}
+        .ob-recibo{display:flex;gap:18px;align-items:center;margin:0;padding:18px;border:1px solid var(--hair);border-radius:14px;background:rgba(255,255,255,.025)}
+        .ob-capa{flex:0 0 120px;width:120px}
         .ob-capa img{display:block;width:100%;height:auto;border-radius:5px;box-shadow:0 14px 34px rgba(0,0,0,.5)}
         .ob-recibo-txt{min-width:0;flex:1}
         .ob-itens{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:6px;align-items:flex-start}
-        .ob-itens li{font-family:var(--serif);font-weight:700;font-size:18px;line-height:1.25;color:#fff;letter-spacing:-.01em}
+        .ob-itens li{font-family:var(--serif);font-weight:700;font-size:19px;line-height:1.25;color:#fff;letter-spacing:-.01em}
         .ob-itens li::before{content:"✓";color:var(--bright);font-weight:700;margin-right:8px}
-        .ob-recibo-meta{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);margin:10px 0 0}
+        .ob-recibo-meta{font-family:var(--mono);font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--text);margin:12px 0 0;text-wrap:balance}
 
         /* Dois pesos de botão, um por missão: vazado na 1 (acessar), cheio na 2 (levar). */
-        .ob-vazado{display:block;margin-top:14px;padding:13px 16px;border:1px solid var(--bright);border-radius:11px;color:var(--bright);text-align:center;font-family:var(--sans,inherit);font-weight:700;font-size:14.5px;letter-spacing:-.01em;transition:background .15s ease}
+        .ob-vazado{display:flex;margin-top:16px;padding:14px 18px;border:2px solid var(--bright);border-radius:999px;color:#fff;text-align:center;font-family:var(--sans,inherit);font-weight:700;font-size:18px;letter-spacing:0;transition:background .15s ease;align-items:center;justify-content:center;min-height:58px}
         .ob-vazado:hover{background:rgba(200,125,146,.10)}
-        .ob-cheio{display:block;width:100%;margin-top:14px;padding:15px 18px;border:0;border-radius:11px;background:var(--bright);color:#140408;text-align:center;font-family:var(--sans,inherit);font-size:15.5px;font-weight:800;letter-spacing:-.01em;cursor:pointer;box-shadow:0 16px 40px rgba(200,125,146,.22);transition:filter .15s ease,transform .15s ease}
-        .ob-cheio:hover{filter:brightness(1.08);transform:translateY(-1px)}
-        .ob-cheio:disabled{opacity:.6;cursor:default;transform:none}
-        .ob-nota-btn{font-size:12px;color:var(--text-dim);line-height:1.55;text-align:center;margin:8px 0 0}
+        .ob-cheio{display:flex;width:100%;margin-top:16px;padding:16px 20px;border:0;border-radius:999px;background:var(--bright);color:#140408;text-align:center;font-family:var(--sans,inherit);font-size:18px;font-weight:800;letter-spacing:0;cursor:pointer;box-shadow:0 5px 0 color-mix(in srgb,var(--bright) 55%,#000);transition:filter .15s ease,transform .15s ease,box-shadow .15s ease;align-items:center;justify-content:center;min-height:60px}
+        .ob-cheio:hover{filter:brightness(1.08)}
+        .ob-cheio:active{transform:translateY(3px);box-shadow:0 2px 0 color-mix(in srgb,var(--bright) 55%,#000)}
+        .ob-cheio:disabled{opacity:.6;cursor:default;transform:none;box-shadow:none}
+        .ob-nota-btn{font-size:15px;color:var(--text);line-height:1.55;text-align:center;margin:12px 0 0;text-wrap:balance}
         .ob-nota-btn a{color:var(--bright);text-decoration:underline;text-underline-offset:2px}
 
         /* obg/01: a pergunta de 1 clique. Uma coluna, altura de toque, cor de destaque só no
            escolhido (a cor de ação é da interação). O «Outro motivo» abre um campo de uma frase. */
         .mot-ops{display:grid;gap:8px}
-        .mot-op{display:flex;align-items:center;gap:11px;width:100%;min-height:48px;padding:11px 14px;border:1px solid var(--hair,rgba(128,128,128,.28));border-radius:11px;background:transparent;color:var(--text);font-family:var(--sans,inherit);font-size:14.5px;font-weight:600;line-height:1.3;text-align:left;cursor:pointer;transition:border-color .15s ease,background .15s ease}
+        .mot-op{display:flex;align-items:center;gap:12px;width:100%;min-height:56px;padding:13px 16px;border:1px solid var(--hair,rgba(128,128,128,.28));border-radius:11px;background:transparent;color:var(--text);font-family:var(--sans,inherit);font-size:16px;font-weight:600;line-height:1.3;text-align:left;cursor:pointer;transition:border-color .15s ease,background .15s ease}
         .mot-op:hover{border-color:var(--bright)}
         .mot-op:disabled{cursor:default}
         .mot-op.on{border-color:var(--bright);background:rgba(200,125,146,.12);color:#fff}
-        .mot-dot{flex:0 0 14px;width:14px;height:14px;border-radius:50%;border:1.5px solid var(--text-dim)}
+        .mot-dot{flex:0 0 18px;width:18px;height:18px;border-radius:50%;border:1.5px solid var(--text-dim)}
         .mot-op.on .mot-dot{border-color:var(--bright);background:var(--bright);box-shadow:inset 0 0 0 3px var(--bg)}
         .mot-outro{display:grid;gap:8px;margin-top:2px}
         .mot-outro textarea{width:100%;min-height:88px;padding:12px 14px;border:1px solid var(--hair,rgba(128,128,128,.28));border-radius:11px;background:rgba(255,255,255,.03);color:#fff;font-family:var(--sans,inherit);font-size:16px;line-height:1.45;resize:vertical}
         .mot-outro textarea::placeholder{color:var(--text-dim)}
         .mot-outro textarea:focus{outline:none;border-color:var(--bright)}
-        .mot-enviar{min-height:48px;padding:12px 18px;border:0;border-radius:11px;background:var(--bright);color:#140408;font-family:var(--sans,inherit);font-size:15px;font-weight:800;letter-spacing:-.01em;cursor:pointer;transition:filter .15s ease}
+        .mot-enviar{min-height:56px;padding:12px 18px;border:0;border-radius:999px;background:var(--bright);color:#140408;font-family:var(--sans,inherit);font-size:17px;font-weight:800;letter-spacing:-.01em;cursor:pointer;transition:filter .15s ease}
         .mot-enviar:hover{filter:brightness(1.08)}
         .mot-enviar:disabled{opacity:.5;cursor:default;filter:none}
 
         .bib{margin:0 0 .9rem;padding:22px 22px 24px;border:1px solid var(--bright);border-radius:14px;background:rgba(200,125,146,.12)}
-        .bib .btag{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--bright);margin-bottom:10px}
-        .bib h3{font-family:var(--serif);font-weight:900;font-size:22px;color:#fff;letter-spacing:-.01em;margin-bottom:8px}
-        .bsub{font-size:14px;color:var(--text);line-height:1.6}
+        .bib .btag{font-family:var(--mono);font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--bright);margin-bottom:10px}
+        .bib h3{font-family:var(--serif);font-weight:900;font-size:24px;color:#fff;letter-spacing:-.01em;margin-bottom:8px;line-height:1.2}
+        .bsub{font-size:16px;color:var(--text);line-height:1.6}
         .bpreco{display:flex;align-items:baseline;gap:10px;margin:16px 0 4px;font-variant-numeric:tabular-nums}
-        .bpreco s{font-size:16px;color:var(--text-dim)}
-        .bpreco b{font-size:32px;font-weight:800;color:var(--bright);letter-spacing:-.02em}
-        .bdesc{font-size:13px;color:var(--text);line-height:1.55;margin-bottom:14px}
-        .blista{list-style:none;padding:0;margin:14px 0 4px;display:grid;grid-template-columns:1fr 1fr;gap:6px 14px}
-        .blista li{font-size:13px;color:var(--text);line-height:1.45;padding-left:14px;position:relative}
+        .bpreco s{font-size:19px;color:var(--text-dim)}
+        .bpreco b{font-size:40px;font-weight:800;color:#fff;letter-spacing:-.02em;line-height:1}
+        .bdesc{font-size:15px;color:var(--text);line-height:1.55;margin-bottom:14px}
+        .blista{list-style:none;padding:0;margin:14px 0 4px;display:grid;grid-template-columns:1fr 1fr;gap:10px 16px}
+        .blista li{font-size:15px;color:var(--text);line-height:1.45;padding-left:14px;position:relative}
         .blista li::before{content:"›";position:absolute;left:0;color:var(--bright)}
         .blista li.tem{color:var(--text-dim)}
-        .blista .tag{font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--bright);margin-left:6px;vertical-align:1px}
-        .bnews{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);margin-top:1px}
+        .blista .tag{font-family:var(--mono);font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--bright);margin-left:6px;vertical-align:1px}
+        .bnews{display:block;font-family:var(--mono);font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--text);margin-top:2px}
         .blinks a{color:var(--text);text-decoration:underline;text-underline-offset:2px}
         .blinks a:hover{color:var(--bright)}
-        .bnota{font-size:12.5px;color:var(--text-dim);line-height:1.5;margin-top:8px;text-align:center}
-        .berro{font-size:13px;color:#F0A28A;margin-top:10px}
+        .bnota{font-size:15px;color:var(--text);line-height:1.5;margin-top:12px;text-align:center}
+        .berro{font-size:15px;color:#F0A28A;margin-top:10px}
         .bib-ok .blista{grid-template-columns:1fr}
+        @media (min-width:1024px){.ob-page{max-width:640px}}
         @media (max-width:430px){.blista{grid-template-columns:1fr}}
 
         /* EXP-079: guia de outra newsletter na missão 2, abaixo do bundle quando ele existe. Variáveis com
            fallback porque nem toda casa define --hair/--mono. */
         .outro{margin:0;padding:18px;border:1px solid var(--hair,rgba(128,128,128,.28));border-radius:14px}
         .outro-topo{display:flex;gap:16px;align-items:flex-start}
-        .outro-capa{flex:0 0 76px;width:76px}
+        .outro-capa{flex:0 0 104px;width:104px}
         .outro-capa img{display:block;width:100%;height:auto;border-radius:5px;box-shadow:0 12px 28px rgba(0,0,0,.35)}
-        .outro-tag{font-family:var(--mono,ui-monospace,monospace);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--bright);margin:0 0 6px}
-        .outro h3{font-family:var(--serif);font-style:normal;font-weight:700;font-size:19px;line-height:1.25;letter-spacing:-.01em;margin:0 0 6px;color:#fff}
-        .outro-p{font-size:13.5px;line-height:1.55;color:var(--text,inherit);margin:0}
-        .outro-meta{font-family:var(--mono,ui-monospace,monospace);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);margin:8px 0 0}
-        @media (max-width:430px){.ob-recibo{gap:14px;padding:14px}.ob-capa{flex-basis:84px;width:84px}.ob-itens li{font-size:17px}.outro-topo{gap:13px}.outro-capa{flex-basis:66px;width:66px}.outro h3{font-size:17.5px}}
+        .outro-tag{font-family:var(--mono,ui-monospace,monospace);font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--bright);margin:0 0 6px}
+        .outro h3{font-family:var(--serif);font-style:normal;font-weight:700;font-size:21px;line-height:1.25;letter-spacing:-.01em;margin:0 0 6px;color:#fff;text-wrap:balance}
+        .outro-p{font-size:16px;line-height:1.55;color:var(--text,inherit);margin:0;text-wrap:pretty}
+        .outro-meta{font-family:var(--mono,ui-monospace,monospace);font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--text);margin:8px 0 0}
+        @media (max-width:430px){.ob-recibo{gap:14px;padding:14px}.ob-capa{flex-basis:104px;width:104px}.ob-itens li{font-size:18px}.outro-topo{gap:13px}.outro-capa{flex-basis:92px;width:92px}.outro h3{font-size:19px}}
+        @media (max-width:430px){
+          .outro-topo{display:grid;grid-template-columns:92px 1fr;column-gap:14px;align-items:center}
+          .outro-topo>div{display:contents}
+          .outro-tag{grid-column:1/-1;margin:0 0 12px}
+          .outro-capa{grid-column:1;grid-row:2}
+          .outro h3{grid-column:2;grid-row:2;margin:0}
+          .outro-p{grid-column:1/-1;margin:14px 0 0}
+          .outro-meta{grid-column:1/-1;margin:10px 0 0}
+          .ob-recibo{flex-wrap:wrap}
+          .ob-recibo-txt{display:contents}
+          .ob-itens{flex:1 1 0;min-width:0}
+          .ob-recibo-meta{flex:0 0 100%;margin:0}
+        }
       `}</style>
     </>
   );
