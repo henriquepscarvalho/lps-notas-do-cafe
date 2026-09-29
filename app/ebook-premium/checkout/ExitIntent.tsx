@@ -161,7 +161,7 @@ export default function ExitIntent({ slug, titulo, origem = "ck" }: { slug: stri
         if (e.target === e.currentTarget) setAberta(false);
       }}
     >
-      <div className="saida-box" ref={caixa} tabIndex={-1}>
+      <div className="saida-box" data-legivel="1" ref={caixa} tabIndex={-1}>{/* LEGIVEL (col/32) */}
         <button type="button" className="saida-x" aria-label="Fechar" onClick={() => setAberta(false)}>×</button>
         <p className="saida-kicker">Antes de sair</p>
         <h2 id="saida-titulo">Leia o capítulo 1 antes de decidir.</h2>
@@ -181,23 +181,24 @@ export default function ExitIntent({ slug, titulo, origem = "ck" }: { slug: stri
       </div>
       <style>{`
         .saida{position:fixed;inset:0;z-index:9999;background:rgba(6,4,5,.82);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:24px}
-        .saida-box{position:relative;width:100%;max-width:420px;background:var(--bg-deep,#120609);border:1px solid var(--hair-accent,rgba(200,125,146,.3));border-radius:20px;padding:32px 24px;text-align:center;outline:none;box-shadow:0 30px 70px rgba(0,0,0,.6)}
-        .saida-x{position:absolute;top:8px;right:16px;background:none;border:0;color:var(--text-dim,#8E8688);font-size:24px;line-height:1;cursor:pointer}
-        .saida-kicker{font-family:var(--mono,ui-monospace,monospace);font-size:11px;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:var(--bright,#C87D92);margin:0 0 12px}
-        .saida-box h2{font-family:var(--serif,Georgia,serif);font-style:italic;font-weight:900;font-size:24px;line-height:1.2;color:#fff;margin:0 0 12px;letter-spacing:-.01em}
-        .saida-texto{font-size:14px;line-height:1.6;color:var(--text,#CFC8CA);margin:0 0 24px}
+        .saida-box{position:relative;width:100%;max-width:440px;background:var(--bg-deep,#120609);border:1px solid var(--hair-accent,rgba(200,125,146,.3));border-radius:20px;padding:34px 24px 28px;text-align:center;outline:none;box-shadow:0 30px 70px rgba(0,0,0,.6)}
+        .saida-x{position:absolute;top:6px;right:10px;background:none;border:0;color:var(--text,#CFC8CA);font-size:30px;line-height:1;cursor:pointer;width:44px;height:44px}
+        .saida-kicker{font-family:var(--mono,ui-monospace,monospace);font-size:13px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--bright,#C87D92);margin:0 0 12px}
+        .saida-box h2{font-family:var(--serif,Georgia,serif);font-style:italic;font-weight:900;font-size:27px;line-height:1.18;color:#fff;margin:0 0 14px;letter-spacing:-.01em;text-wrap:balance}
+        .saida-texto{font-size:16px;line-height:1.55;color:var(--text,#CFC8CA);margin:0 0 24px;text-wrap:pretty}
         .saida-texto em{color:#fff}
-        .saida-cta{display:block;width:100%;box-sizing:border-box;padding:16px 24px;border-radius:999px;background:var(--bright,#C87D92);color:var(--bg-deep,#140408);font-weight:700;font-size:17px;text-decoration:none;transition:background .16s ease}
+        .saida-cta{display:block;width:100%;box-sizing:border-box;padding:17px 24px;border-radius:999px;background:var(--bright,#C87D92);color:var(--bg-deep,#140408);font-weight:800;font-size:18px;text-decoration:none;transition:transform .15s ease,box-shadow .15s ease,filter .16s ease,background .16s ease;box-shadow:0 5px 0 color-mix(in srgb,var(--bright,#C87D92) 55%,#000)}
         .saida-cta:hover{filter:brightness(1.08)}
-        .saida-fechar{margin-top:16px;background:none;border:0;color:var(--text-dim,#8E8688);font-family:var(--sans,inherit);font-size:14px;cursor:pointer;text-decoration:underline;text-underline-offset:4px}
+        .saida-cta:active{transform:translateY(3px);box-shadow:0 2px 0 color-mix(in srgb,var(--bright,#C87D92) 55%,#000)}
+        .saida-fechar{margin-top:20px;background:none;border:0;color:var(--text,#CFC8CA);font-family:var(--sans,inherit);font-size:16px;cursor:pointer;text-decoration:underline;text-underline-offset:4px;padding:6px 8px}
         @media (max-width:480px){.saida{align-items:flex-end;padding:0}.saida-box{max-width:none;border-radius:20px 20px 0 0;padding:28px 20px calc(24px + env(safe-area-inset-bottom))}}
         .saida-lp .saida-box{background:var(--sx-bg);border-color:var(--sx-hair);box-shadow:0 30px 70px rgba(0,0,0,.4)}
-        .saida-lp .saida-x,.saida-lp .saida-fechar{color:var(--sx-dim);font-family:var(--sx-sans)}
+        .saida-lp .saida-x,.saida-lp .saida-fechar{color:var(--sx-ink);font-family:var(--sx-sans)}
         .saida-lp .saida-kicker{color:var(--sx-kick);font-family:var(--sx-mono)}
         .saida-lp .saida-box h2{color:var(--sx-head);font-family:var(--sx-serif)}
         .saida-lp .saida-texto{color:var(--sx-ink);font-family:var(--sx-sans)}
         .saida-lp .saida-texto em{color:var(--sx-head)}
-        .saida-lp .saida-cta{background:var(--sx-acc);color:var(--sx-acc-ink);font-family:var(--sx-sans)}
+        .saida-lp .saida-cta{background:var(--sx-acc);color:var(--sx-acc-ink);font-family:var(--sx-sans);box-shadow:0 5px 0 color-mix(in srgb,var(--sx-acc) 55%,#000)}
         .saida-lp .saida-cta:hover{background:var(--sx-acc);filter:brightness(1.08)}
       `}</style>
     </div>
