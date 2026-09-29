@@ -149,6 +149,14 @@ export default function ColecaoLP() {
     return () => io.disconnect();
   }, []);
 
+  // col/28: guarda o id do assinante da beehiiv (?sid= do email) pro checkout mandar na session da Stripe.
+  useEffect(() => {
+    try {
+      const q = (new URLSearchParams(window.location.search).get("sid") || "").toLowerCase();
+      if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(q)) sessionStorage.setItem("vdn_sid", q);
+    } catch {}
+  }, []);
+
   const clique = () => sendBeacon(COL.slug, "colecao-lp-cta", { eventType: "converteu" });
   const [copiado, setCopiado] = useState(false);
   // col/14 (HC 28/09, opção A): lista de espera por formulário; a rota cria a inscrição na beehiiv e enrola na automação

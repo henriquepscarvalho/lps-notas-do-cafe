@@ -14,6 +14,13 @@ const BUMP_TITULO = "Coleção completa · Brasa Certa";
 const BUMP_SC = "BC"; // a news do par (colecao-rede, col/08)
 const VALOR_COLECAO = 9700;
 const VALOR_BUMP = 4850;
+// col/27 (HC 29/09/26): resgate da rodada 2, email 2 com a coleção pela metade até segunda 05/10 23:59 BRT.
+// Cupom colecao-metade-4850 da NM: R$ 48,50 de desconto, uma vez, só nos 30 produtos da Coleção. Valor fixo de
+// propósito: o bump da irmã é o produto da Coleção dela, e 50% cortaria o bump junto (provado em live, 29/09).
+// Fora da janela o pedido de metade sai com o preço cheio.
+const CUPOM_METADE = "colecao-metade-4850";
+const METADE_DE = Date.parse("2026-10-04T00:00:00-03:00");
+const METADE_ATE = Date.parse("2026-10-05T23:59:59-03:00");
 // HC 28/09/26 (col/06): o checkout fica aberto depois da campanha. O 410 de sexta só mostrava o erro da
 // Stripe em inglês («Something went wrong»), sem sensação de perda pro leitor e 122 visitas em 3 dias sem
 // venda. Fechar de novo = voltar a data e o if de lp/route.ts.tpl.bak-aberto-2809.
@@ -33,12 +40,16 @@ export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}) as Record<string, unknown>);
   const bump = body?.bump === true && Boolean(BUMP_PRICE);
 
+  const agora = Date.now();
+  const metade = body?.oferta === "metade" && agora >= METADE_DE && agora <= METADE_ATE;
+  const valorColecao = metade ? VALOR_COLECAO / 2 : VALOR_COLECAO;
+
   const origin = new URL(req.url).origin;
   const params: Record<string, string> = {
     ui_mode: "embedded",
     mode: "payment",
     locale: "pt-BR",
-    return_url: `${origin}/colecao/obrigado?session_id={CHECKOUT_SESSION_ID}&v=${bump ? VALOR_COLECAO + VALOR_BUMP : VALOR_COLECAO}`,
+    return_url: `${origin}/colecao/obrigado?session_id={CHECKOUT_SESSION_ID}&v=${bump ? valorColecao + VALOR_BUMP : valorColecao}`,
     // Contrato: o webhook central do Pharos ignora este produto (price fora do mapa dos ebooks);
     // quem entrega a coleção e o bump é a vigia (_shared/colecao-rede/vigia.py), lendo as sessions
     // pagas pelo price da coleção nos line_items e pelo metadata abaixo.
@@ -61,6 +72,12 @@ export async function POST(req: Request) {
   params["metadata[src]"] = src || "lp-colecao";
   const variante = curto(body?.checkout_variant);
   if (variante) params["metadata[checkout_variant]"] = variante;
+  // col/28: id do assinante da beehiiv (sid={{subscriber_id}} do link do email, uuid sem sub_). A session só ganha email
+  // quando paga; com o sid, quem tocou no formulário e saiu vira pessoa (GET /subscriptions/by_subscriber_id/{uuid}).
+  // Só uuid: merge tag cru ou robô cai fora.
+  const sid = curto(body?.sid).toLowerCase();
+  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(sid)) params["metadata[beehiiv_sid]"] = sid;
+  if (metade) params["metadata[oferta]"] = "metade";
   // funil-pixel: fbp, fbc, IP e user agent pra CAPI casar a venda com o clique.
   const cookies = req.headers.get("cookie") || "";
   const cookie = (k: string) => cookies.match(new RegExp(`(?:^|;\\s*)${k}=([^;]+)`))?.[1] || "";
@@ -79,7 +96,7 @@ export async function POST(req: Request) {
   // ponytail: price IDs live não existem em test mode; rk_test_ usa price_data inline com os mesmos valores.
   if (isTestKey) {
     params["line_items[0][price_data][currency]"] = "brl";
-    params["line_items[0][price_data][unit_amount]"] = String(VALOR_COLECAO);
+    params["line_items[0][price_data][unit_amount]"] = String(valorColecao);
     params["line_items[0][price_data][product_data][name]"] = `Colecao completa ${NEWS}`;
     params["line_items[0][quantity]"] = "1";
     if (bump) {
@@ -91,6 +108,7 @@ export async function POST(req: Request) {
   } else {
     params["line_items[0][price]"] = PRICE_COLECAO;
     params["line_items[0][quantity]"] = "1";
+    if (metade) params["discounts[0][coupon]"] = CUPOM_METADE;
     if (bump) {
       params["line_items[1][price]"] = BUMP_PRICE;
       params["line_items[1][quantity]"] = "1";

@@ -100,12 +100,21 @@ declare global {
   }
 }
 
-/* Jornada que o PageBeacon abriu na primeira página. Best-effort. */
+/* Jornada que o PageBeacon abriu na primeira página. Best-effort.
+   col/28: sid = id do assinante da beehiiv ({{subscriber_id}} no link do email); a LP /colecao guarda no mesmo
+   sessionStorage, o checkout lê da própria URL quando o email aponta direto, e a rota grava metadata.beehiiv_sid.
+   col/27: oferta=metade do email 2 do resgate; a rota só aplica dentro da janela (preço sai no formulário da Stripe). */
+const SID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 function jornada() {
   try {
+    const u = new URLSearchParams(window.location.search);
+    const q = (u.get("sid") || "").toLowerCase();
+    if (SID_RE.test(q)) sessionStorage.setItem("vdn_sid", q);
     return {
       journey: sessionStorage.getItem("vdn_journey") || "",
       src: sessionStorage.getItem("vdn_source") || "",
+      sid: sessionStorage.getItem("vdn_sid") || "",
+      oferta: u.get("oferta") === "metade" ? "metade" : "",
     };
   } catch {
     return {};
