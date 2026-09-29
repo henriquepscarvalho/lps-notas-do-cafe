@@ -148,6 +148,9 @@ function prazoDaUrl() {
   }
 }
 
+/* LEGIVEL: o valor em reais nunca quebra de linha entre o "R$" e o número */
+const nb = (t: string) => t.replace(/R\$ (?=\d)/g, "R$\u00a0");
+
 export default function AppCheckout() {
   const [bump, setBump] = useState(false);
   // ticket 35: a recuperação chega com ?oferta=bonus (o guia da ALQ de graça) ou ?oferta=metade (R$ 48,50);
@@ -338,15 +341,15 @@ export default function AppCheckout() {
   const bumpCard = (
     <section className={`bumpcard${bump || bonus ? " on" : ""}${pos === "B" ? " antes" : ""}`} aria-label={bonus ? "Bônus incluído" : "Adicione ao pedido"}>
       <span className="btag">{bonus ? "Bônus incluído" : "Adicione ao pedido"}</span>
-      <p className="bponte">{APP.bump.ponte}</p>
+      <p className="bponte">{nb(APP.bump.ponte)}</p>
       <div className="hd-par b-par">
         <img className="hd-pcapa" src={APP.bump.capa} alt={APP.bump.capaAlt} width={1800} height={2400} loading="lazy" />
         <span className="hd-mais" aria-hidden="true">+</span>
         <span className="hd-fone"><img src={APP.bump.tela} alt={APP.bump.telaAlt} width={780} height={1688} loading="lazy" /></span>
       </div>
       <span className="bformato">{APP.bump.formato}</span>
-      <span className="bnome">{APP.bump.titulo}</span>
-      <span className="bfrase">{APP.bump.frase}</span>
+      <span className="bnome">{nb(APP.bump.titulo)}</span>
+      <span className="bfrase">{nb(APP.bump.frase)}</span>
       <span className="bpreco">{bonus ? <><s>{APP.bump.preco}</s> R$ 0</> : <><s>{APP.bump.de}</s> {APP.bump.preco}</>}</span>
       {bonus ? (
         <span className="bbar bfixo"><span className="bx" aria-hidden="true">✓</span><span>Entra sem custo neste pedido</span></span>
@@ -374,7 +377,7 @@ export default function AppCheckout() {
         </div>
       </nav>
 
-      <main className="ck-page">
+      <main className="ck-page" data-legivel="1">{/* LEGIVEL (col/32) */}
         {/* app/75: no celular a tira (capa, chip, título e a nota numa linha) abre a página e o formulário
             da Stripe vem logo abaixo, dentro da 1ª tela; acima de 640 px a tira some. */}
         <div className="ck-tira">
@@ -387,6 +390,7 @@ export default function AppCheckout() {
             )}
           </div>
         </div>
+        <div className="ck-lado">
         {/* cabeçalho: A = a cena da LP (par ebook + app, chip "Ebook + app", título; HC 12/09, protótipo C);
             B = capa ao lado (só quando o split ligar) */}
         {braco === "B" ? (
@@ -452,6 +456,8 @@ export default function AppCheckout() {
           </section>
         )}
 
+        </div>
+        <div className="ck-pg">
         {pos === "B" && bumpCard}
 
         <div className={`ck-box${configurado && !montado && !erro ? " carregando" : ""}`}>
@@ -488,6 +494,7 @@ export default function AppCheckout() {
         </div>
 
         {pos === "A" && bumpCard}
+        </div>
       </main>
 
       {saida && (
@@ -496,13 +503,13 @@ export default function AppCheckout() {
             <button className="exitx" aria-label="Fechar" onClick={() => setSaida(false)}>×</button>
             <p className="kicker">{APP.downsell.kicker}</p>
             <h2>{APP.downsell.titulo}</h2>
-            <p className="exittexto">{APP.downsell.texto}</p>
+            <p className="exittexto">{nb(APP.downsell.texto)}</p>
             <a
               className="exitcta"
               href={APP.downsell.href}
               onClick={() => sendBeacon(APP.slug, "app-checkout-exit-cta", { eventType: "converteu" })}
             >
-              {APP.downsell.cta}
+              {nb(APP.downsell.cta)}
             </a>
             <button className="exitfica" onClick={() => setSaida(false)}>Continuar com o app</button>
           </div>
@@ -530,27 +537,28 @@ a{color:inherit;text-decoration:none}
 .brand img{width:32px;height:32px}
 .wm{font-weight:700;font-size:20px;letter-spacing:-.02em}
 .wm .t{color:var(--bright)}.wm .s{color:#fff}
-.kicker{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:var(--bright)}
+.kicker{font-family:var(--mono);font-size:13px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--bright)}
 
         .ck-page{max-width:560px;margin:0 auto;padding:0 1.25rem 4rem}
+        .ck-lado,.ck-pg{display:contents}
         .ck-lomb{position:absolute;top:2%;bottom:2%;left:-5px;width:6px;border-radius:4px 0 0 4px;background:linear-gradient(90deg,rgba(0,0,0,.85),rgba(255,255,255,.10))}
         /* cabeçalho: dois braços (A = imersivo, arte da capa sangrada; B = capa à esquerda) */
         .hd{margin:0 0 18px}
-        .hd-chip{display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--bright);border:1px solid var(--hair-accent);border-radius:99px;padding:5px 10px;background:rgba(15,13,14,.45);margin-bottom:12px}
-        .hd-h1{font-family:var(--serif);font-style:italic;font-weight:900;font-size:clamp(2rem,8.8vw,2.7rem);line-height:1.08;color:#fff;letter-spacing:-.02em;margin:0 0 10px;text-wrap:balance}
+        .hd-chip{display:inline-block;font-family:var(--mono);font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--bright);border:1px solid var(--hair-accent);border-radius:99px;padding:7px 14px;background:rgba(15,13,14,.45);margin-bottom:14px;font-weight:500}
+        .hd-h1{font-family:var(--serif);font-style:italic;font-weight:900;font-size:clamp(2.15rem,9.4vw,3rem);line-height:1.08;color:#fff;letter-spacing:-.02em;margin:0 0 10px;text-wrap:balance}
         .hd-cena{display:flex;flex-direction:column;align-items:center;text-align:center;padding:22px 0 4px}
         .hd-sorteando{visibility:hidden} /* antes do sorteio: sem piscar de um braço pro outro */
-        .hd-par{display:flex;align-items:center;justify-content:center;position:relative;--h:170px}
+        .hd-par{display:flex;align-items:center;justify-content:center;position:relative;--h:220px}
         .hd-pcapa{height:var(--h);width:auto;aspect-ratio:3/4;object-fit:cover;border-radius:4px 8px 8px 4px;box-shadow:0 18px 40px rgba(0,0,0,.65);transform:rotate(-4deg);z-index:1}
         .hd-fone{display:block;height:calc(var(--h) * 1.06);aspect-ratio:390/844;padding:2%;border-radius:9.5% / 4.4%;background:#0b0b0b;box-shadow:0 22px 40px -14px rgba(0,0,0,.9),inset 0 0 0 2px #2a2a2a;margin-left:-22px;z-index:2}
         .hd-fone img{display:block;width:100%;height:100%;object-fit:cover;object-position:top;border-radius:7.5% / 3.5%}
-        .hd-mais{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:34px;height:34px;border-radius:50%;background:#fff;color:#140408;font-family:var(--serif);font-size:24px;line-height:34px;text-align:center;z-index:3;box-shadow:0 6px 18px rgba(0,0,0,.5)}
-        .hd-leva{font-size:12.5px;color:var(--text-dim);margin:12px 0 14px;max-width:34ch}
-        .hd-split{display:grid;grid-template-columns:104px 1fr;gap:16px;align-items:center;padding:22px 0 6px}
-        .hd-capa{position:relative;display:block;width:104px}
+        .hd-mais{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:40px;height:40px;border-radius:50%;background:#fff;color:#140408;font-family:var(--serif);font-size:28px;line-height:40px;text-align:center;z-index:3;box-shadow:0 6px 18px rgba(0,0,0,.5)}
+        .hd-leva{font-size:16px;color:var(--text);margin:20px 0 16px;max-width:32ch;line-height:1.5;text-wrap:balance}
+        .hd-split{display:grid;grid-template-columns:132px 1fr;gap:20px;align-items:center;padding:22px 0 6px}
+        .hd-capa{position:relative;display:block;width:132px}
         .hd-capa img{display:block;width:100%;height:auto;border-radius:6px;box-shadow:0 18px 40px rgba(0,0,0,.6),0 0 50px rgba(200,125,146,.14)}
-        .hd-split .hd-h1{font-size:clamp(1.7rem,7.2vw,2.2rem)}
-        .hd-split .hd-chip{font-size:9px;letter-spacing:.1em;padding:4px 8px;white-space:nowrap}
+        .hd-split .hd-h1{font-size:clamp(1.9rem,7.6vw,2.4rem)}
+        .hd-split .hd-chip{font-size:13px;letter-spacing:.08em;padding:6px 12px;white-space:nowrap}
         .ck-box{position:relative;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.5),0 0 60px rgba(200,125,146,.10);min-height:120px}
         .ck-box.carregando{min-height:400px}
         .ck-skel{position:absolute;inset:0;padding:22px 20px 24px;pointer-events:none;background:#fff}
@@ -564,84 +572,107 @@ a{color:inherit;text-decoration:none}
         @keyframes sk{from{background-position:130% 0}to{background-position:-30% 0}}
         @media (prefers-reduced-motion:reduce){.sk-l{animation:none}}
         .ck-pend{padding:2.2rem 1.6rem;font-family:var(--sans,inherit);color:#26302B}
-        .ck-pend p{font-size:14.5px;line-height:1.6;margin:0 0 .5rem}
+        .ck-pend p{font-size:16px;line-height:1.6;margin:0 0 .5rem}
         .ck-pend b{color:#0D0F0E}
-        .bumpcard{margin-top:18px;padding:18px 20px;border:1px solid var(--hair);border-radius:14px;background:var(--bg-deep);text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px;transition:border-color .2s ease,background .2s ease}
+        .bumpcard{margin-top:18px;padding:24px 20px;border:1px solid var(--hair);border-radius:16px;background:var(--bg-deep);text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px;transition:border-color .2s ease,background .2s ease}
         .bumpcard.antes{margin:0 0 16px}
         .bumpcard.on{border-color:var(--bright);background:rgba(200,125,146,.07)}
         .bumpcard input{position:absolute;opacity:0;width:0;height:0}
-        .btag{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--bright)}
-        .bponte{font-family:var(--serif);font-style:italic;font-size:16.5px;line-height:1.3;color:#fff;margin:8px 0 12px;max-width:30ch}
-        .b-par{--h:134px}
+        .btag{font-family:var(--mono);font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--bright);font-weight:500}
+        .bponte{font-family:var(--serif);font-style:italic;font-size:21px;line-height:1.28;color:#fff;margin:10px 0 18px;max-width:25ch;text-wrap:balance}
+        .b-par{--h:230px}
         .b-par .hd-fone{height:calc(var(--h) * .92);margin-left:-8px}
-        .b-par .hd-mais{width:30px;height:30px;font-size:21px;line-height:30px}
-        .bformato{font-size:12px;color:var(--text-dim);margin:12px 0 4px}
-        .bfrase{display:block;font-size:13px;color:var(--text);line-height:1.45;margin:0 0 8px;max-width:34ch}
-        .bnome{display:block;font-family:var(--serif);font-weight:700;font-size:16.5px;color:#fff;margin:6px 0 4px}
-        .bpreco{display:block;font-size:14px;font-weight:700;color:var(--bright)}
-        .bpreco s{color:var(--text-dim);font-weight:400;margin-right:4px}
-        .bbar{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;margin-top:8px;padding:12px;border:1.5px solid var(--bright);border-radius:8px;color:#fff;font-weight:600;font-size:14.5px;cursor:pointer}
-        .bbar.bfixo{cursor:default}
-        .bumpcard.on .bbar{background:rgba(200,125,146,.14)}
-        .bx{width:22px;height:22px;border-radius:6px;border:2px solid var(--bright);display:inline-flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#140408;flex:none;transition:background .2s ease}
-        .bumpcard.on .bx{background:var(--bright)}
+        .b-par .hd-mais{width:36px;height:36px;font-size:25px;line-height:36px}
+        .bformato{font-size:15px;color:var(--text);margin:20px 0 2px;max-width:30ch;text-wrap:balance}
+        .bfrase{display:block;font-size:16px;color:var(--text);line-height:1.5;margin:0 0 14px;max-width:32ch;text-wrap:pretty}
+        .bnome{display:block;font-family:var(--serif);font-weight:700;font-size:22px;color:#fff;margin:8px 0 6px;line-height:1.2;text-wrap:balance}
+        .bpreco{display:flex;font-size:34px;font-weight:800;color:#fff;align-items:baseline;justify-content:center;gap:10px;line-height:1;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+        .bpreco s{color:var(--text-dim);font-weight:500;font-size:19px;margin:0;letter-spacing:0}
+        .bbar{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;margin-top:18px;padding:14px 20px;border:0;border-radius:999px;color:#140408;font-weight:800;font-size:18px;cursor:pointer;min-height:60px;background:var(--bright);letter-spacing:.01em;user-select:none;box-shadow:0 5px 0 color-mix(in srgb,var(--bright) 55%,#000);transition:transform .15s ease,box-shadow .15s ease,filter .15s ease}
+        .bbar.bfixo{cursor:default;background:transparent;color:#fff;box-shadow:none;border:1.5px solid var(--bright)}
+        .bumpcard.on .bbar.bfixo{background:transparent;transform:none;box-shadow:none}
+        .bbar.bfixo:hover{filter:none}
+        .bbar.bfixo .bx{background:var(--bright);border-color:var(--bright);color:#140408}
+        .bumpcard.on .bbar{background:var(--bright);transform:translateY(3px);box-shadow:0 2px 0 color-mix(in srgb,var(--bright) 55%,#000)}
+        .bbar:hover{filter:brightness(1.06)}
+        .bbar:active{transform:translateY(3px);box-shadow:0 2px 0 color-mix(in srgb,var(--bright) 55%,#000)}
+        .bbar:has(input:focus-visible){outline:3px solid #fff;outline-offset:4px}
+        .bx{width:28px;height:28px;border-radius:8px;border:2px solid #140408;display:inline-flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff;flex:none;transition:background .2s ease;background:#fff}
+        .bumpcard.on .bx{background:#140408}
         /* reforço: nota (método Amazon), leitores, voto */
-        .ck-prova{margin:0 0 16px;padding:14px 16px;border:1px solid var(--hair);border-radius:14px;background:var(--bg-deep);display:flex;flex-direction:column;gap:12px}
-        .ck-media{display:flex;align-items:center;gap:12px}
-        .ck-media>b{font-family:var(--serif);font-size:40px;line-height:1;color:#fff;font-variant-numeric:tabular-nums}
-        .ck-media>div{display:flex;flex-direction:column;gap:3px}
-        .ck-media small{font-size:12px;color:var(--text-dim)}
-        .ck-stars{position:relative;display:inline-block;font-size:20px;line-height:1;letter-spacing:1px}
+        .ck-prova{margin:0 0 16px;padding:20px 18px;border:1px solid var(--hair);border-radius:16px;background:var(--bg-deep);display:flex;flex-direction:column;gap:16px}
+        .ck-media{display:flex;align-items:center;gap:14px}
+        .ck-media>b{font-family:var(--serif);font-size:60px;line-height:.95;color:#fff;font-variant-numeric:tabular-nums}
+        .ck-media>div{display:flex;flex-direction:column;gap:5px}
+        .ck-media small{font-size:15px;color:var(--text)}
+        .ck-stars{position:relative;display:inline-block;font-size:27px;line-height:1;letter-spacing:2px}
         .ck-stars .st-b{color:rgba(207,200,202,.22)}
         .ck-stars .st-f{position:absolute;left:0;top:0;width:var(--f,100%);overflow:hidden;white-space:nowrap;color:#E6B85C}
-        .ck-bars{display:flex;flex-direction:column;gap:5px}
-        .ck-bar{display:grid;grid-template-columns:30px 1fr 34px;align-items:center;gap:8px;font-size:12px;color:var(--text-dim);font-variant-numeric:tabular-nums}
-        .ck-bar .tr{height:8px;border-radius:4px;background:rgba(207,200,202,.12);overflow:hidden}
-        .ck-bar .tr i{display:block;height:100%;background:#E6B85C;border-radius:4px}
+        .ck-bars{display:flex;flex-direction:column;gap:8px}
+        .ck-bar{display:grid;grid-template-columns:38px 1fr 46px;align-items:center;gap:10px;font-size:15px;color:var(--text);font-variant-numeric:tabular-nums}
+        .ck-bar .tr{height:10px;border-radius:5px;background:rgba(207,200,202,.12);overflow:hidden}
+        .ck-bar .tr i{display:block;height:100%;background:#E6B85C;border-radius:5px}
         .ck-bar .pc{text-align:right}
-        .ck-leit{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-dim)}
-        .ck-leit b{color:#fff}
-        .ck-avs{display:inline-flex}
-        .ck-avs img{width:26px;height:26px;border-radius:50%;border:2px solid var(--bg-deep);margin-left:-8px;background:#333}
+        .ck-leit{display:flex;align-items:center;gap:12px;font-size:16px;color:var(--text)}
+        .ck-leit>span:last-child{display:flex;flex-direction:column;gap:4px;line-height:1.3}
+        .ck-leit b{color:#fff;font-size:26px;font-weight:800;line-height:1;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+        .ck-avs{display:inline-flex;flex:none}
+        .ck-avs img{width:34px;height:34px;border-radius:50%;border:2px solid var(--bg-deep);margin-left:-10px;background:#333}
         .ck-avs img:first-child{margin-left:0}
         .ck-depo{margin:0;text-align:left}
-        .ck-depo blockquote{font-family:var(--serif);font-style:italic;font-size:14.5px;line-height:1.45;color:#fff;quotes:"\\201C" "\\201D"}
+        .ck-depo blockquote{font-family:var(--serif);font-style:italic;font-size:18px;line-height:1.4;color:#fff;quotes:"\\201C" "\\201D"}
         .ck-depo blockquote::before{content:open-quote;color:var(--bright)}
         .ck-depo blockquote::after{content:close-quote;color:var(--bright)}
-        .ck-depo figcaption{margin-top:5px;font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim)}
+        .ck-depo figcaption{margin-top:8px;font-family:var(--mono);font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--text)}
         /* tira e ordem do celular (app/75, molde do c4-20k/127): formulário na 1ª tela; desktop segue como está */
         .ck-tira{display:none}
         @media (max-width:639px){
           .ck-page{display:flex;flex-direction:column}
-          .ck-tira{display:grid;grid-template-columns:44px 1fr;gap:12px;align-items:center;padding:12px 0 14px;order:1}
-          .ck-tira-capa{position:relative;display:block;width:44px}
+          .ck-tira{display:grid;grid-template-columns:56px 1fr;gap:14px;align-items:center;padding:10px 0 12px;order:1}
+          .ck-tira-capa{position:relative;display:block;width:56px}
           .ck-tira-capa img{display:block;width:100%;height:auto;border-radius:4px;box-shadow:0 10px 22px rgba(0,0,0,.6)}
           .ck-tira-in{min-width:0}
-          .ck-tira-kick{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--bright);line-height:1.3}
-          .ck-tira-tit{display:block;font-family:var(--serif);font-style:italic;font-weight:900;font-size:19px;line-height:1.15;color:#fff;letter-spacing:-.01em;margin:2px 0 3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-          .ck-tira-nota{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-dim);line-height:1}
-          .ck-tira-nota b{color:#fff;font-family:var(--serif);font-size:14px}
-          .ck-tira-nota .ck-stars{font-size:13px;letter-spacing:.5px}
+          .ck-tira-kick{display:block;font-family:var(--mono);font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--bright);line-height:1.3;font-weight:500}
+          .ck-tira-tit{display:block;font-family:var(--serif);font-style:italic;font-weight:900;font-size:22px;line-height:1.12;color:#fff;letter-spacing:-.01em;margin:3px 0 4px;text-wrap:balance}
+          .ck-tira-nota{display:flex;align-items:center;gap:7px;font-size:14px;color:var(--text);line-height:1}
+          .ck-tira-nota b{color:#fff;font-family:var(--serif);font-size:17px}
+          .ck-tira-nota .ck-stars{font-size:16px;letter-spacing:.5px}
           .ck-box{order:2}
           .bumpcard{order:3;margin:18px 0 0}
           .bumpcard.antes{margin:18px 0 0}
-          .hd{order:4;margin:18px 0 0}
+          .hd{order:4;margin:20px 0 0}
           .hd-cena{padding:6px 0 4px}
-          .ck-prova{order:5;margin:18px 0 0}
+          .ck-prova{order:5;margin:20px 0 0}
+          .ck-leit{gap:10px;font-size:15px}
+          .ck-avs img{margin-left:-12px}
+        }
+        /* computador: a largura que sobra vira lateral. Produto e prova à esquerda, formulário e bump à direita,
+           formulário dentro da 1ª tela. Entre 640 e 1023 px a página segue em coluna única, como antes. */
+        @media (min-width:1024px){
+          .ck-page{max-width:1180px;display:grid;grid-template-columns:minmax(0,1fr) 520px;column-gap:64px;align-items:start;padding:36px 28px 5rem}
+          .ck-lado,.ck-pg{display:block;min-width:0}
+          .ck-lado{grid-column:1;grid-row:1}
+          .ck-pg{grid-column:2;grid-row:1}
+          .hd{margin:0 0 26px}
+          .ck-prova{margin:0}
+          .bumpcard.antes{margin:0 0 18px}
+          .hd-cena{padding-top:0}
+          .hd-par{--h:280px}
         }
         .ck-foot{padding:2.5rem 1.5rem;text-align:center;border-top:1px solid var(--hair);background:var(--bg-deep)}
         .ck-foot p{font-family:var(--serif);font-style:italic;font-size:1rem;color:var(--sage)}
 
         .exitov{position:fixed;inset:0;z-index:90;background:rgba(10,8,9,.78);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:20px}
-        .exitbox{position:relative;max-width:400px;width:100%;background:var(--bg-deep);border:1px solid var(--hair-accent);border-radius:16px;padding:30px 26px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.6)}
+        .exitbox{position:relative;max-width:440px;width:100%;background:var(--bg-deep);border:1px solid var(--hair-accent);border-radius:20px;padding:34px 22px 28px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.6)}
         .exitbox .kicker{display:block;margin-bottom:.7rem}
-        .exitbox h2{font-family:var(--serif);font-style:italic;font-weight:900;font-size:1.5rem;color:#fff;margin-bottom:.6rem}
-        .exittexto{font-size:14.5px;color:var(--text);line-height:1.6;margin-bottom:1.2rem}
-        .exitcta{display:block;padding:14px 18px;border-radius:10px;background:var(--bright);color:#140408;font-weight:800;font-size:15px;letter-spacing:-.01em}
+        .exitbox h2{font-family:var(--serif);font-style:italic;font-weight:900;font-size:27px;color:#fff;margin-bottom:14px;line-height:1.18;text-wrap:balance}
+        .exittexto{font-size:16px;color:var(--text);line-height:1.55;margin-bottom:22px;text-wrap:pretty}
+        .exitcta{display:block;padding:18px 14px;border-radius:999px;background:var(--bright);color:#140408;font-weight:800;font-size:17px;letter-spacing:0;text-wrap:balance;box-shadow:0 5px 0 color-mix(in srgb,var(--bright) 55%,#000);transition:transform .15s ease,box-shadow .15s ease,filter .16s ease}
         .exitcta:hover{filter:brightness(1.08)}
-        .exitfica{margin-top:12px;background:none;border:0;color:var(--text-dim);font-family:var(--sans);font-size:13px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+        .exitcta:active{transform:translateY(3px);box-shadow:0 2px 0 color-mix(in srgb,var(--bright) 55%,#000)}
+        .exitfica{margin-top:20px;background:none;border:0;color:var(--text);font-family:var(--sans);font-size:16px;cursor:pointer;text-decoration:underline;text-underline-offset:4px;padding:6px 8px}
         .exitfica:hover{color:var(--text)}
-        .exitx{position:absolute;top:10px;right:14px;background:none;border:0;color:var(--text-dim);font-size:22px;cursor:pointer;line-height:1}
+        .exitx{position:absolute;top:6px;right:10px;background:none;border:0;color:var(--text);font-size:30px;cursor:pointer;line-height:1;width:44px;height:44px}
         .exitx:hover{color:#fff}
       `}</style>
     </>
