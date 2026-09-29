@@ -18,6 +18,13 @@ const NUM_EXIBIDO = (MANIFEST as { num_exibido?: string | null }).num_exibido;
    no sessionStorage do PageBeacon e vira metadata.src da session na Stripe.
    Estado fechado da oferta (lista de espera, sexta 23:59) é o col/14, fora deste molde.
    ============================================================ */
+// col/18: nome com artigo («A Origem das Palavras») contrai com a preposição: «da Origem», nunca «da A Origem»
+const NOME = "Notas do Café";
+const ART = /^(A|O|As|Os) /.exec(NOME);
+const SEM_ART = ART ? NOME.slice(ART[0].length) : NOME;
+const DA_NEWS = ART ? ({ A: "da", O: "do", As: "das", Os: "dos" } as Record<string, string>)[ART[1]] + " " + SEM_ART : "da " + NOME;
+const A_NEWS = ART ? ART[1].toLowerCase() + " " + SEM_ART : "a " + NOME;
+
 const COL = {
   slug: "notas-do-cafe",
   news: "Notas do Café",
@@ -26,12 +33,20 @@ const COL = {
   paginas: 739,
   meses: 6,
   capa: "https://ecmveymyzdqiehvtqxms.supabase.co/storage/v1/object/public/assets/scriptorium/colecao/notas-do-cafe-capa.png",
-  capaAlt: "Capa da Coleção completa da Notas do Café",
+  capaAlt: `Capa da Coleção completa ${DA_NEWS}`,
   despedida: "Sem frescura. Bom café. Notas do Café",
 };
-const BUILD = "colecao-20260928-1829";
+const BUILD = "colecao-20260929-0037";
 const CTA = "Quero as 115 edições";
 const HREF = "/colecao/checkout?src=lp-colecao";
+/* col/14 (HC 28/09/26): a OFERTA tem janela; o checkout não. Três estados, decididos pela data na página (tokens da
+   fábrica, oferta.json), nunca na rota: «permanente» (sem janela ou antes dela: venda sem bônus), «oferta» (dentro da
+   janela: os dois bônus e o prazo), «espera» (depois do fim: some a oferta e o bônus, entra a lista de espera por email;
+   a resposta da casa devolve o link direto do checkout, que segue aberto). Reabrir = a data da rodada seguinte.
+   ?estado=espera|oferta na URL força o estado pra conferência visual. */
+const OFERTA = { abre: "2026-09-29T00:00:00-03:00", fecha: "2026-10-02T23:59:59-03:00", fechaTxt: "sexta 02/10, 23:59", par: "Brasa Certa", parN: "117" };
+const LEIA = "leia@notasdocafe.com.br";   // col/14: email_from_address da publicação (EE = hc@), lido pela fábrica, roteado pro worker
+type Estado = "permanente" | "oferta" | "espera";
 
 type Exemplo = { rotulo: string; seq: string; titulo: string; sub: string; dia: string; pagina: number; img: string; alt: string };
 const EXEMPLOS: Exemplo[] = [
@@ -85,6 +100,19 @@ const Seta = () => (
 
 export default function ColecaoLP() {
   const [cena, setCena] = useState(0);
+  const [estado, setEstado] = useState<Estado>("permanente");
+
+  // estado da oferta pela data (só no cliente, depois de montar: o servidor sempre entrega «permanente», sem hidratação divergente)
+  useEffect(() => {
+    const forca = new URLSearchParams(window.location.search).get("estado");
+    if (forca === "espera" || forca === "oferta" || forca === "permanente") { setEstado(forca); return; }
+    const abre = OFERTA.abre ? Date.parse(OFERTA.abre) : NaN;
+    const fecha = OFERTA.fecha ? Date.parse(OFERTA.fecha) : NaN;
+    if (Number.isNaN(fecha)) return;
+    const agora = Date.now();
+    if (agora > fecha) setEstado("espera");
+    else if (Number.isNaN(abre) || agora >= abre) setEstado("oferta");
+  }, []);
   const manual = useRef(false);
   const palco = useRef<HTMLDivElement>(null);
   const visivel = useRef(false);
@@ -122,11 +150,47 @@ export default function ColecaoLP() {
   }, []);
 
   const clique = () => sendBeacon(COL.slug, "colecao-lp-cta", { eventType: "converteu" });
-  const botao = (extra = "") => (
-    <a className={`cta${extra ? " " + extra : ""}`} href={HREF} onClick={clique}>
-      {CTA} <Seta />
-    </a>
-  );
+  const [copiado, setCopiado] = useState(false);
+  // col/14 (HC 28/09, opção A): lista de espera por formulário; a rota cria a inscrição na beehiiv e enrola na automação
+  // 💎 [Espera], que manda o link direto do checkout. Um estado só pros formulários da página (hero, meio e final).
+  const [espEmail, setEspEmail] = useState("");
+  const [espSt, setEspSt] = useState<"idle" | "enviando" | "ok" | "erro">("idle");
+  const enviarEspera = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const email = espEmail.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) || espSt === "enviando") return;
+    setEspSt("enviando");
+    try {
+      const r = await fetch("/api/colecao-espera", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, src: "lp-colecao-espera" }) });
+      if (!r.ok) throw new Error(String(r.status));
+      setEspSt("ok");
+      sendBeacon(COL.slug, "colecao-lp-espera", { eventType: "converteu" });
+    } catch {
+      setEspSt("erro");
+    }
+  };
+  const copiar = () => {
+    try { navigator.clipboard.writeText(LEIA).then(() => { setCopiado(true); setTimeout(() => setCopiado(false), 2500); }); } catch {}
+    sendBeacon(COL.slug, "colecao-lp-espera-copiar", { eventType: "converteu" });
+  };
+  const botao = (extra = "") =>
+    estado === "espera" ? (
+      espSt === "ok" ? (
+        <p className="espera-ok" role="status"><b>Pronto.</b> O link do arquivo chega no seu email em instantes. Quando a próxima rodada abrir, você fica sabendo antes.</p>
+      ) : (
+        <form className={`espera-form${extra ? " " + extra : ""}`} onSubmit={enviarEspera} noValidate>
+          <label className="sr-only" htmlFor="espera-email">Seu email</label>
+          <input id="espera-email" type="email" inputMode="email" autoComplete="email" placeholder="seu@email.com" value={espEmail} onChange={(e) => setEspEmail(e.target.value)} required />
+          <button type="submit" className="cta cta-espera" disabled={espSt === "enviando"}>
+            {espSt === "enviando" ? "Enviando…" : <>Entrar na lista de espera <Seta /></>}
+          </button>
+        </form>
+      )
+    ) : (
+      <a className={`cta${extra ? " " + extra : ""}`} href={HREF} onClick={clique}>
+        {CTA} <Seta />
+      </a>
+    );
   const depo = PROVA.exibir && PROVA.exibir_nota ? PROVA.depoimento : null;
   const ex0 = EXEMPLOS[0];
   const corta = (s: string, n: number) => (s.length > n ? s.slice(0, n - 1).trimEnd() + "…" : s);
@@ -142,14 +206,16 @@ export default function ColecaoLP() {
             <img src="/ebook-web/simbolo.png" alt="" width={32} height={32} />
             <span className="wm"><span className="t">Notas</span><span className="s">{" do Café"}</span></span>
           </a>
-          <a className="cta cta-mini" href={HREF} onClick={clique}>{CTA}</a>
+          {estado === "espera"
+            ? <a className="cta cta-mini cta-espera" href="#espera">Lista de espera</a>
+            : <a className="cta cta-mini" href={HREF} onClick={clique}>{CTA}</a>}
         </div>
       </nav>
 
       <main className="lpc" data-build={BUILD}>
         <section className="hero">
           <div className="faixa hero-col">
-            <h1 className="display h1">As {COL.n} edições da {COL.news} num PDF só, pra reler sem caçar email.</h1>
+            <h1 className="display h1">As {COL.n} edições {DA_NEWS} num PDF só, pra reler sem caçar email.</h1>
             <p className="sub">
               Pra quem lê a news e quer voltar a uma edição sem depender da caixa de entrada. Cada edição inteira, em ordem,
               com um sumário por mês: você toca no mês e cai na edição.
@@ -158,7 +224,22 @@ export default function ColecaoLP() {
               <span className="hd-par hd-solo"><img className="hd-pcapa" src={COL.capa} alt={COL.capaAlt} width={900} height={1200} fetchPriority="high" /></span>
             </a>
             <p className="capa-leg">Um arquivo só: {COL.paginas} páginas, de {COL.desde} até esta semana.</p>
-            <div className="pedido">{botao()}</div>
+            {estado === "oferta" && OFERTA.fechaTxt ? (
+              <p className="prazo"><b>Dois bônus até {OFERTA.fechaTxt}:</b> o volume da {OFERTA.par} pela metade e o PDF atualizado por 12 meses.</p>
+            ) : null}
+            {estado === "espera" ? (
+              <div className="aviso-espera" role="status">
+                <b>A oferta desta rodada terminou na sexta, 23:59.</b>
+                <span>A próxima você fica sabendo por email. Deixe o seu na lista de espera: a resposta chega com o caminho.</span>
+              </div>
+            ) : null}
+            <div className="pedido" id="espera">{botao()}</div>
+            {estado === "espera" && espSt === "erro" ? (
+              <p className="espera-alt" role="alert">
+                Não deu agora. Escreva pra <b>{LEIA}</b> com o assunto «lista de espera do arquivo».{" "}
+                <button type="button" className="copiar" onClick={copiar}>{copiado ? "Copiado" : "Copiar endereço"}</button>
+              </p>
+            ) : null}
             <p className="prova-hero" aria-label="Prova">
               {NUM_EXIBIDO ? <span><b>{NUM_EXIBIDO}</b> leitores todo dia</span> : null}
               <span><b>{COL.n}</b> edições publicadas</span>
@@ -350,12 +431,21 @@ export default function ColecaoLP() {
               <div><b>{COL.meses}</b><span>meses de edições</span></div>
               <div><b>24 h</b><span>pra chegar no seu email</span></div>
             </div>
+            {estado === "oferta" && OFERTA.fechaTxt ? (
+              <div className="bonus" aria-label="Bônus da semana">
+                <small>Dois bônus, só até {OFERTA.fechaTxt}</small>
+                <ul>
+                  <li><b>O volume da {OFERTA.par}</b> ({OFERTA.parN} edições) pela metade, com um toque no checkout.</li>
+                  <li><b>O volume atualizado por 12 meses:</b> todo dia 1º, o PDF com as edições do mês anterior chega no seu email.</li>
+                </ul>
+              </div>
+            ) : null}
             <div className="preco-linha">
               <div className="pedido">
                 {botao()}
-                <div className="preco"><b>R$ 97</b><span>uma vez só · pix, cartão ou boleto</span></div>
+                {estado === "espera" ? null : <div className="preco"><b>R$ 97</b><span>uma vez só · pix, cartão ou boleto</span></div>}
               </div>
-              <p className="garantia">Garantia de 7 dias: não serviu, responde o email do pedido e devolvemos.</p>
+              {estado === "espera" ? null : <p className="garantia">Garantia de 7 dias: não serviu, responde o email do pedido e devolvemos.</p>}
             </div>
           </div>
         </section>
@@ -414,9 +504,9 @@ export default function ColecaoLP() {
           <section className="secao" id="leitores">
             <div className="faixa">
               <div className="cabeca">
-                <h2 className="display h2">Quem lê a {COL.news} todo dia.</h2>
+                <h2 className="display h2">Quem lê {A_NEWS} todo dia.</h2>
               </div>
-              <div className="ck-prova" aria-label={`O que os leitores da ${COL.news} dizem`}>
+              <div className="ck-prova" aria-label={`O que os leitores ${DA_NEWS} dizem`}>
                 <div className="ck-media">
                   <b>{PROVA.media_exibido}</b>
                   <div>
@@ -472,12 +562,12 @@ export default function ColecaoLP() {
           <div className="faixa">
             <div className="final-box">
               <h2 className="display h2">Leia a edição que você perdeu. E todas as outras.</h2>
-              <p className="sub">As {COL.n} edições da {COL.news} num PDF só, em ordem, com sumário por mês. Seu pra sempre.</p>
+              <p className="sub">As {COL.n} edições {DA_NEWS} num PDF só, em ordem, com sumário por mês. Seu pra sempre.</p>
               <a className="capa-link capa-final" href={HREF} onClick={clique} aria-label={CTA}>
                 <span className="hd-par hd-solo"><img className="hd-pcapa" src={COL.capa} alt={COL.capaAlt} width={900} height={1200} loading="lazy" /></span>
               </a>
               <div className="pedido">{botao()}</div>
-              <p className="garantia"><b>Sete dias de garantia.</b> Não serviu, responde o email do pedido e devolvemos.</p>
+              {estado === "espera" ? null : <p className="garantia"><b>Sete dias de garantia.</b> Não serviu, responde o email do pedido e devolvemos.</p>}
               <p className="espera">A edição de amanhã sai no horário de sempre. As {COL.n} de antes cabem num arquivo.</p>
             </div>
           </div>
@@ -529,6 +619,27 @@ ul{list-style:none}
         @media (max-width:560px){.preco{text-align:center;width:100%}}
         .preco span{font-size:.86rem;color:var(--text-dim)}
         .garantia{font-size:.9rem;color:var(--text-dim);max-width:60ch;margin-inline:auto}
+        .prazo{margin-top:1rem;font-size:.95rem;color:var(--text);max-width:52ch;margin-inline:auto;line-height:1.45}
+        .prazo b{color:var(--bright)}
+        .aviso-espera{margin:1.1rem auto 0;max-width:52ch;display:grid;gap:.3rem;font-size:.95rem;line-height:1.45;text-align:center;color:var(--muted)}
+        .aviso-espera b{color:var(--bright);font-size:1.05rem}
+        .cta-espera{background:var(--sage);color:var(--bg)}
+        .espera-form{display:flex;flex-wrap:wrap;gap:.55rem;justify-content:center;align-items:stretch;max-width:720px;margin:0 auto}
+        .espera-form input{flex:1 1 240px;min-width:0;padding:.9rem 1.2rem;border-radius:999px;border:1px solid transparent;background:#fff;color:#141414;font:inherit;font-size:1rem}
+        .espera-form input::placeholder{color:#6f6f6f}
+        .espera-form input:focus{outline:2px solid var(--sage);outline-offset:2px}
+        .espera-form .cta{flex:0 0 auto}
+        .espera-form .cta:disabled{opacity:.7;cursor:progress}
+        .espera-ok{max-width:52ch;margin:0 auto;padding:.9rem 1.1rem;border:1px solid color-mix(in srgb,var(--sage) 45%,transparent);border-radius:12px;background:color-mix(in srgb,var(--sage) 10%,transparent);font-size:1rem;line-height:1.5;text-align:left}
+        .espera-ok b{color:var(--bright)}
+        .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+        .espera-alt{max-width:52ch;margin:.7rem auto 0;font-size:.9rem;line-height:1.5;color:var(--muted);text-align:center;overflow-wrap:anywhere}
+        .espera-alt b{color:var(--bright);font-weight:600}
+        .copiar{display:inline-block;margin-left:.35rem;padding:.25rem .6rem;border:1px solid var(--hair-accent);border-radius:8px;background:transparent;color:var(--bright);font:inherit;font-size:.85rem;cursor:pointer}
+        .bonus{max-width:640px;margin:clamp(24px,3vw,32px) auto 0;padding:1rem 1.2rem;border:1px solid var(--hair-accent);border-radius:14px;background:color-mix(in srgb,var(--bg-deep) 70%,transparent)}
+        .bonus small{display:block;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--sage);margin-bottom:.5rem}
+        .bonus ul{display:grid;gap:.45rem;font-size:.98rem;line-height:1.45}
+        .bonus b{color:var(--bright)}
         .garantia b{color:#fff}
 
         /* hero */
@@ -542,6 +653,8 @@ ul{list-style:none}
         .hero .hd-par{--h:clamp(200px,28vw,320px)}
         .capa-leg{margin-top:1.1rem;font-size:.88rem;color:var(--text-dim);text-align:center}
         .hero .pedido{margin-top:1.1rem}
+        .hero-col .pedido,.preco-linha .pedido,.final-box .pedido{justify-self:stretch}
+        .espera-form{width:100%}
         .prova-hero{display:flex;justify-content:center;flex-wrap:wrap;gap:.35rem 1.1rem;margin-top:1rem;font-size:.9rem;color:var(--text-dim)}
         .prova-hero b{color:#fff;font-weight:600}
         .prova-hero span+span::before{content:"·";margin-right:1.1rem;color:var(--hair-accent)}
