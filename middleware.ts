@@ -76,7 +76,7 @@ function appVideo(req: NextRequest): NextResponse {
  * Freio da ficha: `APP_CK_NO_AR = false` não sorteia ninguém e regrava pra lp quem tinha caído no ck.
  */
 const DST_COOKIE = "app_dst";
-const APP_CK_NO_AR = false;
+const APP_CK_NO_AR = true;
 const APP_CK_ROTA = "/app/checkout";
 
 /** `src` do banner da edição que entra no sorteio de destino: `edicao-app*`, menos o formato D. */
