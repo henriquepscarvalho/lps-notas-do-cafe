@@ -187,6 +187,46 @@ export function sendBeacon(slug: string, step: string, opts: BeaconOpts = {}): v
   });
 }
 
+/**
+ * Posição do botão de compra na página (lpca/29, 28/09/26). O clique no CTA segue gravando o
+ * MESMO passo de sempre (`app-lp-cta`, `ebook-premium-d-cta`...), que a RPC do c2, o Pharos e o
+ * funil_gaps.py leem por nome exato. A posição sai num SEGUNDO beacon, no passo `<passo>@<pos>`
+ * (ex.: `app-lp-cta@ficha`): nenhum leitor lista esse nome, o normStep do c2 só corta `-[a-z]$`,
+ * e a coluna `variant` fica só com o braço do teste. Dedupe por posição na sessão: cada botão
+ * diferente que a pessoa clicou aparece uma vez.
+ *
+ * Ordem da leitura: `data-pos` explícito > chat da vitrine > barra fixa/grudada (nav sticky,
+ * faixa de oferta, barra de compra do celular) > hero > ficha (o que você leva + preço) >
+ * final > meio.
+ */
+export const CTA_POS = ["hero", "meio", "ficha", "final", "barra", "chat"] as const;
+export type CtaPos = (typeof CTA_POS)[number];
+
+export function posDoCta(alvo: EventTarget | null | undefined): CtaPos {
+  try {
+    const el = alvo instanceof Element ? alvo : null;
+    if (!el) return "meio";
+    const d = el.closest("[data-pos]")?.getAttribute("data-pos") as CtaPos | null | undefined;
+    if (d && (CTA_POS as readonly string[]).includes(d)) return d;
+    if (el.closest(".lpw")) return "chat";
+    for (let n: Element | null = el; n && n !== document.body; n = n.parentElement) {
+      const p = getComputedStyle(n).position;
+      if (p === "fixed" || p === "sticky") return "barra";
+    }
+    if (el.closest(".hero, #hero, .lp-hero")) return "hero";
+    if (el.closest("#leva, #ficha, .ficha, section.caixa")) return "ficha";
+    if (el.closest("#final, .fechosec")) return "final";
+    return "meio";
+  } catch {
+    return "meio";
+  }
+}
+
+/** Beacon da posição, sempre ao lado do beacon do CTA (nunca no lugar dele). */
+export function sendCtaPos(slug: string, step: string, alvo: EventTarget | null | undefined): void {
+  sendBeacon(slug, `${step}@${posDoCta(alvo)}`, { eventType: "converteu" });
+}
+
 export default function PageBeacon({
   slug,
   step,

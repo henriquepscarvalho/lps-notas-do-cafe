@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import PageBeacon, { sendBeacon } from "../PageBeacon";
+import PageBeacon, { sendBeacon, sendCtaPos } from "../PageBeacon";
 import ExitIntent from "../ebook-premium/checkout/ExitIntent";
 import LpWidgets, { fichaDoEbook } from "../LpWidgets";
 
@@ -337,8 +337,10 @@ const PRECO = "R$ 47";
 const CTA_LABEL = "Quero o guia →";
 const CHECKOUT = "/ebook-premium/checkout";
 
-function ctaClick() {
+// lpca/29: o passo segue `ebook-premium-d-cta`; a posição do botão vai num beacon ao lado (`ebook-premium-d-cta@<pos>`)
+function ctaClick(e?: { currentTarget: EventTarget | null }) {
   sendBeacon(EBOOK.slug, "ebook-premium-d-cta", { eventType: "converteu" });
+  sendCtaPos(EBOOK.slug, "ebook-premium-d-cta", e?.currentTarget);
 }
 
 function Stars() {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import PageBeacon, { sendBeacon } from "../PageBeacon";
+import PageBeacon, { sendBeacon, sendCtaPos } from "../PageBeacon";
 import LpWidgets, { fichaDoApp } from "../LpWidgets";
 import { BRACO, CSS, HTML, JS } from "./ouro";
 
@@ -152,8 +152,10 @@ const APP = {
   "garantiaNome": "Garantia de 7 dias"
 };
 
-function ctaClick() {
+// lpca/29: o passo segue `app-lp-cta`; a posição do botão vai num beacon ao lado (`app-lp-cta@<pos>`)
+function ctaClick(e?: { currentTarget: EventTarget | null }) {
   sendBeacon(APP.slug, "app-lp-cta", { eventType: "converteu" });
+  sendCtaPos(APP.slug, "app-lp-cta", e?.currentTarget);
 }
 
 // c4-20k/103: oferta que chega por link (molde da LP da EE, c4-20k/57 e 93; regra HC 08/09: campanha manda

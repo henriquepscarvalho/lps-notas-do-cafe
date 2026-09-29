@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { sendBeacon } from "./PageBeacon";
+import { sendBeacon, sendCtaPos } from "./PageBeacon";
 
 /* ============================================================
    LpWidgets · vitrine das LPs de venda (ebook premium e app), 02/09/26.
@@ -451,7 +451,10 @@ export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", local
             <a
               className="lpw-cta"
               href={checkout}
-              onClick={() => sendBeacon(slug, `${step}-cta`, { eventType: "converteu" })}
+              onClick={(e) => {
+                sendBeacon(slug, `${step}-cta`, { eventType: "converteu" });
+                sendCtaPos(slug, `${step}-cta`, e.currentTarget);
+              }}
             >
               {cta.replace(" →", "")}
               <span>{ficha.preco} · abre o checkout</span>
