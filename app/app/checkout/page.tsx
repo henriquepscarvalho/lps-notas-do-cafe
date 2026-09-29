@@ -285,6 +285,10 @@ export default function AppCheckout() {
 
   // Saída do checkout (ticket 25, ponto 3 do downsell): abriu o embedded e fez o
   // gesto de sair sem pagar. Uma vez por sessão; o corpo da página não cita o ebook.
+  // c4-20k/141: o card abria no desktop sem deixar rastro e nunca abria no toque (65% das
+  // jornadas). Agora grava `app-checkout-exit` ao abrir (o clique grava `app-checkout-exit-cta`)
+  // e o toque usa o gesto do ExitIntent do checkout do ebook (subida rápida de 320 px em até
+  // 350 ms depois de 60% da página), pra leitura do c4-20k/42 comparar os dois cards.
   useEffect(() => {
     const abre = () => {
       if (saidaJa.current) return;
@@ -296,12 +300,31 @@ export default function AppCheckout() {
       }
       saidaJa.current = true;
       setSaida(true);
+      sendBeacon(APP.slug, "app-checkout-exit");
     };
     const onLeave = (e: MouseEvent) => {
       if (e.clientY <= 0) abre();
     };
     document.addEventListener("mouseleave", onLeave);
-    return () => document.removeEventListener("mouseleave", onLeave);
+    const toque = "ontouchstart" in window || window.matchMedia("(pointer:coarse)").matches;
+    let onScroll: (() => void) | undefined;
+    if (toque) {
+      let fundo = false, uy = window.scrollY, ry = uy, rt = 0;
+      onScroll = () => {
+        const y = window.scrollY, t = Date.now(), h = document.documentElement.scrollHeight - window.innerHeight;
+        if (h > 0 && y / h >= 0.6) fundo = true;
+        if (y < uy) {
+          if (!rt) { rt = t; ry = uy; }
+          if (fundo && ry - y >= 320 && t - rt <= 350) abre();
+        } else rt = 0;
+        uy = y;
+      };
+      window.addEventListener("scroll", onScroll, { passive: true });
+    }
+    return () => {
+      document.removeEventListener("mouseleave", onLeave);
+      if (onScroll) window.removeEventListener("scroll", onScroll);
+    };
   }, []);
 
   const configurado = Boolean(PK);
@@ -474,7 +497,13 @@ export default function AppCheckout() {
             <p className="kicker">{APP.downsell.kicker}</p>
             <h2>{APP.downsell.titulo}</h2>
             <p className="exittexto">{APP.downsell.texto}</p>
-            <a className="exitcta" href={APP.downsell.href}>{APP.downsell.cta}</a>
+            <a
+              className="exitcta"
+              href={APP.downsell.href}
+              onClick={() => sendBeacon(APP.slug, "app-checkout-exit-cta", { eventType: "converteu" })}
+            >
+              {APP.downsell.cta}
+            </a>
             <button className="exitfica" onClick={() => setSaida(false)}>Continuar com o app</button>
           </div>
         </div>
