@@ -234,7 +234,7 @@ export default function ColecaoObrigado() {
         </div>
       </nav>
 
-      <main className="ob-page" data-legivel="2.2">{/* LEGIVEL (col/32) · LEGIVEL-CEL (col/45) */}
+      <main className="ob-page" data-legivel="2.3">{/* LEGIVEL (col/32) · LEGIVEL-CEL (col/45) */}
         <div className="ob-selo" aria-hidden="true">✓</div>
         <p className="kicker">{COL.kicker}</p>
         <h1>Compra confirmada</h1>
@@ -245,8 +245,7 @@ export default function ColecaoObrigado() {
           <Missao n={1} de={totalMissoes} ok={abriu} />
           <h2 className="sec-t">Acesse a sua coleção</h2>
           <p className="sec-sub">
-            O PDF chega neste email dentro de 24 horas da confirmação (no cartão e no Pix, normalmente em
-            minutos; no boleto, quando compensar). O link é permanente e o arquivo é seu.
+            O PDF chega neste email dentro de 24 horas (cartão e Pix em minutos; boleto, quando compensar). O link é permanente e o arquivo é seu.
           </p>
 
           <div className="ob-recibo">
@@ -509,7 +508,8 @@ a{color:inherit;text-decoration:none}
           .ob-itens{align-items:center}
           .ob-itens li{font-size:21px}
           .ob-capa{flex:0 0 auto;width:auto}
-          .ob-capa img{width:auto;height:180px;margin:0 auto}
+          /* LEGIVEL-QUAD-COL (col/48): capa de 150 px e sub em 2 linhas, o botão da missão 1 cabe em 1280 × 800 */
+          .ob-capa img{width:auto;height:150px;margin:0 auto}
           .outro{border-radius:16px;padding:24px}
           .outro-topo{flex-direction:column;align-items:center;gap:16px;text-align:center}
           .outro-topo>div{width:100%}
