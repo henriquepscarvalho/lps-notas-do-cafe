@@ -37,7 +37,8 @@ const COL = {
   despedida: "Sem frescura. Bom café. Notas do Café",
 };
 /* LEGIVEL (col/32): passe de legibilidade */
-const BUILD = "legivel-colecao-20260929-0037";
+/* LEGIVEL-CEL (col/44): botão na 1ª tela do celular, hero legível */
+const BUILD = "legivel-cel2-colecao-20260929-0037";
 const CTA = "Quero as 115 edições";
 const HREF = "/colecao/checkout?src=lp-colecao";
 /* col/14 (HC 28/09/26): a OFERTA tem janela; o checkout não. Três estados, decididos pela data na página (tokens da
@@ -225,10 +226,7 @@ export default function ColecaoLP() {
         <section className="hero">
           <div className="faixa hero-col">
             <h1 className="display h1">As {COL.n} edições {DA_NEWS} num PDF só, pra reler sem caçar email.</h1>
-            <p className="sub">
-              Pra quem lê a news e quer voltar a uma edição sem depender da caixa de entrada. Cada edição inteira, em ordem,
-              com um sumário por mês: você toca no mês e cai na edição.
-            </p>
+            <p className="sub">Pra quem lê a news e quer voltar a uma edição. Todas inteiras, em ordem, com sumário por mês.</p>
             <a className="capa-link" href={HREF} onClick={clique} aria-label={CTA}>
               <span className="hd-par hd-solo"><img className="hd-pcapa" src={COL.capa} alt={COL.capaAlt} width={900} height={1200} fetchPriority="high" /></span>
             </a>
@@ -845,6 +843,19 @@ ul{list-style:none}
           .lpc *,.lpc *::before,.lpc *::after{animation-duration:0s!important;animation-delay:0s!important;transition-duration:0s!important}
           .cx-r{opacity:1}.cx-risco{stroke-dashoffset:0}.cx-cal-d .nun{opacity:1}
         }
+        /* celular (col/44, HC 29/09/26): botão de compra dentro da 1ª tela. Título, sub curto, capa, botão; prazo e legenda depois. */
+        @media (max-width:639px){
+          .hero-col>.h1{order:1}.hero-col>.sub{order:2}.hero-col>.capa-link{order:3}.hero-col>.aviso-espera{order:4}
+          .hero-col>.pedido{order:5}.hero-col>.prazo{order:6}.hero-col>.capa-leg{order:7}.hero-col>.prova-hero{order:8}
+          .hero .hd-par{--h:200px}
+          .hero .capa-link{margin-top:18px}
+          .hero .pedido{margin-top:16px}
+          .hero .prazo{margin-top:14px}
+          .hero .capa-leg{margin-top:14px}
+        }
+        /* CSS global da casa (AD) pintava título e sub do hero na cor do tema claro: cor com seletor acima de qualquer global */
+        section.hero .hero-col .h1{color:#fff}
+        section.hero .hero-col :is(.sub,.capa-leg,.prazo,.prova-hero){color:var(--text)}
       `}</style>
     </>
   );
