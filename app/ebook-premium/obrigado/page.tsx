@@ -269,7 +269,7 @@ export default function EbookObrigado() {
   // A missão 2 só existe quando tem o que oferecer.
   const temProximoPasso = (mostraBiblioteca && Boolean(oferta)) || (mostraOferta && Boolean(oferta)) || (OUTRO.ativo && !jaLevouOutro);
   // Casa sem par no mapa do EXP-079 e sessão sem bundle: a página tem 2 missões, e o rótulo diz «de 2».
-  const totalMissoes = temProximoPasso ? 3 : 2;
+  const totalMissoes = 1 + (temProximoPasso ? 1 : 0) + (sessionId ? 1 : 0); // MISSOES-SESSAO (obg/17): a última missão (quiz ou pergunta) só existe com a sessão na URL
 
   return (
     <>
