@@ -234,7 +234,7 @@ export default function ColecaoObrigado() {
         </div>
       </nav>
 
-      <main className="ob-page" data-legivel="1">{/* LEGIVEL (col/32) */}
+      <main className="ob-page" data-legivel="2.1">{/* LEGIVEL (col/32) · LEGIVEL-CEL (col/45) */}
         <div className="ob-selo" aria-hidden="true">✓</div>
         <p className="kicker">{COL.kicker}</p>
         <h1>Compra confirmada</h1>
@@ -491,18 +491,15 @@ a{color:inherit;text-decoration:none}
         .bib-ok .blista{grid-template-columns:1fr}
         @media (min-width:1024px){.ob-page{max-width:640px}}
         @media (max-width:430px){.blista{grid-template-columns:1fr}.ob-recibo{gap:14px;padding:14px}.ob-capa{flex-basis:104px;width:104px}.ob-itens li{font-size:18px}.outro-topo{gap:13px}.outro-capa{flex-basis:92px;width:92px}.outro h3{font-size:19px}}
-        @media (max-width:430px){
-          .outro-topo{display:grid;grid-template-columns:92px 1fr;column-gap:14px;align-items:center}
-          .outro-topo>div{display:contents}
-          .outro-tag{grid-column:1/-1;margin:0 0 12px}
-          .outro-capa{grid-column:1;grid-row:2}
-          .outro h3{grid-column:2;grid-row:2;margin:0}
-          .outro-p{grid-column:1/-1;margin:14px 0 0}
-          .outro-meta{grid-column:1/-1;margin:10px 0 0}
-          .ob-recibo{flex-wrap:wrap}
-          .ob-recibo-txt{display:contents}
-          .ob-itens{flex:1 1 0;min-width:0}
-          .ob-recibo-meta{flex:0 0 100%;margin:0}
+        /* celular (col/45, HC 29/09/26): nenhuma seção em duas colunas; capa em cima, texto embaixo, tudo centrado */
+        @media (max-width:639px){
+          .ob-recibo{flex-direction:column;align-items:center;gap:14px;text-align:center}
+          .ob-recibo-txt{width:100%}
+          .ob-itens{align-items:center}
+          .ob-capa{flex:0 0 auto;width:128px}
+          .outro-topo{flex-direction:column;align-items:center;gap:14px;text-align:center}
+          .outro-topo>div{width:100%}
+          .outro-capa{flex:0 0 auto;width:112px}
         }
       `}</style>
     </>
