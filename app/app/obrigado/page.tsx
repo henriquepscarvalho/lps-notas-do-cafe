@@ -259,7 +259,7 @@ export default function AppObrigado() {
         </div>
       </nav>
 
-      <main className="ob-page" data-legivel="2.1">{/* LEGIVEL (col/32) · LEGIVEL-CEL (col/45) */}
+      <main className="ob-page" data-legivel="2.2">{/* LEGIVEL (col/32) · LEGIVEL-CEL (col/45) */}
         <div className="ob-selo" aria-hidden="true">✓</div>
         <p className="kicker">{APP.kicker}</p>
         <h1>Compra confirmada</h1>
@@ -533,6 +533,29 @@ a{color:inherit;text-decoration:none}
           .outro-topo{flex-direction:column;align-items:center;gap:14px;text-align:center}
           .outro-topo>div{width:100%}
           .outro-capa{flex:0 0 auto;width:112px}
+        }
+        /* LEGIVEL-QUAD · computador (col/47, HC 30/09/26): cartões em quadrado, capa em cima, título e ficha centrados; acima de
+           1024 px o topo da página (selo, kicker, título) aperta 46 px pra o botão da missão 1 caber em 1280 × 800 */
+        @media (min-width:640px){
+          .ob-recibo{flex-direction:column;align-items:center;gap:16px;text-align:center;padding:24px;border-radius:16px}
+          .ob-recibo-txt{width:100%}
+          .ob-itens{align-items:center}
+          .ob-itens li{font-size:21px}
+          .ob-capa{flex:0 0 auto;width:auto}
+          .ob-capa img{width:auto;height:180px;margin:0 auto}
+          .outro{border-radius:16px;padding:24px}
+          .outro-topo{flex-direction:column;align-items:center;gap:16px;text-align:center}
+          .outro-topo>div{width:100%}
+          .outro-capa{flex:0 0 auto;width:auto}
+          .outro-capa img{width:auto;height:160px;margin:0 auto}
+          .outro h3{font-size:23px}
+        }
+        @media (min-width:1024px){
+          .ob-page{padding-top:2rem}
+          .ob-selo{margin-bottom:12px}
+          .ob-page>.kicker{margin-bottom:8px}
+          .ob-page>h1{margin-bottom:4px}
+          .sec-1{margin-top:12px}
         }
       `}</style>
     </>
