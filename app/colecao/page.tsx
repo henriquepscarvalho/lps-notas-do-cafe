@@ -38,6 +38,7 @@ const COL = {
 };
 /* LEGIVEL (col/32): passe de legibilidade */
 /* LEGIVEL-CEL (col/44): botão na 1ª tela do celular, hero legível */
+/* BONUS-SEC (col/51): aviso no topo, seção de bônus, prova ao lado da capa, acelerador sob o botão, garantia em mini seção */
 const BUILD = "legivel-cel4-colecao-20260929-0037";
 const CTA = "Quero as 115 edições";
 const HREF = "/colecao/checkout?src=lp-colecao";
@@ -47,6 +48,7 @@ const HREF = "/colecao/checkout?src=lp-colecao";
    a resposta da casa devolve o link direto do checkout, que segue aberto). Reabrir = a data da rodada seguinte.
    ?estado=espera|oferta na URL força o estado pra conferência visual. */
 const OFERTA = { abre: "2026-09-29T00:00:00-03:00", fecha: "2026-10-02T23:59:59-03:00", fechaTxt: "sexta 02/10, 23:59", par: "Brasa Certa", parN: "117" };
+const PAR_CAPA = "https://ecmveymyzdqiehvtqxms.supabase.co/storage/v1/object/public/assets/scriptorium/colecao/brasa-certa-capa.png";   // col/51: capa da Coleção da news do bônus 1 (a mesma do bump do checkout)
 const LEIA = "leia@notasdocafe.com.br";   // col/14: email_from_address da publicação (EE = hc@), lido pela fábrica, roteado pro worker
 type Estado = "permanente" | "oferta" | "espera";
 
@@ -99,6 +101,24 @@ const CENAS = [
 const Seta = () => (
   <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
 );
+
+// col/51: contagem do prazo dos bônus em componente próprio, pra página não redesenhar a cada segundo
+function Contagem({ ate }: { ate: string }) {
+  const [t, setT] = useState("");
+  useEffect(() => {
+    const fim = Date.parse(ate);
+    if (Number.isNaN(fim)) return;
+    const tic = () => {
+      const s = Math.max(0, Math.floor((fim - Date.now()) / 1000));
+      const d = Math.floor(s / 86400), h = Math.floor((s % 86400) / 3600), m = Math.floor((s % 3600) / 60);
+      setT(s === 0 ? "" : d > 0 ? `${d}d ${h}h ${m}min` : h > 0 ? `${h}h ${m}min ${s % 60}s` : `${m}min ${s % 60}s`);
+    };
+    tic();
+    const i = window.setInterval(tic, 1000);
+    return () => window.clearInterval(i);
+  }, [ate]);
+  return t ? <span className="cont"><span className="cont-pre">termina em </span><b>{t}</b></span> : null;
+}
 
 export default function ColecaoLP() {
   const [cena, setCena] = useState(0);
@@ -201,6 +221,20 @@ export default function ColecaoLP() {
         {CTA} <Seta />
       </a>
     );
+  // col/51 (HC 01/10/26): sob todo botão vai um acelerador (é fácil, chega rápido), nunca a garantia; a ficha de preço
+  // mora no «o que você leva» e, na janela da oferta, fecha a seção de bônus
+  const oferta = estado === "oferta" && !!OFERTA.fechaTxt;
+  const raio = <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h6l-1 8 9-12h-6z" /></svg>;
+  const reforco = estado === "espera" ? null : <p className="reforco">{raio}Pix ou cartão · PDF no seu email em minutos</p>;
+  const ficha = (
+    <div className="preco-linha">
+      <div className="pedido">
+        {botao()}
+        {estado === "espera" ? null : <div className="preco"><b>R$ 97</b><span>uma vez só · pix, cartão ou boleto</span></div>}
+      </div>
+      {estado === "espera" ? null : <p className="reforco">{raio}No pix e no cartão, o PDF chega em minutos</p>}
+    </div>
+  );
   const depo = PROVA.exibir && PROVA.exibir_nota ? PROVA.depoimento : null;
   const ex0 = EXEMPLOS[0];
   const corta = (s: string, n: number) => (s.length > n ? s.slice(0, n - 1).trimEnd() + "…" : s);
@@ -209,6 +243,13 @@ export default function ColecaoLP() {
   return (
     <>
       <PageBeacon slug={COL.slug} step="colecao-lp" source="lp-colecao" />
+
+      {oferta ? (
+        <a className="aviso-topo" href="#bonus">
+          <span><b>Dois bônus</b> até {OFERTA.fechaTxt}</span>
+          <Contagem ate={OFERTA.fecha} />
+        </a>
+      ) : null}
 
       <nav>
         <div className="wrap nav-inner">
@@ -227,13 +268,18 @@ export default function ColecaoLP() {
           <div className="faixa hero-col">
             <h1 className="display h1">As {COL.n} edições {DA_NEWS} num PDF só, pra reler sem caçar email.</h1>
             <p className="sub">Pra quem lê a news e quer voltar a uma edição. Todas inteiras, em ordem, com sumário por mês.</p>
-            <a className="capa-link" href={HREF} onClick={clique} aria-label={CTA}>
-              <span className="hd-par hd-solo"><img className="hd-pcapa" src={COL.capa} alt={COL.capaAlt} width={900} height={1200} fetchPriority="high" /></span>
-            </a>
+            <div className="hero-palco">
+              <p className="hp-stat">
+                {NUM_EXIBIDO ? <><b>{NUM_EXIBIDO}</b><span>leitores todo dia</span></> : <><b>{COL.paginas}</b><span>páginas num PDF</span></>}
+                {PROVA.exibir && PROVA.exibir_nota ? <small>nota {PROVA.media_exibido} de 5 em {PROVA.votos} votos</small> : null}
+              </p>
+              <a className="capa-link" href={HREF} onClick={clique} aria-label={CTA}>
+                <span className="hd-par hd-solo"><img className="hd-pcapa" src={COL.capa} alt={COL.capaAlt} width={900} height={1200} fetchPriority="high" /></span>
+                {NUM_EXIBIDO ? <span className="selo"><b>{NUM_EXIBIDO}</b><span>leitores todo dia</span></span> : null}
+              </a>
+              <p className="hp-stat"><b>{COL.n}</b><span>edições publicadas</span></p>
+            </div>
             <p className="capa-leg">Um arquivo só: {COL.paginas} páginas, de {COL.desde} até esta semana.</p>
-            {estado === "oferta" && OFERTA.fechaTxt ? (
-              <p className="prazo"><b>Dois bônus até {OFERTA.fechaTxt}:</b> o volume da {OFERTA.par} pela metade e o PDF atualizado por 12 meses.</p>
-            ) : null}
             {estado === "espera" ? (
               <div className="aviso-espera" role="status">
                 <b>A oferta desta rodada terminou na sexta, 23:59.</b>
@@ -241,17 +287,13 @@ export default function ColecaoLP() {
               </div>
             ) : null}
             <div className="pedido" id="espera">{botao()}</div>
+            {reforco}
             {estado === "espera" && espSt === "erro" ? (
               <p className="espera-alt" role="alert">
                 Não deu agora. Escreva pra <b>{LEIA}</b> com o assunto «lista de espera do arquivo».{" "}
                 <button type="button" className="copiar" onClick={copiar}>{copiado ? "Copiado" : "Copiar endereço"}</button>
               </p>
             ) : null}
-            <p className="prova-hero" aria-label="Prova">
-              {NUM_EXIBIDO ? <span><b>{NUM_EXIBIDO}</b> leitores todo dia</span> : null}
-              <span><b>{COL.n}</b> edições publicadas</span>
-              {PROVA.exibir && PROVA.exibir_nota ? <span>nota <b>{PROVA.media_exibido}</b> de 5 em {PROVA.votos} votos</span> : null}
-            </p>
           </div>
         </section>
 
@@ -415,6 +457,7 @@ export default function ColecaoLP() {
               </div>
             </div>
             <div className="pedido-mec">{botao()}</div>
+            {reforco}
           </div>
         </section>
 
@@ -438,24 +481,53 @@ export default function ColecaoLP() {
               <div><b>{COL.meses}</b><span>meses de edições</span></div>
               <div><b>24 h</b><span>pra chegar no seu email</span></div>
             </div>
-            {estado === "oferta" && OFERTA.fechaTxt ? (
-              <div className="bonus" aria-label="Bônus da semana">
-                <small>Dois bônus, só até {OFERTA.fechaTxt}</small>
-                <ul>
-                  <li><b>O volume da {OFERTA.par}</b> ({OFERTA.parN} edições) pela metade, com um toque no checkout.</li>
-                  <li><b>O volume atualizado por 12 meses:</b> todo dia 1º, o PDF com as edições do mês anterior chega no seu email.</li>
-                </ul>
-              </div>
-            ) : null}
-            <div className="preco-linha">
-              <div className="pedido">
-                {botao()}
-                {estado === "espera" ? null : <div className="preco"><b>R$ 97</b><span>uma vez só · pix, cartão ou boleto</span></div>}
-              </div>
-              {estado === "espera" ? null : <p className="garantia">Garantia de 7 dias: não serviu, responde o email do pedido e devolvemos.</p>}
-            </div>
+            {oferta ? null : ficha}
           </div>
         </section>
+
+        {oferta ? (
+          <section className="secao bonus-sec" id="bonus">
+            <div className="faixa">
+              <div className="cabeca">
+                <p className="bonus-cont"><Contagem ate={OFERTA.fecha} /></p>
+                <h2 className="display h2">Dois bônus pra quem confirma até {OFERTA.fechaTxt}.</h2>
+              </div>
+              <div className="bonus-cards">
+                <article className="bonus-card">
+                  <figure className="bonus-fig"><img src={PAR_CAPA} alt={`Capa da Coleção completa: ${OFERTA.par}`} width={900} height={1200} loading="lazy" /></figure>
+                  <small>Bônus 1</small>
+                  <h3 className="display h3">O volume da {OFERTA.par} pela metade</h3>
+                  <p>As {OFERTA.parN} edições no mesmo pedido, com um toque no checkout.</p>
+                </article>
+                <article className="bonus-card">
+                  <figure className="bonus-fig">
+                    <svg className="bonus-cal" viewBox="0 0 240 158" role="img" aria-label="Doze meses: um PDF atualizado todo dia 1º">
+                      {Array.from({ length: 12 }).map((_, i) => (
+                        <g key={i} className={i === 0 ? "on" : undefined}>
+                          <rect x={8 + (i % 4) * 58} y={8 + Math.floor(i / 4) * 50} width="50" height="42" rx="6" />
+                          <text x={33 + (i % 4) * 58} y={35 + Math.floor(i / 4) * 50} textAnchor="middle">{i + 1}</text>
+                        </g>
+                      ))}
+                    </svg>
+                  </figure>
+                  <small>Bônus 2</small>
+                  <h3 className="display h3">O seu volume atualizado por 12 meses</h3>
+                  <p>Todo dia 1º, o PDF com as edições do mês anterior chega no seu email.</p>
+                </article>
+              </div>
+              {ficha}
+            </div>
+          </section>
+        ) : null}
+
+        {estado === "espera" ? null : (
+          <section className="gar-sec" aria-label="Garantia">
+            <div className="faixa gar">
+              <span className="gar-selo" aria-hidden="true"><b>7</b><span>dias</span></span>
+              <p><b>Sete dias de garantia.</b> Não serviu, responde o email do pedido e devolvemos.</p>
+            </div>
+          </section>
+        )}
 
         <section className="secao" id="dentro">
           <div className="faixa">
@@ -574,7 +646,7 @@ export default function ColecaoLP() {
                 <span className="hd-par hd-solo"><img className="hd-pcapa" src={COL.capa} alt={COL.capaAlt} width={900} height={1200} loading="lazy" /></span>
               </a>
               <div className="pedido">{botao()}</div>
-              {estado === "espera" ? null : <p className="garantia"><b>Sete dias de garantia.</b> Não serviu, responde o email do pedido e devolvemos.</p>}
+              {reforco}
               <p className="espera">A edição de amanhã sai no horário de sempre. As {COL.n} de antes cabem num arquivo.</p>
             </div>
           </div>
@@ -858,6 +930,62 @@ ul{list-style:none}
         /* CSS global da casa (AD) pintava título e sub do hero na cor do tema claro: cor com seletor acima de qualquer global */
         section.hero .hero-col .h1{color:#fff}
         section.hero .hero-col :is(.sub,.capa-leg,.prazo,.prova-hero){color:var(--text)}
+        /* bônus (col/51, HC 01/10/26): aviso no topo com o prazo, seção própria de bônus, prova ao lado da capa (selo no celular),
+           acelerador sob o botão, garantia em mini seção */
+        .aviso-topo{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:.15rem .8rem;padding:.6rem 1rem;background:color-mix(in srgb,var(--bright) 16%,var(--bg-deep));border-bottom:1px solid var(--hair-accent);font-size:.95rem;line-height:1.3;color:var(--text);text-align:center}
+        .aviso-topo b{color:var(--bright)}
+        .cont{font-family:var(--mono);font-size:13px;color:var(--text);white-space:nowrap}
+        .cont b,.aviso-topo .cont b{color:#fff;font-weight:500;font-variant-numeric:tabular-nums}
+        .hero-palco{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:clamp(20px,4vw,56px);width:100%;max-width:880px;margin-top:clamp(18px,3vw,32px)}
+        .hero .hero-palco .capa-link{margin-top:0;position:relative}
+        .hp-stat{display:grid;gap:.35rem;justify-items:center;text-align:center}
+        .hp-stat b,section.hero .hero-col .hp-stat b{font-family:var(--serif);font-style:italic;font-weight:900;font-size:clamp(2rem,4.2vw,3.2rem);line-height:1;color:#fff;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+        .hp-stat span,section.hero .hero-col .hp-stat span{font-family:var(--mono);font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--text);text-wrap:balance}
+        .hp-stat small{font-size:.95rem;color:var(--text);margin-top:.2rem}
+        .selo{display:none}
+        .reforco,section.hero .hero-col .reforco{margin-top:.9rem;font-size:.95rem;line-height:1.35;color:var(--text);text-align:center;text-wrap:balance}
+        .reforco svg{display:inline-block;width:1em;height:1em;margin-right:.4em;vertical-align:-.14em;fill:currentColor}
+        .pedido-mec + .reforco{margin-top:1rem}
+        .preco-linha .reforco,.final-box .reforco{margin-top:0}
+        .final-box .reforco{margin-top:1.1rem}
+        #bonus{scroll-margin-top:78px}
+        .bonus-sec{background:color-mix(in srgb,var(--bright) 6%,var(--bg))}
+        .bonus-cont{min-height:1.2rem}
+        .bonus-cont .cont{display:inline-block;padding:.45rem .95rem;border:1px solid var(--hair-accent);border-radius:999px;letter-spacing:.1em;text-transform:uppercase}
+        .bonus-cont .cont b{letter-spacing:.02em;text-transform:none}
+        .bonus-cards{display:grid;gap:clamp(14px,2vw,22px);max-width:820px;margin-inline:auto}
+        @media (min-width:700px){.bonus-cards{grid-template-columns:1fr 1fr}}
+        .bonus-card{background:var(--bg-deep);border:1px solid var(--hair-accent);border-radius:16px;padding:22px 20px 24px;display:grid;gap:.45rem;align-content:start;justify-items:center;text-align:center}
+        .bonus-fig{margin:0 0 .7rem;height:190px;width:100%;display:grid;place-items:center}
+        .bonus-fig img{height:172px;width:auto;aspect-ratio:3/4;object-fit:cover;border-radius:4px 8px 8px 4px;transform:rotate(-2deg);box-shadow:0 16px 36px rgba(0,0,0,.6)}
+        .bonus-cal{width:min(100%,250px);height:auto;font-family:var(--sans);font-size:16px;font-weight:600}
+        .bonus-cal rect{fill:color-mix(in srgb,var(--text) 6%,transparent);stroke:var(--hair-accent);stroke-width:1}
+        .bonus-cal text{fill:var(--text)}
+        .bonus-cal .on rect{fill:var(--bright);stroke:var(--bright)}
+        .bonus-cal .on text{fill:#140408}
+        .bonus-card small{font-family:var(--mono);font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--bright)}
+        .bonus-card p{font-size:1rem;line-height:1.5;color:var(--text);max-width:34ch}
+        .gar-sec{padding-block:clamp(28px,4vw,44px);border-top:1px solid var(--hair)}
+        .gar-sec + .secao{border-top:1px solid var(--hair)}
+        .gar{display:flex;align-items:center;justify-content:center;gap:1rem;max-width:560px}
+        .gar-selo{flex:none;width:64px;height:64px;border-radius:50%;border:1.5px solid var(--hair-accent);display:grid;place-content:center;justify-items:center;line-height:1;gap:2px}
+        .gar-selo b{font-family:var(--serif);font-weight:900;font-size:1.6rem;color:#fff}
+        .gar-selo span{font-family:var(--mono);font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--text)}
+        .gar p{font-size:1rem;line-height:1.45;color:var(--text);text-align:left}
+        .gar p b{color:#fff}
+        @media (max-width:639px){
+          .hero-col>.hero-palco{order:3}.hero-col>.reforco{order:6}.hero-col>.espera-alt{order:6}
+          .hero-palco{display:flex;justify-content:center;margin-top:18px}
+          .hp-stat{display:none}
+          .selo{display:grid;place-content:center;justify-items:center;gap:3px;position:absolute;right:-40px;bottom:-6px;width:96px;height:96px;border-radius:50%;background:color-mix(in srgb,var(--bright) 82%,#000);color:#fff;text-align:center;line-height:1;transform:rotate(6deg);box-shadow:0 10px 24px rgba(0,0,0,.55)}
+          .selo b{font-family:var(--serif);font-style:italic;font-weight:900;font-size:1.3rem;letter-spacing:-.01em}
+          .selo span{font-family:var(--mono);font-size:13px;letter-spacing:.02em;text-transform:uppercase;max-width:9.5ch;line-height:1.1}
+          .hero .hero-palco .hd-par{--h:186px}
+          .hero .reforco{margin-top:12px;font-size:.9rem;white-space:nowrap}
+          .final-box .reforco{font-size:13px;white-space:nowrap}
+          .aviso-topo{font-size:.9rem;padding:.42rem .75rem}
+        }
+        @media (max-width:480px){.aviso-topo .cont-pre{display:none}}
       `}</style>
     </>
   );
