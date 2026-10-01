@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { sendBeacon, sendCtaPos } from "./PageBeacon";
+import { isInternalAccess, sendBeacon, sendCtaPos } from "./PageBeacon";
 
 /* ============================================================
    LpWidgets · vitrine das LPs de venda (ebook premium e app), 02/09/26.
@@ -12,10 +12,20 @@ import { sendBeacon, sendCtaPos } from "./PageBeacon";
      beacons próprios (`ebook-checkout-chat`, `app-checkout-chat`), o atendente
      recebe `local` e leva ao formulário. No celular o botão some enquanto o foco
      está dentro do formulário da Stripe, pra nunca cobrir campo nem o "Pagar";
-   - canto inferior esquerdo: prova social (compras ou visitantes via
-     /api/lp/prova) + depoimentos da news em carrossel: os VIVOS que a rota
-     devolver (curadoria do HC em lp_depoimentos, ticket 48) e, sem eles, os
-     selados que a página passa por prop.
+   - canto inferior esquerdo (bui/54, 01/10/26): a PÍLULA de prova social, uma
+     mensagem por vez no padrão do ProveSource e da Proof (ícone, 2 linhas, selo
+     «✓ dado verificado»). As mensagens vêm prontas da /api/lp/prova (`itens`:
+     nota, voto recente, leitores do dia, compra recente, depoimento curto, as
+     etiquetas de compras e visitas) mais o tamanho da casa que a página passa
+     por prop. Ritmo decidido pelo HC (ajustado 01/10/26): entra aos 5 s (no
+     celular, 2 s depois que o botão do herói sai da tela), 6 s na tela, 4 s de
+     pausa (troca a cada 10 s), teto de 4 por sessão, pausa com o mouse em cima,
+     × encerra na sessão. Medição: beacon
+     `<step>-prova` apareceu (1ª mensagem) e converteu (×); 1 em 5 jornadas fica
+     sem pílula e manda `<step>-prova-sem` (grupo de comparação). Rota antiga,
+     sem `itens`: cai nas etiquetas e nos depoimentos selados de até 90 letras.
+     Depoimento entre aspas curvas “ ” (HC 01/10/26); o filtro do herói aceita « » e “ ”.
+     Rollout pras outras casas: bui/55, fábrica .wayfinder/build-ebooks-premium/assets/rollout/pilula/.
    Classes com prefixo lpw- pra não colidir com o globals.css da casa
    (.btn, .hero). Cor de acento entra por prop; o resto herda --bg/--text/
    --dim/--hair da página (com fallback). A EE é o golden e a fábrica copia
@@ -27,7 +37,15 @@ const OCIO_MS = 60_000; // HC: mais de 1 minuto sem interação = o chat chama
 // Checkout: com o foco dentro do iframe da Stripe a página não enxerga toque nem tecla,
 // e preencher o cartão leva mais de 1 min. Ali a chamada espera o dobro.
 const OCIO_FORM_MS = 120_000;
-const GIRO_MS = 7_000; // troca de depoimento no carrossel
+// pílula de prova (bui/54): ritmo decidido pelo HC no report de 01/10/26
+const PROVA_INICIO_MS = 5_000; // computador: 5 s depois da carga (HC 01/10: 8 s era demorado)
+const PROVA_INICIO_CEL_MS = 2_000; // celular: 2 s depois que o botão do herói saiu da tela
+const PROVA_TELA_MS = 6_000;
+const PROVA_PAUSA_MS = 4_000; // 6 s na tela + 4 s de pausa = troca a cada 10 s (HC 01/10)
+const PROVA_HOVER_MS = 3_000; // mouse em cima segura; ao sair, mais 3 s
+const PROVA_TETO = 4; // mensagens por sessão
+const PROVA_UM_EM = 5; // 1 em cada 5 jornadas fica sem pílula (grupo de comparação)
+const DEPO_MAX = 90; // frase inteira na pílula, nunca cortada
 const MAX_TURNOS = 10; // perguntas por conversa; depois manda pro /contato
 const FALHA = "Não consegui responder agora. Escreva pra gente pela página /contato.";
 
@@ -46,7 +64,72 @@ export type Ficha = {
   garantia?: string;
 };
 type Msg = { role: "user" | "assistant"; content: string };
-type Prova = { compras?: string; visitantes?: string; depoimentos?: Depo[] };
+type Item = { k: string; t: string; s: string };
+type Prova = { compras?: string; visitantes?: string; depoimentos?: Depo[]; itens?: Item[] };
+
+// ícones da pílula, por chave da mensagem (traço simples, herdam a cor do círculo)
+const ICONE: Record<string, React.ReactNode> = {
+  nota: <path d="M12 3.5l2.6 5.3 5.9.9-4.2 4.1 1 5.8L12 16.9l-5.3 2.7 1-5.8L3.5 9.7l5.9-.9z" fill="currentColor" stroke="none" />,
+  voto: (
+    <>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M8.3 12.3l2.5 2.5 4.9-5.3" />
+    </>
+  ),
+  abert: (
+    <>
+      <path d="M3.5 9.5L12 4l8.5 5.5V19a1 1 0 0 1-1 1h-15a1 1 0 0 1-1-1z" />
+      <path d="M3.5 9.5L12 15l8.5-5.5" />
+    </>
+  ),
+  compra: (
+    <>
+      <path d="M5.5 8h13l-1 12h-11z" />
+      <path d="M9 8V6.5a3 3 0 0 1 6 0V8" />
+    </>
+  ),
+  depo: <path d="M5 17c2.5-1 4-3 4-6V7H5v4h2c0 1.5-.8 2.6-2 3.2zM14 17c2.5-1 4-3 4-6V7h-4v4h2c0 1.5-.8 2.6-2 3.2z" fill="currentColor" stroke="none" />,
+  casa: (
+    <>
+      <circle cx="9" cy="9" r="3" />
+      <path d="M3.5 19c.6-3 2.8-4.5 5.5-4.5s4.9 1.5 5.5 4.5" />
+      <circle cx="16.5" cy="8" r="2.3" />
+      <path d="M15.5 13.6c2.6.1 4.3 1.6 5 4.4" />
+    </>
+  ),
+  visitas: (
+    <>
+      <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z" />
+      <circle cx="12" cy="12" r="2.8" />
+    </>
+  ),
+};
+ICONE.compras = ICONE.compra;
+
+/** 1 em cada 5 jornadas fica sem pílula, decidido uma vez pela jornada do beacon (estável na sessão).
+ *  Visita interna (vdn_internal, já fora da medição) e `?prova=1` (conferência em qualquer aparelho)
+ *  sempre veem: em 01/10/26 o HC caiu no «sem» na primeira olhada e a pílula «não apareceu». */
+function grupoProva(): "com" | "sem" {
+  try {
+    if (new URLSearchParams(window.location.search).get("prova") === "1") {
+      sessionStorage.removeItem("lpw_prova_n");
+      sessionStorage.removeItem("lpw_prova_i");
+      sessionStorage.removeItem("lpw_pil_x");
+      return "com";
+    }
+    if (isInternalAccess()) return "com";
+    const g = sessionStorage.getItem("lpw_prova_grupo");
+    if (g === "com" || g === "sem") return g;
+    const j = sessionStorage.getItem("vdn_journey") || String(Math.random());
+    let h = 0;
+    for (let i = 0; i < j.length; i++) h = (h * 31 + j.charCodeAt(i)) >>> 0;
+    const novo = h % PROVA_UM_EM === 0 ? "sem" : "com";
+    sessionStorage.setItem("lpw_prova_grupo", novo);
+    return novo;
+  } catch {
+    return "com";
+  }
+}
 
 type EbookLike = {
   kicker?: string;
@@ -105,12 +188,6 @@ export function fichaDoApp(a: AppLike, news: string, preco: string, cta: string)
   };
 }
 
-function corta(t: string, max = 150): string {
-  if (t.length <= max) return t;
-  const c = t.slice(0, max);
-  return c.slice(0, Math.max(c.lastIndexOf(" "), 60)) + "…";
-}
-
 type Props = {
   slug: string;
   produto: "ebook" | "app";
@@ -123,6 +200,8 @@ type Props = {
   checkout?: string;
   ficha?: Ficha;
   depoimentos?: Depo[];
+  /** tamanho da casa, o mesmo número da barra do topo (ex.: «3,8 mil leitores recebem a news todo dia») */
+  casa?: { t: string; s: string };
 };
 
 const SEM_DEPOS: Depo[] = [];
@@ -131,7 +210,7 @@ function focoNoForm(): boolean {
   return document.activeElement?.tagName === "IFRAME";
 }
 
-export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", local = "lp", cta = "", checkout, ficha, depoimentos = SEM_DEPOS }: Props) {
+export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", local = "lp", cta = "", checkout, ficha, depoimentos = SEM_DEPOS, casa }: Props) {
   const noCheckout = local === "checkout";
   const step = noCheckout ? (produto === "app" ? "app-checkout" : "ebook-checkout") : produto === "app" ? "app-lp" : "ebook-premium-d";
   const objeto = produto === "app" ? "o app" : "o guia";
@@ -143,12 +222,12 @@ export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", local
   const [texto, setTexto] = useState("");
   const [ocupado, setOcupado] = useState(false);
   const [chamada, setChamada] = useState(false);
-  const [prova, setProva] = useState<Prova | null>(null);
   const [provaOn, setProvaOn] = useState(true);
-  // começa pelo último selado: no herói da D os dois primeiros já estão no tríptico
-  const [idx, setIdx] = useState(Math.max(depoimentos.length - 1, 0));
-  // vivos da rota mandam; os selados da prop são a reserva (ticket 48)
-  const [vivos, setVivos] = useState<Depo[]>([]);
+  // as mensagens da pílula, na ordem; o rodízio começa quando a lista chega
+  const [itens, setItens] = useState<Item[]>([]);
+  const [atual, setAtual] = useState<Item | null>(null);
+  const [visivel, setVisivel] = useState(false);
+  const hover = useRef(false);
   const [rolou, setRolou] = useState(false);
   const [celular, setCelular] = useState(false);
   // a D tem barra de compra fixa no celular (.dsticky); a vitrine sobe pra não cobri-la
@@ -163,27 +242,46 @@ export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", local
   // prova social: busca 1,5 s depois da carga, pra não disputar o LCP com a capa
   useEffect(() => {
     try {
-      if (sessionStorage.getItem("lpw_prova_x")) setProvaOn(false);
+      // `?prova=1` (conferência) ignora o × guardado na sessão; o grupoProva limpa a chave logo abaixo
+      const forcada = new URLSearchParams(window.location.search).get("prova") === "1";
+      if (!forcada && sessionStorage.getItem("lpw_pil_x")) setProvaOn(false);
     } catch {
       /* sessionStorage indisponível */
     }
     if (noCheckout) return; // o checkout já tem o reforço dele acima do formulário
     const t = setTimeout(() => {
+      if (grupoProva() === "sem") {
+        // grupo de comparação: nada na tela, só o carimbo de que esta jornada ficou sem
+        sendBeacon(slug, `${step}-prova-sem`, { eventType: "apareceu" });
+        setProvaOn(false);
+        return;
+      }
       fetch(`${PHAROS}/api/lp/prova?slug=${encodeURIComponent(slug)}&produto=${produto}`)
         .then((r) => (r.ok ? r.json() : null))
         .then((j: Prova | null) => {
-          if (j && (j.compras || j.visitantes)) setProva(j);
-          if (j?.depoimentos?.length) {
-            setVivos(j.depoimentos);
-            setIdx(0);
+          if (!j) return;
+          // os dois primeiros selados estão no tríptico do herói da D: não repetir na pílula
+          const noHero = new Set(depoimentos.slice(0, 2).map((d) => d.x));
+          const curto = (d: Depo) => d.x.length <= DEPO_MAX && !noHero.has(d.x) && !/\[\.\.\.\]|…|\.\.\./.test(d.x);
+          let lista: Item[] = j.itens?.length
+            ? j.itens.filter((i) => i.k !== "depo" || !noHero.has(i.t.replace(/^[«“]|[»”]$/g, "")))
+            : [
+                ...(j.compras ? [{ k: "compras", t: j.compras, s: "compras confirmadas" }] : []),
+                ...(j.visitantes ? [{ k: "visitas", t: j.visitantes, s: "visitas de gente, robô fora" }] : []),
+                ...(j.depoimentos ?? []).filter(curto).map((d) => ({ k: "depo", t: `“${d.x}”`, s: d.who })),
+              ];
+          if (!lista.some((i) => i.k === "depo")) {
+            lista = lista.concat(depoimentos.slice(2).filter(curto).slice(0, 2).map((d) => ({ k: "depo", t: `“${d.x}”`, s: d.who })));
           }
+          if (casa) lista.splice(Math.min(4, lista.length), 0, { k: "casa", ...casa });
+          setItens(lista);
         })
         .catch(() => {
           /* sem prova, sem placeholder */
         });
     }, 1500);
     return () => clearTimeout(t);
-  }, [slug, produto, noCheckout]);
+  }, [slug, produto, noCheckout, step, depoimentos, casa]);
 
   // celular: o card de prova só entra depois que o CTA do herói sai da tela (senão
   // cobre o botão na primeira dobra) e some sozinho em 12 s; no desktop fica até o ×
@@ -202,19 +300,57 @@ export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", local
     obs.observe(el);
     return () => obs.disconnect();
   }, []);
+  // rodízio da pílula: 1 mensagem por vez, no ritmo do HC, com teto por sessão
   useEffect(() => {
-    if (!celular || !rolou) return;
-    const t = setTimeout(() => setProvaOn(false), 12_000);
+    if (noCheckout || !provaOn || !itens.length || (celular && !rolou)) return;
+    let vistas = 0;
+    try {
+      vistas = Number(sessionStorage.getItem("lpw_prova_n") || 0);
+    } catch {
+      /* sem memória de sessão: conta só nesta página */
+    }
+    if (vistas >= PROVA_TETO) return;
+    // continua de onde parou: recarregar a página não repete a primeira mensagem
+    let i = 0;
+    try {
+      i = Number(sessionStorage.getItem("lpw_prova_i") || 0) % itens.length;
+    } catch {
+      /* idem */
+    }
+    let t: ReturnType<typeof setTimeout>;
+    const esconde = () => {
+      if (hover.current) {
+        t = setTimeout(esconde, PROVA_HOVER_MS);
+        return;
+      }
+      setVisivel(false);
+      vistas++;
+      try {
+        sessionStorage.setItem("lpw_prova_n", String(vistas));
+      } catch {
+        /* idem */
+      }
+      if (vistas >= PROVA_TETO || i >= itens.length) return;
+      t = setTimeout(mostra, PROVA_PAUSA_MS);
+    };
+    const mostra = () => {
+      setAtual(itens[i]);
+      i++;
+      try {
+        sessionStorage.setItem("lpw_prova_i", String(i));
+      } catch {
+        /* idem */
+      }
+      setVisivel(true);
+      sendBeacon(slug, `${step}-prova`, { eventType: "apareceu" });
+      t = setTimeout(esconde, PROVA_TELA_MS);
+    };
+    // computador: os 5 s contam do início da navegação, não do fim da busca na rota
+    // (a rota responde entre 0,4 s e 4 s; sem o desconto a pílula entrava aos 7 a 9 s)
+    const espera = celular ? PROVA_INICIO_CEL_MS : Math.max(300, PROVA_INICIO_MS - performance.now());
+    t = setTimeout(mostra, espera);
     return () => clearTimeout(t);
-  }, [celular, rolou]);
-
-  // carrossel de depoimentos
-  const frases = vivos.length ? vivos : depoimentos;
-  useEffect(() => {
-    if (frases.length < 2) return;
-    const t = setInterval(() => setIdx((i) => (i + 1) % frases.length), GIRO_MS);
-    return () => clearInterval(t);
-  }, [frases.length]);
+  }, [noCheckout, provaOn, itens, celular, rolou, slug, step]);
 
   // chamada por ócio: 60 s sem toque, rolagem ou tecla, uma vez por sessão
   useEffect(() => {
@@ -318,22 +454,31 @@ export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", local
     setOcupado(false);
   }
 
-  const temProva = !noCheckout && provaOn && (!celular || rolou) && (prova !== null || frases.length > 0);
+  const temProva = !noCheckout && provaOn && atual !== null;
   // some só enquanto a pessoa preenche; a chamada por ócio e o chat aberto trazem de volta
   const fabFora = noCheckout && celular && noForm && !aberto && !chamada;
-  const depo = frases.length ? frases[idx % frases.length] : null;
 
   return (
     <div className={"lpw" + (comSticky ? " lpw-com-sticky" : "")} style={{ ["--lpw-acc" as string]: cor, ["--lpw-acc-text" as string]: corTexto }}>
-      {temProva && (
-        <aside className="lpw-prova" aria-live="polite">
+      {temProva && atual && (
+        <aside
+          className={"lpw-pil" + (visivel ? " lpw-in" : "")}
+          aria-live="polite"
+          onMouseEnter={() => {
+            hover.current = true;
+          }}
+          onMouseLeave={() => {
+            hover.current = false;
+          }}
+        >
           <button
             className="lpw-x"
             aria-label="Fechar"
             onClick={() => {
               setProvaOn(false);
+              sendBeacon(slug, `${step}-prova`, { eventType: "converteu" });
               try {
-                sessionStorage.setItem("lpw_prova_x", "1");
+                sessionStorage.setItem("lpw_pil_x", "1");
               } catch {
                 /* idem */
               }
@@ -341,22 +486,17 @@ export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", local
           >
             ×
           </button>
-          {prova?.compras && (
-            <p className="lpw-n">
-              <i /> {prova.compras}
-            </p>
-          )}
-          {prova?.visitantes && (
-            <p className="lpw-n">
-              <i /> {prova.visitantes}
-            </p>
-          )}
-          {depo && (
-            <figure key={idx} className="lpw-depo">
-              <blockquote>&ldquo;{corta(depo.x)}&rdquo;</blockquote>
-              <figcaption>{depo.who}</figcaption>
-            </figure>
-          )}
+          <span className="lpw-pil-ic" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+              {ICONE[atual.k] ?? ICONE.nota}
+            </svg>
+          </span>
+          <span className="lpw-pil-t">
+            <b>{atual.t}</b>
+            <i>
+              {atual.s} · <u>✓ dado verificado</u>
+            </i>
+          </span>
         </aside>
       )}
 
@@ -501,23 +641,28 @@ export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", local
 .lpw-cta{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 12px 8px;padding:11px 14px;border-radius:10px;background:var(--lpw-acc);color:var(--lpw-acc-text);font-weight:700;font-size:14px;text-decoration:none}
 .lpw-cta span{font-weight:500;font-size:12px;opacity:.85}
 .lpw-pe{margin:0;padding:0 14px 10px;font-size:11px;color:var(--dim,#999)}
-.lpw-prova{position:fixed;left:18px;bottom:18px;z-index:69;width:300px;max-width:calc(100vw - 110px);background:var(--bg,#111);color:var(--text,var(--ink,#eee));border:1px solid var(--hair,rgba(255,255,255,.14));border-radius:14px;padding:12px 34px 12px 14px;box-shadow:0 12px 32px rgba(0,0,0,.35);animation:lpw-pop .3s ease}
-.lpw-x{position:absolute;top:6px;right:8px;background:none;border:0;color:var(--dim,#999);font-size:18px;line-height:1;cursor:pointer;padding:4px}
-.lpw-n{margin:0 0 6px;font-size:12.5px;font-weight:600;line-height:1.35}
-.lpw-n i{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--lpw-acc);margin-right:6px;vertical-align:1px}
-.lpw-depo{margin:0;animation:lpw-fade .5s ease}
-.lpw-depo blockquote{margin:0;font-family:var(--sans,Inter,system-ui,sans-serif);font-size:14px;line-height:1.5;color:var(--text,#eee);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.lpw-depo figcaption{margin-top:4px;font-size:11px;color:var(--dim,#999)}
-@keyframes lpw-fade{from{opacity:0}to{opacity:1}}
+/* pílula de prova: clara de propósito, pra ler em cima de página escura ou clara */
+.lpw-pil{position:fixed;left:18px;bottom:18px;z-index:69;width:340px;max-width:calc(100vw - 110px);min-height:76px;display:flex;align-items:center;gap:12px;padding:12px 36px 12px 12px;background:#FBF6F3;color:#1B1416;border:1px solid rgba(27,20,22,.08);border-radius:14px;box-shadow:0 14px 40px rgba(0,0,0,.45);transform:translateY(150%);opacity:0;pointer-events:none;transition:transform .5s cubic-bezier(.2,.9,.3,1.1),opacity .3s}
+.lpw-pil.lpw-in{transform:none;opacity:1;pointer-events:auto}
+.lpw-pil-ic{flex:none;width:52px;height:52px;border-radius:50%;background:var(--lpw-acc);color:var(--lpw-acc-text);display:flex;align-items:center;justify-content:center}
+.lpw-pil-ic svg{width:26px;height:26px}
+.lpw-pil-t{min-width:0}
+.lpw-pil b{display:block;font-weight:650;font-size:14px;line-height:1.3}
+.lpw-pil i{display:block;font-style:normal;font-size:12px;line-height:1.35;color:#6F6367;margin-top:3px}
+.lpw-pil u{text-decoration:none;color:#2E7D32;font-weight:600;white-space:nowrap}
+.lpw-x{position:absolute;top:6px;right:8px;background:none;border:0;color:#8A7E82;font-size:18px;line-height:1;cursor:pointer;padding:4px}
 @media(max-width:760px){
   .lpw-fab{right:12px;bottom:18px;width:50px;height:50px}
   .lpw-balao{right:12px;bottom:76px;max-width:240px;border-radius:14px 14px 14px 4px}
   .lpw-chat{right:0;left:0;bottom:0;width:auto;max-width:none;height:auto;max-height:72vh;border-radius:16px 16px 0 0}
-  .lpw-prova{left:12px;right:74px;bottom:18px;width:auto;max-width:none;padding:10px 30px 10px 12px}
+  .lpw-pil{left:12px;right:74px;bottom:18px;width:auto;max-width:none;min-height:56px;padding:9px 30px 9px 9px;gap:10px}
+  .lpw-pil-ic{width:38px;height:38px}
+  .lpw-pil-ic svg{width:19px;height:19px}
+  .lpw-pil b{font-size:13px}
+  .lpw-pil i{font-size:11px;margin-top:1px}
   .lpw-com-sticky .lpw-fab{bottom:84px}
   .lpw-com-sticky .lpw-balao{bottom:142px}
-  .lpw-com-sticky .lpw-prova{bottom:84px}
-  .lpw-depo blockquote{-webkit-line-clamp:2;font-size:13.5px}
+  .lpw-com-sticky .lpw-pil{bottom:84px}
 }
 @media(prefers-reduced-motion:reduce){.lpw *{animation:none!important;transition:none!important}}
 `}</style>

@@ -701,6 +701,7 @@ export default function EbookPremiumD() {
         cta={CTA_LABEL}
         ficha={fichaDoEbook(EBOOK, "Notas do Café", PRECO, CTA_LABEL)}
         depoimentos={[...EBOOK.blurbs, ...(EBOOK.depoimentos.pull ? [EBOOK.depoimentos.pull] : [])]}
+        casa={EBOOK.prova.leitores ? { t: `${EBOOK.prova.leitores} leitores recebem a news todo dia`, s: EBOOK.prova.curta.replace(/^.*?todo dia/, "edição diária") } : undefined}
       />
       </div>
 

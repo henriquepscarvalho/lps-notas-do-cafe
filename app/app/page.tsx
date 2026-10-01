@@ -207,6 +207,7 @@ function Vitrine() {
       cta={CTA_LABEL}
       ficha={fichaDoApp(APP, "Notas do Café", PRECO, CTA_LABEL)}
       depoimentos={DEPOIMENTOS}
+      casa={{ t: "2.446 leitores recebem a news todo dia", s: "edição diária" }}
     />
   );
 }
