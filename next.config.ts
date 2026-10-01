@@ -11,7 +11,9 @@ const nextConfig: NextConfig = {
       // novo. Entra sem risco agora: enquanto o apex for beehiiv este app nao ve
       // essas rotas, e no instante da virada o redirect ja esta no ar.
       { source: "/p/:slug*", destination: "https://edicoes.notasdocafe.com.br/p/:slug*", permanent: true },
-      { source: "/subscribe", destination: "https://edicoes.notasdocafe.com.br/subscribe", permanent: true },
+      // fnx/686: preferencias e descadastro de email velho caem em /subscribe/<id>/... e /unsubscribe/<jwt>
+      { source: "/subscribe/:path*", destination: "https://edicoes.notasdocafe.com.br/subscribe/:path*", permanent: true },
+      { source: "/unsubscribe/:path*", destination: "https://edicoes.notasdocafe.com.br/unsubscribe/:path*", permanent: true },
       { source: "/upgrade", destination: "https://edicoes.notasdocafe.com.br/upgrade", permanent: true },
   ];},
   async rewrites(){return [
