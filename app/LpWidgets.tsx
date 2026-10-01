@@ -106,6 +106,30 @@ const ICONE: Record<string, React.ReactNode> = {
 };
 ICONE.compras = ICONE.compra;
 
+/** Rodízio por jornada (bui/58, HC 01/10/26): com teto de 4 por visita e ordem fixa, as mensagens
+ *  5 a 8 (tamanho da casa, depoimento, compras e visitas acumuladas) nunca apareciam. A nota fica
+ *  sempre primeiro; as outras embaralham com semente da jornada (estável na sessão, recarga continua
+ *  o rodízio) e cada visitante vê 3 delas, então a rede inteira vê as 8. */
+function rodizio(lista: Item[]): Item[] {
+  const primeira = lista.findIndex((i) => i.k === "nota");
+  const topo = primeira >= 0 ? [lista[primeira]] : [];
+  const resto = lista.filter((_, n) => n !== primeira);
+  let h = 0;
+  try {
+    const j = sessionStorage.getItem("vdn_journey") || sessionStorage.getItem("lpw_prova_semente") || String(Math.random());
+    sessionStorage.setItem("lpw_prova_semente", j);
+    for (let i = 0; i < j.length; i++) h = (h * 31 + j.charCodeAt(i)) >>> 0;
+  } catch {
+    h = Math.floor(Math.random() * 2 ** 32);
+  }
+  for (let i = resto.length - 1; i > 0; i--) {
+    h = (Math.imul(h ^ (h >>> 15), 2246822507) + 0x9e3779b9) >>> 0;
+    const k = h % (i + 1);
+    [resto[i], resto[k]] = [resto[k], resto[i]];
+  }
+  return [...topo, ...resto];
+}
+
 /** 1 em cada 5 jornadas fica sem pílula, decidido uma vez pela jornada do beacon (estável na sessão).
  *  Visita interna (vdn_internal, já fora da medição) e `?prova=1` (conferência em qualquer aparelho)
  *  sempre veem: em 01/10/26 o HC caiu no «sem» na primeira olhada e a pílula «não apareceu». */
@@ -188,10 +212,14 @@ export function fichaDoApp(a: AppLike, news: string, preco: string, cta: string)
   };
 }
 
+/** página de venda do VDN (bui/57): só a pílula, sem chat; a rota lê o dado pelo produto */
+type ProdutoVdn = "curso" | "ws" | "news-agents" | "apollo" | "escritor";
+
 type Props = {
   slug: string;
-  /** "colecao" (bui/56) = LP /colecao: só a pílula, sem chat (a ficha do chat é a do guia e do app) */
-  produto: "ebook" | "app" | "colecao";
+  /** "colecao" (bui/56) = LP /colecao: só a pílula, sem chat (a ficha do chat é a do guia e do app).
+   *  Produto do VDN (bui/57): só a pílula, beacons `<slug>-prova` e `<slug>-prova-sem`. */
+  produto: "ebook" | "app" | "colecao" | ProdutoVdn;
   cor: string;
   corTexto?: string;
   /** "checkout" = só o chat, sem prova nem botão de compra; cta, ficha e depoimentos ficam de fora */
@@ -213,11 +241,14 @@ function focoNoForm(): boolean {
 
 export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", local = "lp", cta = "", checkout, ficha, depoimentos = SEM_DEPOS, casa }: Props) {
   const noCheckout = local === "checkout";
-  const step = noCheckout
+  const daCasa = produto === "ebook" || produto === "app" || produto === "colecao";
+  const step = !daCasa
+    ? slug
+    : noCheckout
     ? produto === "app" ? "app-checkout" : produto === "colecao" ? "colecao-checkout" : "ebook-checkout"
     : produto === "app" ? "app-lp" : produto === "colecao" ? "colecao-lp" : "ebook-premium-d";
   const objeto = produto === "app" ? "o app" : produto === "colecao" ? "a coleção" : "o guia";
-  const comChat = produto !== "colecao";
+  const comChat = produto === "ebook" || produto === "app";
   const sugestoes =
     produto === "app" ? ["Como instalo?", "Funciona no iPhone?", "Como pago?"] : ["Como pago?", "Como recebo?", "Tem garantia?"];
 
@@ -278,7 +309,7 @@ export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", local
             lista = lista.concat(depoimentos.slice(2).filter(curto).slice(0, 2).map((d) => ({ k: "depo", t: `“${d.x}”`, s: d.who })));
           }
           if (casa) lista.splice(Math.min(4, lista.length), 0, { k: "casa", ...casa });
-          setItens(lista);
+          setItens(rodizio(lista));
         })
         .catch(() => {
           /* sem prova, sem placeholder */
