@@ -38,6 +38,7 @@ const COL = {
 };
 /* LEGIVEL (col/32): passe de legibilidade */
 /* LEGIVEL-CEL (col/44): botão na 1ª tela do celular, hero legível */
+/* BONUS-SEC-V2: contagem com segundos */
 /* BONUS-SEC (col/51): aviso no topo, seção de bônus, prova ao lado da capa, acelerador sob o botão, garantia em mini seção */
 const BUILD = "legivel-cel4-colecao-20260929-0037";
 const CTA = "Quero as 115 edições";
@@ -111,7 +112,8 @@ function Contagem({ ate }: { ate: string }) {
     const tic = () => {
       const s = Math.max(0, Math.floor((fim - Date.now()) / 1000));
       const d = Math.floor(s / 86400), h = Math.floor((s % 86400) / 3600), m = Math.floor((s % 3600) / 60);
-      setT(s === 0 ? "" : d > 0 ? `${d}d ${h}h ${m}min` : h > 0 ? `${h}h ${m}min ${s % 60}s` : `${m}min ${s % 60}s`);
+      const p = (x: number) => String(x).padStart(2, "0");
+      setT(s === 0 ? "" : (d > 0 ? `${d}d ` : "") + `${p(h)}h ${p(m)}m ${p(s % 60)}s`);
     };
     tic();
     const i = window.setInterval(tic, 1000);
