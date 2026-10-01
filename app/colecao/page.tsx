@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import PageBeacon, { sendBeacon } from "../PageBeacon";
+import LpWidgets from "../LpWidgets";
 import PROVA from "../../checkout-prova.json";
 import MANIFEST from "../../proof-manifest.json";
 // col/18: a ALQ tem proof-manifest só com avatares; o número de leitores é opcional no tipo (sem ele a linha some)
@@ -24,6 +25,9 @@ const ART = /^(A|O|As|Os) /.exec(NOME);
 const SEM_ART = ART ? NOME.slice(ART[0].length) : NOME;
 const DA_NEWS = ART ? ({ A: "da", O: "do", As: "das", Os: "dos" } as Record<string, string>)[ART[1]] + " " + SEM_ART : "da " + NOME;
 const A_NEWS = ART ? ART[1].toLowerCase() + " " + SEM_ART : "a " + NOME;
+// bui/56: o tamanho da casa na pílula, o mesmo número da barra do topo; constante de módulo porque um
+// objeto novo a cada render da página (estado da oferta, lista de espera) reiniciaria a busca da pílula
+const CASA_PROVA = NUM_EXIBIDO ? { t: `${NUM_EXIBIDO} leitores recebem ${A_NEWS} todo dia`, s: "coleção completa das edições" } : undefined;
 
 const COL = {
   slug: "notas-do-cafe",
@@ -245,6 +249,8 @@ export default function ColecaoLP() {
   return (
     <>
       <PageBeacon slug={COL.slug} step="colecao-lp" source="lp-colecao" />
+      {/* bui56-pilula: pílula de prova social (golden EE bui/54); na coleção, só a pílula */}
+      <LpWidgets slug={COL.slug} produto="colecao" cor="var(--bright)" corTexto="#140408" casa={CASA_PROVA} />
 
       {oferta ? (
         <a className="aviso-topo" href="#bonus">
@@ -288,7 +294,7 @@ export default function ColecaoLP() {
                 <span>A próxima você fica sabendo por email. Deixe o seu na lista de espera: a resposta chega com o caminho.</span>
               </div>
             ) : null}
-            <div className="pedido" id="espera">{botao()}</div>
+            <div className="pedido" id="espera">{botao("btn-hero")}</div>
             {reforco}
             {estado === "espera" && espSt === "erro" ? (
               <p className="espera-alt" role="alert">

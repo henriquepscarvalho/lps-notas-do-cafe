@@ -190,7 +190,8 @@ export function fichaDoApp(a: AppLike, news: string, preco: string, cta: string)
 
 type Props = {
   slug: string;
-  produto: "ebook" | "app";
+  /** "colecao" (bui/56) = LP /colecao: só a pílula, sem chat (a ficha do chat é a do guia e do app) */
+  produto: "ebook" | "app" | "colecao";
   cor: string;
   corTexto?: string;
   /** "checkout" = só o chat, sem prova nem botão de compra; cta, ficha e depoimentos ficam de fora */
@@ -212,8 +213,11 @@ function focoNoForm(): boolean {
 
 export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", local = "lp", cta = "", checkout, ficha, depoimentos = SEM_DEPOS, casa }: Props) {
   const noCheckout = local === "checkout";
-  const step = noCheckout ? (produto === "app" ? "app-checkout" : "ebook-checkout") : produto === "app" ? "app-lp" : "ebook-premium-d";
-  const objeto = produto === "app" ? "o app" : "o guia";
+  const step = noCheckout
+    ? produto === "app" ? "app-checkout" : produto === "colecao" ? "colecao-checkout" : "ebook-checkout"
+    : produto === "app" ? "app-lp" : produto === "colecao" ? "colecao-lp" : "ebook-premium-d";
+  const objeto = produto === "app" ? "o app" : produto === "colecao" ? "a coleção" : "o guia";
+  const comChat = produto !== "colecao";
   const sugestoes =
     produto === "app" ? ["Como instalo?", "Funciona no iPhone?", "Como pago?"] : ["Como pago?", "Como recebo?", "Tem garantia?"];
 
@@ -354,6 +358,7 @@ export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", local
 
   // chamada por ócio: 60 s sem toque, rolagem ou tecla, uma vez por sessão
   useEffect(() => {
+    if (!comChat) return;
     try {
       if (sessionStorage.getItem("lpw_chamou")) return;
     } catch {
@@ -387,7 +392,7 @@ export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", local
       clearInterval(t);
       if (esconde) clearTimeout(esconde);
     };
-  }, [noCheckout]);
+  }, [noCheckout, comChat]);
 
   // checkout: acompanha o foco entrando e saindo do formulário da Stripe
   useEffect(() => {
@@ -500,13 +505,13 @@ export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", local
         </aside>
       )}
 
-      {chamada && !aberto && (
+      {comChat && chamada && !aberto && (
         <button className="lpw-balao" onClick={() => setAberto(true)}>
           Quer perguntar algo antes de decidir? Escreva aqui.
         </button>
       )}
 
-      {!fabFora && (
+      {comChat && !fabFora && (
         <button
           className="lpw-fab"
           aria-label={aberto ? "Fechar o chat" : "Fazer uma pergunta"}
