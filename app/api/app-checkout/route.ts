@@ -192,10 +192,11 @@ export async function POST(req: Request) {
 
   try {
     // HC 18/09/26 (nota fiscal): o eNotas emite a NF com nome, CPF/CNPJ e endereço com CEP.
-    // Nome e endereço pelo bloco nativo da Stripe (Customer criado sempre, que é onde o eNotas
-    // lê); CPF por custom field, porque o tax_id_collection da Stripe não cobre o Brasil.
+    // Customer criado sempre (que é onde o eNotas lê); CPF por custom field, porque o
+    // tax_id_collection da Stripe não cobre o Brasil.
     // O webhook central do Pharos transforma tudo em metadata user_* na venda.
-    params["billing_address_collection"] = "required";
+    // checkout-sem-endereco-v1 (HC 01/10/26): produto digital, sem bloco de endereço no checkout. Endereço
+    // só chega quando a própria Stripe pede (boleto); o webhook do Pharos grava user_* vazio no resto.
     params["customer_creation"] = "always";
     params["custom_fields[0][key]"] = "cpf";
     params["custom_fields[0][label][type]"] = "custom";
