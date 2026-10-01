@@ -91,7 +91,7 @@ const OUTRO = {
   "promessa": "As fotos que fazem o que está parado em casa vender no mesmo fim de semana.",
   "formato": "Guia completo, web + PDF",
   "preco": "R$ 47",
-  "capa": "https://lp.fotografiadodia.com.br/ebook-web/capa-fotografia-do-dia.webp",
+  "capa": "/ebook-web/irma/FD.webp",
   "url": "https://lp.fotografiadodia.com.br/ebook-premium/checkout?src=obrigado-irma"
 };
 
