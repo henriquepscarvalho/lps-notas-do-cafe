@@ -498,7 +498,7 @@ export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", local
     <div className={"lpw" + (comSticky ? " lpw-com-sticky" : "")} style={{ ["--lpw-acc" as string]: cor, ["--lpw-acc-text" as string]: corTexto }}>
       {temProva && atual && (
         <aside
-          className={"lpw-pil" + (visivel ? " lpw-in" : "")}
+          className={"lpw-pil" + (visivel ? " lpw-in" : "") + (checkout ? " lpw-vai" : "")}
           aria-live="polite"
           onMouseEnter={() => {
             hover.current = true;
@@ -533,6 +533,25 @@ export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", local
               {atual.s} · <u>✓ dado verificado</u>
             </i>
           </span>
+          {/* bui/62 (HC 02/10/26): a pílula inteira leva ao checkout da página; o × fica por cima do link */}
+          {checkout && (
+            <a
+              className="lpw-pil-a"
+              href={checkout}
+              tabIndex={visivel ? 0 : -1}
+              aria-label={`${atual.t}. Abrir o checkout`}
+              onClick={() => {
+                // o clique conta como botão de compra (mesmo passo dos outros botões) e ganha um passo próprio,
+                // pra leitura separar quem chegou ao checkout pela pílula
+                sendBeacon(slug, `${step}-cta`, { eventType: "converteu" });
+                sendBeacon(slug, `${step}-prova-clique`, { eventType: "converteu" });
+              }}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M9 6l6 6-6 6" />
+              </svg>
+            </a>
+          )}
         </aside>
       )}
 
@@ -677,8 +696,9 @@ export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", local
 .lpw-cta{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 12px 8px;padding:11px 14px;border-radius:10px;background:var(--lpw-acc);color:var(--lpw-acc-text);font-weight:700;font-size:14px;text-decoration:none}
 .lpw-cta span{font-weight:500;font-size:12px;opacity:.85}
 .lpw-pe{margin:0;padding:0 14px 10px;font-size:11px;color:var(--dim,#999)}
-/* pílula de prova: clara de propósito, pra ler em cima de página escura ou clara */
-.lpw-pil{position:fixed;left:18px;bottom:18px;z-index:69;width:340px;max-width:calc(100vw - 110px);min-height:76px;display:flex;align-items:center;gap:12px;padding:12px 36px 12px 12px;background:#FBF6F3;color:#1B1416;border:1px solid rgba(27,20,22,.08);border-radius:14px;box-shadow:0 14px 40px rgba(0,0,0,.45);transform:translateY(150%);opacity:0;pointer-events:none;transition:transform .5s cubic-bezier(.2,.9,.3,1.1),opacity .3s}
+/* pílula de prova: clara de propósito, pra ler em cima de página escura ou clara;
+   bui/62: contorno na cor da casa, que separa a pílula do fundo em página clara */
+.lpw-pil{position:fixed;left:18px;bottom:18px;z-index:69;width:340px;max-width:calc(100vw - 110px);min-height:76px;display:flex;align-items:center;gap:12px;padding:12px 36px 12px 12px;background:#FBF6F3;color:#1B1416;border:1.5px solid var(--lpw-acc);border-radius:14px;box-shadow:0 14px 40px rgba(0,0,0,.45);transform:translateY(150%);opacity:0;pointer-events:none;transition:transform .5s cubic-bezier(.2,.9,.3,1.1),opacity .3s}
 .lpw-pil.lpw-in{transform:none;opacity:1;pointer-events:auto}
 .lpw-pil-ic{flex:none;width:52px;height:52px;border-radius:50%;background:var(--lpw-acc);color:var(--lpw-acc-text);display:flex;align-items:center;justify-content:center}
 .lpw-pil-ic svg{width:26px;height:26px}
@@ -686,7 +706,15 @@ export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", local
 .lpw-pil b{display:block;font-weight:650;font-size:14px;line-height:1.3;color:#1B1416}
 .lpw-pil i{display:block;font-style:normal;font-size:12px;line-height:1.35;color:#6F6367;margin-top:3px}
 .lpw-pil u{text-decoration:none;color:#2E7D32;font-weight:600;white-space:nowrap}
-.lpw-x{position:absolute;top:6px;right:8px;background:none;border:0;color:#8A7E82;font-size:18px;line-height:1;cursor:pointer;padding:4px}
+.lpw-x{position:absolute;top:2px;right:2px;z-index:2;width:32px;height:32px;display:flex;align-items:center;justify-content:center;background:none;border:0;color:#8A7E82;font-size:18px;line-height:1;cursor:pointer;padding:0}
+/* bui/62: pílula clicável; o link cobre a pílula inteira e o × (z-index 2) segue fechando */
+.lpw-pil-a{position:absolute;inset:0;z-index:1;border-radius:14px;display:flex;align-items:flex-end;justify-content:flex-end;padding:0 10px 9px 0;color:#1B1416;text-decoration:none;-webkit-tap-highlight-color:transparent}
+.lpw-pil-a svg{width:18px;height:18px;opacity:.5;transition:transform .15s ease,opacity .15s ease}
+.lpw-pil-a:focus-visible{outline:2px solid var(--lpw-acc);outline-offset:2px}
+@media(hover:hover){
+  .lpw-pil.lpw-in.lpw-vai:hover{transform:translateY(-2px);box-shadow:0 18px 44px rgba(0,0,0,.5)}
+  .lpw-vai:hover .lpw-pil-a svg{transform:translateX(2px);opacity:.9}
+}
 @media(max-width:760px){
   .lpw-fab{right:12px;bottom:18px;width:50px;height:50px}
   .lpw-balao{right:12px;bottom:76px;max-width:240px;border-radius:14px 14px 14px 4px}
@@ -696,6 +724,8 @@ export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", local
   .lpw-pil-ic svg{width:19px;height:19px}
   .lpw-pil b{font-size:13px}
   .lpw-pil i{font-size:11px;margin-top:1px}
+  .lpw-pil-a{padding:0 8px 6px 0}
+  .lpw-pil-a svg{width:16px;height:16px}
   .lpw-com-sticky .lpw-fab{bottom:84px}
   .lpw-com-sticky .lpw-balao{bottom:142px}
   .lpw-com-sticky .lpw-pil{bottom:84px}

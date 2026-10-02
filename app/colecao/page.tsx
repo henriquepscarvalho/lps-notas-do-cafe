@@ -250,7 +250,8 @@ export default function ColecaoLP() {
     <>
       <PageBeacon slug={COL.slug} step="colecao-lp" source="lp-colecao" />
       {/* bui56-pilula: pílula de prova social (golden EE bui/54); na coleção, só a pílula */}
-      <LpWidgets slug={COL.slug} produto="colecao" cor="var(--bright)" corTexto="#140408" casa={CASA_PROVA} />
+      {/* bui/62: a pílula leva ao checkout; com a oferta fechada (lista de espera) ela volta a ser só leitura */}
+      <LpWidgets slug={COL.slug} produto="colecao" checkout={estado === "espera" ? undefined : HREF} cor="var(--bright)" corTexto="#140408" casa={CASA_PROVA} />
 
       {oferta ? (
         <a className="aviso-topo" href="#bonus">
