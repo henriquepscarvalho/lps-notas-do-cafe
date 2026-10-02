@@ -152,6 +152,18 @@ function prazoDaUrl() {
 /* LEGIVEL: o valor em reais nunca quebra de linha entre o "R$" e o número */
 const nb = (t: string) => t.replace(/R\$ (?=\d)/g, "R$\u00a0");
 
+/* c420/153 (HC 02/10/26): o desenho que a pessoa viu viaja na session como `checkout_variant`:
+   "cel" (até 639 px), "1col" (640 a 1.023), "2col" (1.024 a 1.279) e "3col" (1.280 px ou mais).
+   É por ele que a leitura de D+28 separa a receita por checkout das 3 colunas. */
+function desenho(): "cel" | "1col" | "2col" | "3col" {
+  try {
+    const m = (q: string) => window.matchMedia(q).matches;
+    return m("(max-width: 639px)") ? "cel" : m("(min-width: 1280px)") ? "3col" : m("(min-width: 1024px)") ? "2col" : "1col";
+  } catch {
+    return "2col";
+  }
+}
+
 export default function AppCheckout() {
   const [bump, setBump] = useState(false);
   // ticket 35: a recuperação chega com ?oferta=bonus (o guia da ALQ de graça) ou ?oferta=metade (R$ 48,50);
@@ -226,8 +238,8 @@ export default function AppCheckout() {
               oferta,
               email,
               ...prazoDaUrl(),
-              // "golden" = sem split; "hA-bB" etc. quando as chaves ligam (h = cabeçalho, b = bump)
-              checkout_variant: celular ? "cel" : SPLIT.cabecalho || SPLIT.bump ? `h${braco}-b${pos}` : "golden",
+              // sem split, o carimbo é o desenho da tela ("cel", "1col", "2col", "3col"); "hA-bB" etc. se as chaves ligarem
+              checkout_variant: celular ? "cel" : SPLIT.cabecalho || SPLIT.bump ? `h${braco}-b${pos}` : desenho(),
               ...jornada(),
               ...destino(),
             }),
@@ -661,6 +673,37 @@ a{color:inherit;text-decoration:none}
           .bumpcard.antes{margin:0 0 18px}
           .hd-cena{padding-top:0}
           .hd-par{--h:280px}
+        }
+        /* c420/153 (HC 02/10/26): a partir de 1.280 px, três colunas numa visão só: produto e prova | formulário | bump.
+           Entre 1.024 e 1.279 px seguem as duas colunas; abaixo de 640 px, a ordem do celular (app/75). A linha «via-pc»
+           fica sobre o formulário, na coluna do meio; o bump encolhe pra barra caber na 1ª tela (texto nunca abaixo de 13 px). */
+        @media (min-width:1280px){
+          .ck-page{max-width:1360px;grid-template-columns:minmax(300px,1.1fr) minmax(440px,1.5fr) minmax(300px,1.1fr);grid-template-rows:auto 1fr;column-gap:36px}
+          .ck-pg{display:contents}
+          .ck-lado{grid-row:1 / span 2}
+          .ck-page .via-pc{grid-column:2;grid-row:1}
+          .ck-box{grid-column:2;grid-row:2}
+          .bumpcard,.bumpcard.antes{grid-column:3;grid-row:1 / span 2;margin:0;padding:18px 16px}
+          .hd-h1{font-size:2.3rem}
+          .hd-par{--h:230px}
+          .hd-leva{margin:16px 0 12px}
+          .bponte{font-size:18px;margin:8px 0 12px}
+          .b-par{--h:150px}
+          .bformato{font-size:14px;margin:12px 0 0}
+          .bnome{font-size:20px;margin:6px 0 4px}
+          .bfrase{font-size:15px;line-height:1.45;margin:0 0 10px}
+          .bpreco{font-size:30px}
+          .bpreco s{font-size:17px}
+          .bbar{margin-top:14px}
+        }
+        /* tela baixa (notebook de 768 px): o bump aperta mais um degrau pra barra seguir na 1ª tela */
+        @media (min-width:1280px) and (max-height:779px){
+          .bumpcard,.bumpcard.antes{padding:14px 16px}
+          .bponte{font-size:17px;margin:6px 0 8px}
+          .b-par{--h:110px}
+          .bformato{margin:8px 0 0}
+          .bfrase{margin:0 0 6px}
+          .bbar{margin-top:12px}
         }
         .ck-foot{padding:2.5rem 1.5rem;text-align:center;border-top:1px solid var(--hair);background:var(--bg-deep)}
         .ck-foot p{font-family:var(--serif);font-style:italic;font-size:1rem;color:var(--sage)}

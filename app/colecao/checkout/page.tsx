@@ -54,7 +54,9 @@ const GUIA_HREF = "/ebook-premium/checkout?src=colecao-exit";
    vê sempre o mesmo); `?v=A|B` força o braço (prova). O braço viaja no create-session como
    `checkout_variant` ("capa" | "amostra") e o beacon `colecao-split-a|b` carimba a jornada
    (1 por sessão). Desligar = SPLIT false e subir: todo mundo volta pro A, carimbo "golden". */
-const SPLIT = true;
+/* c420/153 (HC 02/10/26): sorteio desligado, a capa fica (EXP-079 fechada como inconclusiva em 28/09).
+   O carimbo da session passa a ser o desenho da tela. */
+const SPLIT = false;
 type Braco = "A" | "B";
 let sorteioOk = true;
 function sorteia(): Braco {
@@ -129,6 +131,18 @@ function destaca(t: string) {
   return m ? <>{m[1]}<b>{m[2]}</b>{m[3]}</> : t;
 }
 
+/* c420/153 (HC 02/10/26): o desenho que a pessoa viu viaja na session como `checkout_variant`:
+   "cel" (até 639 px), "1col" (640 a 1.023), "2col" (1.024 a 1.279) e "3col" (1.280 px ou mais).
+   É por ele que a leitura de D+28 separa a receita por checkout das 3 colunas. */
+function desenho(): "cel" | "1col" | "2col" | "3col" {
+  try {
+    const m = (q: string) => window.matchMedia(q).matches;
+    return m("(max-width: 639px)") ? "cel" : m("(min-width: 1280px)") ? "3col" : m("(min-width: 1024px)") ? "2col" : "1col";
+  } catch {
+    return "2col";
+  }
+}
+
 export default function ColecaoCheckout() {
   const [bump, setBump] = useState(false);
   const [braco, setBraco] = useState<Braco | null>(null); // null até o sorteio: sem piscar de um braço pro outro
@@ -169,7 +183,7 @@ export default function ColecaoCheckout() {
           fetch("/api/colecao-checkout", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ bump, checkout_variant: SPLIT ? (braco === "B" ? "amostra" : "capa") : "golden", ...jornada() }),
+            body: JSON.stringify({ bump, checkout_variant: SPLIT ? (braco === "B" ? "amostra" : "capa") : desenho(), ...jornada() }),
           })
             .then((r) => r.json())
             .then((d) => {
@@ -607,6 +621,35 @@ a{color:inherit;text-decoration:none}
           .hd-solo{--h:300px}
           .amostra{margin:0 0 26px}
           .ck-prova{margin:0}
+        }
+        /* c420/153 (HC 02/10/26): a partir de 1.280 px, três colunas numa visão só: produto e prova | formulário | bump.
+           Entre 1.024 e 1.279 px seguem as duas colunas; abaixo de 640 px, a ordem do celular (col/11). O bump encolhe
+           na coluna estreita pra barra «Levar os dois» caber na 1ª tela (texto nunca abaixo de 13 px). */
+        @media (min-width:1280px){
+          .ck-page{max-width:1360px;grid-template-columns:minmax(300px,1.1fr) minmax(440px,1.5fr) minmax(300px,1.1fr);column-gap:36px}
+          .ck-pg{display:contents}
+          .ck-box{grid-column:2;grid-row:1}
+          .bumpcard{grid-column:3;grid-row:1;margin:0;padding:18px 16px}
+          .hd-h1{font-size:2.3rem}
+          .hd-solo{--h:260px}
+          .hd-leva{margin:18px 0 12px}
+          .bponte{font-size:18px;margin:8px 0 12px}
+          .b-par{--h:150px}
+          .bformato{font-size:14px;margin:12px 0 0}
+          .bnome{font-size:20px;margin:6px 0 4px}
+          .bfrase{font-size:15px;line-height:1.45;margin:0 0 10px}
+          .bpreco{font-size:30px}
+          .bpreco s{font-size:17px}
+          .bbar{margin-top:14px}
+        }
+        /* tela baixa (notebook de 768 px): o bump aperta mais um degrau pra barra seguir na 1ª tela */
+        @media (min-width:1280px) and (max-height:779px){
+          .bumpcard{padding:14px 16px}
+          .bponte{font-size:17px;margin:6px 0 8px}
+          .b-par{--h:100px}
+          .bformato{margin:8px 0 0}
+          .bfrase{margin:0 0 6px}
+          .bbar{margin-top:12px}
         }
         .ck-foot{padding:2.5rem 1.5rem;text-align:center;border-top:1px solid var(--hair);background:var(--bg-deep)}
         .ck-foot p{font-family:var(--serif);font-style:italic;font-size:1rem;color:var(--sage)}

@@ -66,7 +66,9 @@ const AVATARES = (MANIFEST.avatares || []).slice(0, 5);
    o beacon `ck-split-hX-bY` carimba o braço na jornada (1 por sessão) e a leitura cruza
    com ebook_purchases pelo journey_id. Desligar = trocar pra false e subir: todo mundo
    volta a ver A + A e o carimbo sai "golden". */
-const SPLIT = { cabecalho: true, bump: true };
+/* c420/153 (HC 02/10/26): EXP-058 e EXP-059 fechadas como inconclusivas, o controle fica (A + A: cabeçalho
+   imersivo, bump depois do formulário). Chaves desligadas; o carimbo da session passa a ser o desenho. */
+const SPLIT = { cabecalho: false, bump: false };
 let sorteioOk = true; // false quando o localStorage falhou: a jornada sai como "ck-split-x" e não conta
 type Braco = "A" | "B";
 const HERO = {
@@ -117,6 +119,18 @@ function jornada() {
 
 /* LEGIVEL: o valor em reais nunca quebra de linha entre o "R$" e o número */
 const nb = (t: string) => t.replace(/R\$ (?=\d)/g, "R$\u00a0");
+
+/* c420/153 (HC 02/10/26): o desenho que a pessoa viu viaja na session como `checkout_variant`:
+   "cel" (até 639 px), "1col" (640 a 1.023), "2col" (1.024 a 1.279) e "3col" (1.280 px ou mais).
+   É por ele que a leitura de D+28 separa a receita por checkout das 3 colunas. */
+function desenho(): "cel" | "1col" | "2col" | "3col" {
+  try {
+    const m = (q: string) => window.matchMedia(q).matches;
+    return m("(max-width: 639px)") ? "cel" : m("(min-width: 1280px)") ? "3col" : m("(min-width: 1024px)") ? "2col" : "1col";
+  } catch {
+    return "2col";
+  }
+}
 
 export default function EbookCheckout() {
   // Bump = o app do próprio guia pela metade (c4-20k/20, HC 04/09): a rota recebe
@@ -181,8 +195,8 @@ export default function EbookCheckout() {
             // da session pra separar A e B por jornada no rio do C4.
             body: JSON.stringify({
               bump: bump ? "app" : false,
-              // "golden" = sem split; "hA-bB" etc. quando as chaves ligam (h = cabeçalho, b = bump)
-              checkout_variant: celular ? "cel" : SPLIT.cabecalho || SPLIT.bump ? `h${braco}-b${pos}` : "golden",
+              // sem split, o carimbo é o desenho da tela ("cel", "1col", "2col", "3col"); "hA-bB" etc. se as chaves ligarem
+              checkout_variant: celular ? "cel" : SPLIT.cabecalho || SPLIT.bump ? `h${braco}-b${pos}` : desenho(),
               ...jornada(),
             }),
           })
@@ -521,6 +535,39 @@ a{color:inherit;text-decoration:none}
           /* a arte entra maior que a caixa e ancorada embaixo: a borda de cima do arquivo (resto do texto da capa) fica fora */
           .hd-bleed{margin-left:0;margin-right:0;border-radius:18px;min-height:340px;background-size:auto 122%,auto;background-position:center 80%,0 0}
           .hd-bleed .hd-in{padding:130px 28px 26px}
+        }
+        /* c420/153 (HC 02/10/26): a partir de 1.280 px, três colunas numa visão só: produto e prova | formulário | bump.
+           Entre 1.024 e 1.279 px seguem as duas colunas; abaixo de 640 px, a ordem do celular (c4-20k/127). O bump
+           encolhe na coluna estreita pra barra «Levar os dois» caber na 1ª tela (texto nunca abaixo de 13 px). */
+        @media (min-width:1280px){
+          .ck-page{max-width:1360px;grid-template-columns:minmax(300px,1.1fr) minmax(440px,1.5fr) minmax(300px,1.1fr);column-gap:36px}
+          .ck-pg{display:contents}
+          .ck-box{grid-column:2;grid-row:1}
+          .bumpcard,.bumpcard.antes{grid-column:3;grid-row:1;margin:0;padding:18px 16px}
+          .hd-h1{font-size:2.3rem}
+          .hd-bleed{min-height:300px}
+          .hd-bleed .hd-in{padding:110px 22px 22px}
+          .bpar{gap:10px;margin:10px 0 6px}
+          .bcapa{width:92px}
+          .bfone{width:84px}
+          .bmais{font-size:26px}
+          .bleg{grid-template-columns:92px 84px;column-gap:38px;margin-bottom:4px}
+          .bnome{font-size:20px;margin:6px 0 4px}
+          .bpreco{font-size:30px}
+          .bpreco s{font-size:17px}
+          .blista{margin:12px 0 2px;gap:7px}
+          .blista li{font-size:15px;line-height:1.4}
+          .bbar{margin-top:14px}
+        }
+        /* tela baixa (notebook de 768 px): o bump aperta mais um degrau pra barra seguir na 1ª tela */
+        @media (min-width:1280px) and (max-height:779px){
+          .bumpcard,.bumpcard.antes{padding:14px 16px}
+          .bpar{margin:8px 0 4px}
+          .bcapa{width:80px}
+          .bfone{width:72px}
+          .bleg{grid-template-columns:80px 72px}
+          .blista{margin:10px 0 0;gap:5px}
+          .bbar{margin-top:12px}
         }
         .ck-foot{padding:2.5rem 1.5rem;text-align:center;border-top:1px solid var(--hair);background:var(--bg-deep)}
         .ck-foot p{font-family:var(--serif);font-style:italic;font-size:1rem;color:var(--sage)}
