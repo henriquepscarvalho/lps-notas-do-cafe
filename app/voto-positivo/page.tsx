@@ -20,9 +20,14 @@
  * e um botão pequeno levando pra /ebook-premium?src=edicao-voto. Sem preço:
  * a caixa de comentário continua sendo a primeira ação. Casa sem guia:
  * CFG.oferta = null.
+ *
+ * Link pessoal (pdb/50): o botão de indicar troca o link da casa pelo link pessoal
+ * do leitor (`?ref=` + 12 primeiros hex do sha256 do email do `s=`, a mesma regra da
+ * /indique), senão quem indica por aqui não sobe degrau. Sem email válido, fica o link
+ * da casa. CFG.indique (casa com pack de wallpapers) nomeia o prêmio do degrau 1.
  * ============================================================ */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PageBeacon, { sendBeacon } from "../PageBeacon";
 import VoteBeacon, { submitVoteComment } from "../VoteBeacon";
 import AssinaComo, { enviarAssinatura } from "../AssinaComo";
@@ -66,11 +71,29 @@ const CFG = {
   "camiseta": {
     "href": "https://q.notasdocafe.com.br/camiseta",
     "img": "https://q.notasdocafe.com.br/camiseta-artes/notas-do-cafe/n2-escura.webp"
+  },
+  "indique": {
+    "premio": "10 wallpapers da casa pro celular",
+    "href": "https://q.notasdocafe.com.br/indique"
   }
 };
 
 type Oferta = { titulo: string; promessa: string; capa: string; href: string };
 const OFERTA: Oferta | null = CFG.oferta;
+type Indique = { premio: string; href: string };
+const INDIQUE: Indique | null = (CFG as { indique?: Indique | null }).indique ?? null;
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+function PremioIndique({ t, email, delay }: { t: typeof CFG.theme; email: string; delay: string }) {
+  if (!INDIQUE) return null;
+  const q = new URLSearchParams({ src: "voto" });
+  if (email) q.set("e", email);
+  return (
+    <p className="vp-pr" style={{ color: t.text, animation: `vpUp .7s ease-out ${delay} both` }}>
+      Seu 1º amigo confirmado libera {INDIQUE.premio}.{" "}
+      <a href={`${INDIQUE.href}?${q.toString()}`} style={{ color: t.heading }}>Ver meus prêmios</a>
+    </p>
+  );
+}
 /* Lista de espera da camiseta da casa (camiseta-da-casa/03, mecânica m1): card abaixo da faixa
  * do guia, nos dois estados. O link leva o email do voto (?s=) e a edição pra rota do app do
  * quiz, que grava só no envio do formulário. A peça ainda não existe: sem preço, sem prazo. */
@@ -111,6 +134,35 @@ export default function VotoPositivo() {
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
   const [falhou, setFalhou] = useState(false);
+  // caf/41: a pergunta-aberta que fecha a edição chega no link do voto (&q=, insert_voto)
+  // e vira o título da caixa; sem q, a caixa fica como sempre.
+  const [pergunta, setPergunta] = useState("");
+  useEffect(() => {
+    try {
+      const v = new URLSearchParams(window.location.search).get("q") || "";
+      setPergunta(v.trim().slice(0, 200));
+    } catch {
+      /* sem URL legível: caixa como sempre */
+    }
+  }, []);
+  // pdb/50: link pessoal no WhatsApp; sem email ou sem crypto.subtle, o link da casa de sempre.
+  const [shareUrl, setShareUrl] = useState(CFG.shareUrl);
+  const [email, setEmail] = useState("");
+  useEffect(() => {
+    try {
+      // `+` cru do email chega como espaço no URLSearchParams: volta pra `+` antes do hash.
+      const s = (new URLSearchParams(window.location.search).get("s") || "").trim().replace(/ /g, "+").toLowerCase();
+      if (!EMAIL_RE.test(s)) return;
+      setEmail(s);
+      if (!window.crypto?.subtle) return;
+      window.crypto.subtle.digest("SHA-256", new TextEncoder().encode(s)).then((b) => {
+        const ref = Array.from(new Uint8Array(b)).map((x) => x.toString(16).padStart(2, "0")).join("").slice(0, 12);
+        setShareUrl(CFG.shareUrl.replace(encodeURIComponent("?src=voto-whatsapp"), encodeURIComponent(`?ref=${ref}&src=voto-whatsapp`)));
+      }).catch(() => { /* fica o link da casa */ });
+    } catch {
+      /* sem URL legível: link da casa */
+    }
+  }, []);
 
   function fireConfetti() {
     setConfetti(
@@ -171,6 +223,8 @@ export default function VotoPositivo() {
         .vp-ta { width:100%; box-sizing:border-box; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:.9rem 1rem; font-family:var(--font-body, system-ui, sans-serif); font-size:.95rem; line-height:1.6; resize:vertical; outline:none; transition:border-color .18s ease }
         .vp-ta:focus { border-color:var(--vp-accent) }
         .vp-ta::placeholder { color:var(--vp-text); opacity:.5 }
+        .vp-pr { font-size:.85rem; line-height:1.5; opacity:.85; max-width:420px; margin:.7rem auto 0; position:relative }
+        .vp-pr a { text-decoration:underline; text-underline-offset:2px }
         .vp-of { display:grid; grid-template-columns:56px 1fr; gap:12px 14px; align-items:center; text-align:left; width:100%; max-width:480px; margin-top:1.75rem; padding:14px; border-radius:12px; border:1px solid; font-family:var(--font-body, system-ui, sans-serif); position:relative }
         .vp-of img { width:56px; height:auto; border-radius:3px; box-shadow:0 5px 14px rgba(0,0,0,.2) }
         .vp-of b { display:block; font-size:1.1rem; line-height:1.15; margin-bottom:4px }
@@ -228,11 +282,16 @@ export default function VotoPositivo() {
             </p>
 
             <div style={{ width: "100%", maxWidth: 480, animation: "vpUp .9s ease-out 1.1s both", position: "relative" }}>
+              {pergunta ? (
+                <p data-pergunta style={{ fontFamily: t.font, fontSize: "1.125rem", fontStyle: "italic", color: t.heading, margin: "0 0 .75rem", lineHeight: 1.4, textAlign: "left" }}>
+                  {pergunta}
+                </p>
+              ) : null}
               <textarea
                 className="vp-ta"
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
-                placeholder="O que mais te marcou nesta edição?"
+                placeholder={pergunta ? "Sua resposta" : "O que mais te marcou nesta edição?"}
                 rows={4}
                 maxLength={2000}
                 style={{ color: t.heading, marginBottom: "1rem" }}
@@ -261,9 +320,10 @@ export default function VotoPositivo() {
           <>
             <p style={{ fontSize: "1.125rem", color: t.text, maxWidth: 480, lineHeight: 1.7, marginBottom: "2.5rem", animation: "vpUp .7s ease-out .05s both", position: "relative" }}>{CFG.paragraph}</p>
 
-            <a href={CFG.shareUrl} target="_blank" rel="noopener noreferrer" onClick={() => sendBeacon(CFG.slug, "voto-whatsapp", { eventType: "converteu" })} className="vp-btn" style={{ background: t.btnBg, color: t.btnText, animation: "vpUp .7s ease-out .25s both", position: "relative" }}>
+            <a href={shareUrl} target="_blank" rel="noopener noreferrer" onClick={() => sendBeacon(CFG.slug, "voto-whatsapp", { eventType: "converteu" })} className="vp-btn" style={{ background: t.btnBg, color: t.btnText, animation: "vpUp .7s ease-out .25s both", position: "relative" }}>
               Indicar pra um amigo no WhatsApp
             </a>
+            <PremioIndique t={t} email={email} delay=".3s" />
 
             {guia(".35s")}
             <CamisetaCard t={t} delay=".4s" />
