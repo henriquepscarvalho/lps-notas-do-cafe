@@ -683,7 +683,7 @@ export default function LpWidgets({ slug, produto, cor, corTexto = "#fff", local
 .lpw-pil-ic{flex:none;width:52px;height:52px;border-radius:50%;background:var(--lpw-acc);color:var(--lpw-acc-text);display:flex;align-items:center;justify-content:center}
 .lpw-pil-ic svg{width:26px;height:26px}
 .lpw-pil-t{min-width:0}
-.lpw-pil b{display:block;font-weight:650;font-size:14px;line-height:1.3}
+.lpw-pil b{display:block;font-weight:650;font-size:14px;line-height:1.3;color:#1B1416}
 .lpw-pil i{display:block;font-style:normal;font-size:12px;line-height:1.35;color:#6F6367;margin-top:3px}
 .lpw-pil u{text-decoration:none;color:#2E7D32;font-weight:600;white-space:nowrap}
 .lpw-x{position:absolute;top:6px;right:8px;background:none;border:0;color:#8A7E82;font-size:18px;line-height:1;cursor:pointer;padding:4px}
