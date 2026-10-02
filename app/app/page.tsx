@@ -5,6 +5,7 @@ import PageBeacon, { sendBeacon, sendCtaPos } from "../PageBeacon";
 import LpWidgets, { fichaDoApp } from "../LpWidgets";
 import { BRACO, CSS, HTML, JS } from "./ouro";
 import VideoApp from "./VideoApp";
+import ViaPc from "./ViaPc";
 
 /* LP do par EBOOK + APP da Notas do Café (app-scriptorium/13, rollout da ouro-ee aprovada pelo HC em 04/09/26).
    Markup, CSS e JS vêm de ./ouro.ts, emitidos pela fábrica rollout/lp-app/build_lp_app.py; a página só
@@ -294,6 +295,8 @@ export default function AppLp() {
       <FaixaDono />
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
       <div dangerouslySetInnerHTML={{ __html: HTML }} />
+      {/* app/82: linha só no computador sob cada botão de pedido (rollout_via_pc_app.py) */}
+      <ViaPc />
       {/* flb/20: marca o braço do vídeo (cookie lp_app do middleware) no bloco de recursos antes da pintura */}
       <script dangerouslySetInnerHTML={{ __html: BRACO }} />
       {/* vex/08: 2º botão do hero + lightbox do vídeo explainer (rollout_video_app.py) */}

@@ -5,6 +5,7 @@ import PageBeacon, { sendBeacon } from "../../PageBeacon";
 import LpWidgets from "../../LpWidgets";
 import PROVA from "../../../checkout-prova.json";
 import MANIFEST from "../../../proof-manifest.json";
+import { ViaPcLinha } from "../ViaPc";
 
 /* ============================================================
    TOKENS DO APP (ticket 10 do app-scriptorium; a fábrica troca por news)
@@ -460,6 +461,8 @@ export default function AppCheckout() {
         <div className="ck-pg">
         {pos === "B" && bumpCard}
 
+        {/* app/82: linha só no computador acima do formulário */}
+        <ViaPcLinha />
         <div className={`ck-box${configurado && !montado && !erro ? " carregando" : ""}`}>
           {configurado ? (
             <>
