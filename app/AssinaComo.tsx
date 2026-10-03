@@ -7,7 +7,7 @@
  * de _shared/scriptorium-quiz/lib/voz.ts (exo/26), copiado na geração.
  *
  * modo "voto" (/voto-positivo e /voto-melhoria, só com nota 4 ou 5 na URL):
- * campo + aviso «sua frase pode sair na próxima edição». O nome válido fica
+ * campo + aviso «Sua frase pode sair numa edição.» (texto do switch, exo/139). O nome válido fica
  * pendente e a página manda junto do comentário (enviarAssinatura, depois do
  * submitVoteComment). Sem `tema`, o campo copia o visual da caixa de texto
  * logo acima, então encaixa em qualquer página da casa.
@@ -16,6 +16,9 @@
  * O banco refaz o filtro (public.assinatura_limpa, migration 0058): o daqui
  * só evita mandar o que vai voltar recusado. Rota de apagar: o leitor responde
  * a qualquer edição e o Forum tira o nome.
+ * exo/139: o aviso do modo voto passa a dizer que a frase pode ser publicada (texto do switch, no
+ * lugar do aviso do gam/219 citado acima) e o envio carimba edition_votes.aviso_publicacao pela RPC
+ * set_vote_aviso (migration 0070). O seletor dos «Comentários do leitor» só imprime frase carimbada.
  * ============================================================ */
 
 import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
@@ -72,6 +75,8 @@ type Tema = { accent: string; heading: string; text: string; btnBg: string; btnT
 
 const CHAVE = "assina_como";   // último nome que o leitor usou neste aparelho (por domínio = por casa)
 let pendente: string | null = null;
+const NOTAS_PUBLICA: number[] = [4, 5];   // notas em que o aviso diz que a frase pode sair (switch); nas outras fica o aviso do nome
+let avisado = false;   // a caixa do voto mostrou o aviso de publicação nesta página
 
 function lerUrl() {
   const p = new URLSearchParams(window.location.search);
@@ -114,6 +119,16 @@ function guarda(nome: string) {
 export async function enviarAssinatura(slug: string): Promise<boolean> {
   const nome = pendente;
   const id = idDaSessao("vote_id", slug);
+  // exo/139: frase escrita com o aviso na tela leva o carimbo; o nome, quando veio, grava na mesma chamada
+  if (id && avisado) {
+    const r = await Promise.race([rpc("set_vote_aviso", id, nome || ""), new Promise<string>((ok) => setTimeout(() => ok("tempo"), 5000))]);
+    if (r === "tempo") return false;   // rede presa: o comentário já gravou, a página não fica em «Enviando...»
+    if (r !== null) {
+      if (r === "ok" && nome) guarda(nome);
+      return r === "ok";
+    }
+    // sem resposta da função (erro do banco): cai no caminho de antes, que ainda grava o nome
+  }
   if (!nome || !id) return false;
   const r = await rpc("set_vote_assinatura", id, nome);
   if (r === "ok") guarda(nome);
@@ -127,10 +142,15 @@ export default function AssinaComo({ slug, modo = "voto", tema }: { slug: string
   const [nome, setNome] = useState("");
   const [campo, setCampo] = useState<CSSProperties>({});
   const [estado, setEstado] = useState<"aberto" | "enviando" | "assinado">("aberto");
+  const [publica, setPublica] = useState(false);   // esta nota leva o aviso de publicação
 
   useEffect(() => {
     const { nota } = lerUrl();
     setVisivel(modo === "pauta" || nota === 4 || nota === 5);
+    const pub = modo === "voto" && NOTAS_PUBLICA.includes(nota);
+    setPublica(pub);
+    // voto sem email no link (post público) não tem frase que a edição possa imprimir: sem campo e sem aviso de publicação
+    if (pub && !(new URLSearchParams(window.location.search).get("s") || "").includes("@")) setVisivel(false);
     try {
       const salvo = localStorage.getItem(CHAVE);
       if (salvo && nomeLimpo(salvo).ok) setNome(salvo);
@@ -153,6 +173,11 @@ export default function AssinaComo({ slug, modo = "voto", tema }: { slug: string
   if (modo === "voto") pendente = valido;
 
   useEffect(() => () => { if (modo === "voto") pendente = null; }, [modo]);
+  useEffect(() => {
+    // só vale o carimbo com o aviso na tela: com nome recusado, a linha do aviso dá lugar ao alerta do filtro
+    if (modo === "voto") avisado = visivel && publica && !erro;
+    return () => { if (modo === "voto") avisado = false; };
+  }, [modo, visivel, publica, erro]);
 
   if (!visivel) return null;
 
@@ -170,7 +195,7 @@ export default function AssinaComo({ slug, modo = "voto", tema }: { slug: string
     width: "100%", boxSizing: "border-box", fontSize: 16, lineHeight: 1.3, padding: ".75rem 1rem", outline: "none",
     ...(tema ? { background: "rgba(127,127,127,.08)", border: `1px solid ${tema.accent}55`, borderRadius: 10, color: tema.heading, fontFamily: "inherit" } : campo),
   };
-  const aviso = modo === "pauta" ? "Se esta pauta vencer, seu nome pode sair na edição." : "Seu nome fica guardado pra quando a casa abrir o espaço dos leitores.";
+  const aviso = modo === "pauta" ? "Se esta pauta vencer, seu nome pode sair na edição." : (publica ? "Sua frase pode sair numa edição." : "Seu nome fica guardado pra quando a casa abrir o espaço dos leitores.");
   const apagar = " Pra tirar o nome depois, responda qualquer edição.";
 
   if (estado === "assinado") {
