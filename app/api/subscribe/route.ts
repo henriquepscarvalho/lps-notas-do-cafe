@@ -220,6 +220,10 @@ async function emailNaDenylist(email: string): Promise<boolean> {
   }
 }
 
+// env-trim (pfa/107, 03/10/26): env colada na Vercel com \n no fim passa na URL da beehiiv, mas
+// quebra a chave do braco_map.json e o `de` do sorteio (null calado). Limpa antes de usar.
+const limpaEnv = (v?: string) => v?.replace(/\\n|\\r/g, "").trim() || undefined;
+
 export async function POST(req: Request) {
   const body = await req.json().catch(() => ({} as any));
 
@@ -252,8 +256,8 @@ export async function POST(req: Request) {
   }
 
   const apiKey = process.env.BEEHIIV_API_KEY;
-  const pubId = process.env.BEEHIIV_PUBLICATION_ID;
-  let autoId: string | undefined = body?.automationId || process.env.BEEHIIV_AUTOMATION_ID;
+  const pubId = limpaEnv(process.env.BEEHIIV_PUBLICATION_ID);
+  let autoId: string | undefined = body?.automationId || limpaEnv(process.env.BEEHIIV_AUTOMATION_ID);
 
   if (!apiKey || !pubId) {
     return NextResponse.json(
