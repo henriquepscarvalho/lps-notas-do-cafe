@@ -350,8 +350,10 @@ export default function VotoPauta() {
         {letra && aberta ? <div style={{ width: "100%", maxWidth: 480, animation: "vpUp .9s ease-out 1s both", position: "relative" }}><AssinaComo slug={CFG.slug} modo="pauta" tema={{ accent: t.accent, heading: t.heading, text: t.text, btnBg: t.btnBg, btnText: t.btnText }} /></div> : null}
 
         {/* Escada de indicação: o prêmio de cada degrau NOMEADO (vem do premios.json,
-            mesma SOT que a /indique resolve), pra o clique saber o que está comprando. */}
-        <div style={{ width: "100%", maxWidth: 480, textAlign: "left", border: "1px solid rgba(255,255,255,0.09)", borderRadius: 14, padding: "1.25rem 1.25rem 1.1rem", marginBottom: "1.75rem", animation: "vpUp .9s ease-out 1.1s both", position: "relative" }}>
+            mesma SOT que a /indique resolve), pra o clique saber o que está comprando.
+            O card inteiro é link pro mesmo destino do botão (fnx/757): as peças em 3:4 pediam
+            toque e eram <img> inerte, a /voto-pauta da rede foi de 0% a 15% de clique morto. */}
+        <a href={indiqueHref} data-escada-link style={{ display: "block", color: "inherit", textDecoration: "none", width: "100%", maxWidth: 480, textAlign: "left", border: "1px solid rgba(255,255,255,0.09)", borderRadius: 14, padding: "1.25rem 1.25rem 1.1rem", marginBottom: "1.75rem", animation: "vpUp .9s ease-out 1.1s both", position: "relative" }}>
           <p style={{ fontFamily: t.font, letterSpacing: ".18em", textTransform: "uppercase", fontSize: 11, fontWeight: 600, color: t.accent, marginBottom: ".9rem" }}>
             O que você destrava indicando
           </p>
@@ -370,7 +372,7 @@ export default function VotoPauta() {
               </div>
             ))}
           </div>
-        </div>
+        </a>
 
         <a
           href={indiqueHref}
