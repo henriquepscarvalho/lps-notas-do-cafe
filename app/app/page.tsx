@@ -249,6 +249,61 @@ function FaixaDono() {
   );
 }
 
+/* app/89: o fim do bônus em ms (o mais cedo entre `fim=<dia>-<HHMM>` e `ate=<epoch>`), ou null sem
+   prazo legível. Mesma gramática e relógio do bonusNoPrazo (c4-20k/93): BRT, UTC-3 fixo. */
+function fimDoBonus(fim: unknown, ate: unknown, agoraMs: number): number | null {
+  let ms: number | null = null;
+  const f = /^(seg|ter|qua|qui|sex|sab|dom)-([01]\d|2[0-3])([0-5]\d)$/.exec(String(fim ?? "").trim());
+  if (f) {
+    const brt = new Date(agoraMs - 3 * 3600 * 1000);
+    const hoje = (brt.getUTCDay() + 6) % 7; // segunda = 0, domingo = 6
+    const dia = ["seg", "ter", "qua", "qui", "sex", "sab", "dom"].indexOf(f[1]);
+    const zero = Date.UTC(brt.getUTCFullYear(), brt.getUTCMonth(), brt.getUTCDate()) + 3 * 3600 * 1000; // 00:00 BRT de hoje
+    ms = zero + (dia - hoje) * 86400000 + (Number(f[2]) * 3600 + Number(f[3]) * 60 + 59) * 1000;
+  }
+  let a = Number(String(ate ?? "").trim());
+  if (a > 1e12) a = Math.floor(a / 1000); // epoch em ms, como o contador aceita
+  if (Number.isFinite(a) && a > 0) ms = ms === null ? a * 1000 : Math.min(ms, a * 1000);
+  return ms;
+}
+
+/* app/89: «sexta 16/10, 23:59» no relógio de Brasília, qualquer que seja o fuso do aparelho. */
+function prazoTexto(ms: number): string {
+  const brt = new Date(ms - 3 * 3600 * 1000);
+  const dia = ["domingo", "segunda", "terça", "quarta", "quinta", "sexta", "sábado"][brt.getUTCDay()];
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${dia} ${p(brt.getUTCDate())}/${p(brt.getUTCMonth() + 1)}, ${p(brt.getUTCHours())}:${p(brt.getUTCMinutes())}`;
+}
+
+// app/89: o link da campanha chega com ?oferta=bonus&ate=<epoch> (ou fim=<dia>-<HHMM>) e o checkout dá o
+// guia do par de graça. A faixa diz até quando e some quando o prazo passou; quem decide se ainda vale é a
+// rota do checkout. Componente próprio, como a FaixaDono: o estado dele não re-renderiza a LP.
+const BONUS = { titulo: "Brasa Pronta em 20 Minutos", news: "Brasa Certa" };
+function FaixaBonus() {
+  const [faixa, setFaixa] = useState<{ prazo: string; qs: string } | null>(null);
+  useEffect(() => {
+    try {
+      const q = new URLSearchParams(window.location.search);
+      if (q.get("oferta") !== "bonus") return;
+      const fim = fimDoBonus(q.get("fim"), q.get("ate"), Date.now());
+      if (fim === null || fim <= Date.now()) return;
+      setFaixa({ prazo: prazoTexto(fim), qs: leOferta(window.location.search) });
+    } catch {
+      /* sem query */
+    }
+  }, []);
+  if (!faixa) return null;
+  return (
+    <>
+      <style>{`.lp-faixa{position:sticky;top:0;z-index:60;background:#E0701F;color:#FFF7F2;font:15px/1.4 system-ui,-apple-system,sans-serif;padding:10px 16px;text-align:center}.lp-faixa b{font-weight:800}.lp-faixa a{color:inherit;text-decoration:underline;margin-left:8px;white-space:nowrap}`}</style>
+      <div className="lp-faixa lp-faixa-bonus">
+        Bônus incluído até <b>{faixa.prazo}</b>: {BONUS.titulo}, da news {BONUS.news}.
+        <a href={CHECKOUT + faixa.qs} onClick={ctaClick}>Quero os dois →</a>
+      </div>
+    </>
+  );
+}
+
 export default function AppLp() {
   useEffect(() => {
     try {
@@ -293,6 +348,7 @@ export default function AppLp() {
     <>
       <PageBeacon slug={APP.slug} step="app-lp" source="app" />
       <FaixaDono />
+      <FaixaBonus />
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
       <div dangerouslySetInnerHTML={{ __html: HTML }} />
       {/* app/82: linha só no computador sob cada botão de pedido (rollout_via_pc_app.py) */}

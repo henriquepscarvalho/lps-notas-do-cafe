@@ -29,6 +29,7 @@ const APP = {
   // cabeçalho. Ponte e frase vêm da fábrica (app-scriptorium/56): pontes.json + lp-tokens do par.
   bump: {
     titulo: "Brasa Pronta em 20 Minutos",
+    news: "Brasa Certa",
     ponte: "Você está levando o guia de repetir o café do balcão em casa. Este é o de acender a brasa em 20 minutos.",
     frase: "Da news Brasa Certa: o protocolo de fogo que corta a espera do carvão de uma hora pra 20 minutos, do fósforo à primeira carne, sem equipamento novo.",
     formato: "Ebook + app, igual ao que você está levando",
@@ -164,6 +165,32 @@ function desenho(): "cel" | "1col" | "2col" | "3col" {
   }
 }
 
+/* app/89: o fim do bônus em ms (o mais cedo entre `fim=<dia>-<HHMM>` e `ate=<epoch>`), ou null sem
+   prazo legível. Mesma gramática e relógio do bonusNoPrazo (c4-20k/93): BRT, UTC-3 fixo. */
+function fimDoBonus(fim: unknown, ate: unknown, agoraMs: number): number | null {
+  let ms: number | null = null;
+  const f = /^(seg|ter|qua|qui|sex|sab|dom)-([01]\d|2[0-3])([0-5]\d)$/.exec(String(fim ?? "").trim());
+  if (f) {
+    const brt = new Date(agoraMs - 3 * 3600 * 1000);
+    const hoje = (brt.getUTCDay() + 6) % 7; // segunda = 0, domingo = 6
+    const dia = ["seg", "ter", "qua", "qui", "sex", "sab", "dom"].indexOf(f[1]);
+    const zero = Date.UTC(brt.getUTCFullYear(), brt.getUTCMonth(), brt.getUTCDate()) + 3 * 3600 * 1000; // 00:00 BRT de hoje
+    ms = zero + (dia - hoje) * 86400000 + (Number(f[2]) * 3600 + Number(f[3]) * 60 + 59) * 1000;
+  }
+  let a = Number(String(ate ?? "").trim());
+  if (a > 1e12) a = Math.floor(a / 1000); // epoch em ms, como o contador aceita
+  if (Number.isFinite(a) && a > 0) ms = ms === null ? a * 1000 : Math.min(ms, a * 1000);
+  return ms;
+}
+
+/* app/89: «sexta 16/10, 23:59» no relógio de Brasília, qualquer que seja o fuso do aparelho. */
+function prazoTexto(ms: number): string {
+  const brt = new Date(ms - 3 * 3600 * 1000);
+  const dia = ["domingo", "segunda", "terça", "quarta", "quinta", "sexta", "sábado"][brt.getUTCDay()];
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${dia} ${p(brt.getUTCDate())}/${p(brt.getUTCMonth() + 1)}, ${p(brt.getUTCHours())}:${p(brt.getUTCMinutes())}`;
+}
+
 export default function AppCheckout() {
   const [bump, setBump] = useState(false);
   // ticket 35: a recuperação chega com ?oferta=bonus (o guia da ALQ de graça) ou ?oferta=metade (R$ 48,50);
@@ -171,6 +198,18 @@ export default function AppCheckout() {
   // c4-20k/57: `dono27` = a janela de 48 h do D+3 (R$ 47); ticket c4-20k/22: `leitor` (R$ 48,50, sem email).
   // A rota decide o preço e a Stripe mostra; o cabeçalho não repete valor nenhum.
   const [oferta, setOferta] = useState("");
+  // app/89: o prazo do bônus em texto («sexta 16/10, 23:59»); vazio = sem prazo legível ou vencido
+  const [prazo, setPrazo] = useState("");
+  useEffect(() => {
+    try {
+      const q = new URLSearchParams(window.location.search);
+      if (q.get("oferta") !== "bonus") return;
+      const fim = fimDoBonus(q.get("fim"), q.get("ate"), Date.now());
+      if (fim !== null && fim > Date.now()) setPrazo(prazoTexto(fim));
+    } catch {
+      /* sem query */
+    }
+  }, []);
   const [email, setEmail] = useState("");
   // c4-20k/93: bônus com prazo vencido (relógio do aparelho primeiro, a rota decide por último)
   const [vencido, setVencido] = useState(false);
@@ -365,7 +404,7 @@ export default function AppCheckout() {
       <span className="bfrase">{nb(APP.bump.frase)}</span>
       <span className="bpreco">{bonus ? <><s>{APP.bump.preco}</s> R$ 0</> : <><s>{APP.bump.de}</s> {APP.bump.preco}</>}</span>
       {bonus ? (
-        <span className="bbar bfixo"><span className="bx" aria-hidden="true">✓</span><span>Entra sem custo neste pedido</span></span>
+        <span className="bbar bfixo"><span className="bx" aria-hidden="true">✓</span><span>Entra sem custo neste pedido{prazo ? `, até ${prazo}` : ""}</span></span>
       ) : (
         <label htmlFor="bump" className="bbar">
           <input id="bump" type="checkbox" checked={bump} onChange={(e) => setBump(e.target.checked)} />
@@ -475,6 +514,11 @@ export default function AppCheckout() {
 
         {/* app/82: linha só no computador acima do formulário */}
         <ViaPcLinha />
+        {/* app/89: a linha do prazo acima do formulário (no celular, logo abaixo da tira, na 1ª tela);
+            o card do bônus segue abaixo com a cena e o que o guia ensina */}
+        {bonus && prazo && (
+          <p className="ck-bonus">Bônus incluído até <b>{prazo}</b>: {APP.bump.titulo}, da news {APP.bump.news}.</p>
+        )}
         <div className={`ck-box${configurado && !montado && !erro ? " carregando" : ""}`}>
           {configurado ? (
             <>
@@ -641,6 +685,8 @@ a{color:inherit;text-decoration:none}
         .ck-depo figcaption{margin-top:8px;font-family:var(--mono);font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--text)}
         /* tira e ordem do celular (app/75, molde do c4-20k/127): formulário na 1ª tela; desktop segue como está */
         .ck-tira{display:none}
+        .ck-bonus{margin:6px 0 14px;padding:11px 14px;border:1px solid var(--hair-accent);border-radius:10px;background:color-mix(in srgb,var(--bright) 12%,transparent);font-size:15px;line-height:1.45;color:var(--text);text-wrap:pretty}
+        .ck-bonus b{color:#fff;font-weight:700}
         @media (max-width:639px){
           .ck-page{display:flex;flex-direction:column}
           .ck-tira{display:grid;grid-template-columns:56px 1fr;gap:14px;align-items:center;padding:10px 0 12px;order:1}
@@ -653,6 +699,7 @@ a{color:inherit;text-decoration:none}
           .ck-tira-nota b{color:#fff;font-family:var(--serif);font-size:17px}
           .ck-tira-nota .ck-stars{font-size:16px;letter-spacing:.5px}
           .ck-box{order:2}
+          .ck-bonus{order:1;margin:2px 0 12px}
           .bumpcard{order:3;margin:18px 0 0}
           .bumpcard.antes{margin:18px 0 0}
           .hd{order:4;margin:20px 0 0}
@@ -683,6 +730,7 @@ a{color:inherit;text-decoration:none}
           .ck-lado{grid-row:1 / span 2}
           .ck-page .via-pc{grid-column:2;grid-row:1}
           .ck-box{grid-column:2;grid-row:2}
+          .ck-bonus{display:none}
           .bumpcard,.bumpcard.antes{grid-column:3;grid-row:1 / span 2;margin:0;padding:18px 16px}
           .hd-h1{font-size:2.3rem}
           .hd-par{--h:230px}
