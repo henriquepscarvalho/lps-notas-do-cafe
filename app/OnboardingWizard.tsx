@@ -88,7 +88,12 @@ function parseBhForm(html: string): BhRec[] {
     out.push({ id: inp.value, name, desc, logo, paid });
   });
   const paid = out.filter((r) => r.paid).slice(0, BH_MAX_PAID);
-  const free = out.filter((r) => !r.paid).slice(0, BH_MAX_FREE);
+  // BH_RODIZIO (c2-b8-b9-b10/27): a dupla de cards grátis muda com o dia, pra cada irmã da casa
+  // aparecer em parte igual dos dias; a beehiiv devolve a mais nova primeiro e o corte fixo escondia as outras.
+  const livres = out.filter((r) => !r.paid);
+  const giro = livres.length ? Math.floor(Date.now() / 864e5) % livres.length : 0;
+  if (typeof window !== "undefined") (window as unknown as Record<string, unknown>).BH_RODIZIO = giro;
+  const free = livres.slice(giro).concat(livres.slice(0, giro)).slice(0, BH_MAX_FREE);
   return [...paid, ...free];
 }
 let bhCache: BhState = { status: "loading" };
