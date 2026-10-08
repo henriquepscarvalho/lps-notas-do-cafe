@@ -630,7 +630,7 @@ export default function ColecaoLP() {
         <section className="secao" id="perguntas">
           <div className="faixa">
             <div className="cabeca">
-              <h2 className="display h2">Perguntas de quem está na porta.</h2>
+              <h2 className="display h2">O que os leitores perguntam antes de entrar.</h2>
             </div>
             <div className="faq">
               <details><summary>Pix, cartão ou boleto?<Seta /></summary><p>Os três, pela Stripe. No pix e no cartão a confirmação é imediata; no boleto, assim que o banco confirma.</p></details>

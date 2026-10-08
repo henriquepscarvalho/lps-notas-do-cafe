@@ -292,7 +292,7 @@ const EBOOK = {
   ],
   "faq": {
     "kicker": "Perguntas diretas",
-    "titulo": "Perguntas de quem está na porta",
+    "titulo": "O que os leitores perguntam antes de entrar",
     "itens": [
       {
         "q": "Como recebo o guia?",
