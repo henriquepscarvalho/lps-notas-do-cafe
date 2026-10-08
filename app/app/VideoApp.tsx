@@ -53,6 +53,17 @@ export default function VideoApp({ slug, video, poster }: { slug: string; video:
     };
     altura();
     cta.insertAdjacentElement("afterend", b);
+    // vex/12 (07/10/26): o botão nasce aqui, depois da 1ª pintura, e a animação dele (mPousa, .lp-hero.m-on)
+    // partiria do relógio da hidratação, 0,7 a 0,9 s atrás do resto do hero. Entra no relógio do título:
+    // a sequência chega inteira no tempo da cópia aceita; hidratação tardia mostra o botão já pousado.
+    // vex/13 (08/10/26): a EE ainda chama a section de .hero, então o seletor aceita os dois nomes.
+    try {
+      const h1 = document.querySelector(".lp-hero.m-on h1, .hero.m-on h1");
+      const ref = h1 ? h1.getAnimations()[0] : undefined;
+      if (ref && ref.startTime !== null) b.getAnimations().forEach((a) => { a.startTime = ref.startTime; });
+    } catch {
+      /* sem animação */
+    }
 
     const lb = document.createElement("div");
     lb.className = "vx-lb";
