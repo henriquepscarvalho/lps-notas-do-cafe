@@ -16,6 +16,10 @@ const BUMP_TITULO = "Brasa Pronta em 20 Minutos";
 // entao carimba o total no return_url e a /app/obrigado dispara o Purchase certo.
 const VALOR_APP = 9700;
 const VALOR_BUMP = 4850;
+// 2º bump (bumps_app_0710, HC 07/10/26): a Coleção completa da casa a R$ 48,50, price próprio no
+// produto da Coleção, fora do links.json da vigia. O webhook do Pharos grava e entrega o PDF.
+const COLECAO_PRICE = "price_1UO79C40q2kXDh5BEFkSkwNX"; // R$ 48,50 (live, NM, lookup app_bump_colecao_*)
+const VALOR_COLECAO = 4850;
 // Recuperação pelo checkout próprio (ticket 35 do app-scriptorium): `oferta=bonus`
 // = app cheio + guia irmão de graça (metadata bump sem line item, o webhook
 // desbloqueia); `oferta=metade` = price de R$ 48,50 do D2, bump card permitido.
@@ -111,6 +115,8 @@ export async function POST(req: Request) {
   const bonusVencido = oferta === "bonus" && !bonusNoPrazo(body?.fim, body?.ate, Date.now());
   if (bonusVencido) oferta = "";
   const bump = body?.bump === true && oferta !== "bonus";
+  // a Coleção vale em qualquer oferta, inclusive com o guia de bônus
+  const colecao = body?.colecao === true;
   const valorApp =
     oferta === "metade" || oferta === "leitor" || oferta === "dono" ? VALOR_METADE : oferta === "dono27" ? VALOR_DONO27 : VALOR_APP;
 
@@ -120,7 +126,7 @@ export async function POST(req: Request) {
     mode: "payment",
     locale: "pt-BR",
     return_url: `${origin}/app/obrigado?session_id={CHECKOUT_SESSION_ID}&v=${
-      bump ? valorApp + VALOR_BUMP : valorApp
+      (bump ? valorApp + VALOR_BUMP : valorApp) + (colecao ? VALOR_COLECAO : 0)
     }`,
     // Contrato do webhook central: o app não tem price no mapa dos ebooks, quem o
     // identifica lá é o produto + sc (e o bump, quando levado).
@@ -129,6 +135,7 @@ export async function POST(req: Request) {
   };
   if (bump || oferta === "bonus") params["metadata[bump]"] = BUMP_SC;
   if (oferta) params["metadata[oferta]"] = oferta;
+  if (colecao) params["metadata[bumps]"] = "colecao";
   if (bonusVencido) params["metadata[oferta_vencida]"] = "bonus";
   // O dono paga com o email que tem o ebook: a linha do app cai no mesmo email e a posse fecha sozinha.
   if (oferta === "dono" || oferta === "dono27") params.customer_email = email;
@@ -164,7 +171,8 @@ export async function POST(req: Request) {
   params["payment_intent_data[description]"] =
     `App ${TITULO} (${SC})` +
     (oferta === "metade" ? " metade" : oferta === "leitor" ? " leitor do ebook" : oferta === "dono" ? " dono do ebook" : oferta === "dono27" ? " dono do ebook, janela D+3" : "") +
-    (oferta === "bonus" ? ` + bônus ${BUMP_SC} no app` : bump ? ` + bump ${BUMP_SC} no app` : "");
+    (oferta === "bonus" ? ` + bônus ${BUMP_SC} no app` : bump ? ` + bump ${BUMP_SC} no app` : "") +
+    (colecao ? " + coleção" : "");
   params["payment_intent_data[statement_descriptor_suffix]"] = `APP ${SC}`;
 
   // ponytail: price IDs live não existem em test mode; rk_test_ usa price_data
@@ -188,6 +196,17 @@ export async function POST(req: Request) {
       params["line_items[1][price]"] = BUMP_PRICE;
       params["line_items[1][quantity]"] = "1";
     }
+  }
+  if (colecao) {
+    const i = bump ? 2 : 1;
+    if (isTestKey) {
+      params[`line_items[${i}][price_data][currency]`] = "brl";
+      params[`line_items[${i}][price_data][unit_amount]`] = String(VALOR_COLECAO);
+      params[`line_items[${i}][price_data][product_data][name]`] = "Coleção completa";
+    } else {
+      params[`line_items[${i}][price]`] = COLECAO_PRICE;
+    }
+    params[`line_items[${i}][quantity]`] = "1";
   }
 
   try {

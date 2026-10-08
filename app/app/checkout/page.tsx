@@ -193,6 +193,7 @@ function prazoTexto(ms: number): string {
 
 export default function AppCheckout() {
   const [bump, setBump] = useState(false);
+  const [colecao, setColecao] = useState(false);
   // ticket 35: a recuperação chega com ?oferta=bonus (o guia da ALQ de graça) ou ?oferta=metade (R$ 48,50);
   // ticket 41: o dono do ebook chega com ?oferta=dono&e=<email> (R$ 48,50, posse conferida na rota);
   // c4-20k/57: `dono27` = a janela de 48 h do D+3 (R$ 47); ticket c4-20k/22: `leitor` (R$ 48,50, sem email).
@@ -274,6 +275,7 @@ export default function AppCheckout() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               bump,
+              colecao,
               oferta,
               email,
               ...prazoDaUrl(),
@@ -304,7 +306,7 @@ export default function AppCheckout() {
       vivo = false;
       handle?.destroy();
     };
-  }, [stripeOk, bump, oferta, email, braco]);
+  }, [stripeOk, bump, colecao, oferta, email, braco]);
 
   // Início de pagamento (EXP-072, app-scriptorium/66): beacon `app-ck-pagar`, 1 vez por jornada, no primeiro
   // toque no formulário da Stripe. O formulário mora num iframe de outra origem, então o toque nunca chega aqui
@@ -415,6 +417,28 @@ export default function AppCheckout() {
     </section>
   );
 
+  /* 2º bump (bumps_app_0710, HC 07/10/26): a Coleção completa da casa, entregue em PDF por email.
+     Fonte: .wayfinder/app-scriptorium/assets/bump_colecao_app.py */
+  const colecaoCard = (
+    <section className={`bumpcard bcol${colecao ? " on" : ""}${pos === "B" ? " antes" : ""}`} aria-label="Adicione ao pedido">
+      <span className="btag">Adicione ao pedido</span>
+      <p className="bponte">{nb("Você leva o guia. Leve junto tudo que a news já publicou.")}</p>
+      <div className="bvit">
+        <img src="https://ecmveymyzdqiehvtqxms.supabase.co/storage/v1/object/public/assets/scriptorium/colecao/notas-do-cafe-capa.png" alt="Capa da Coleção completa" loading="lazy" />
+        {["/colecao/amostra-1.webp", "/colecao/amostra-2.webp"].map((p, i) => <img key={p} className={`pg pg${i + 1}`} src={p} alt="" loading="lazy" />)}
+      </div>
+      <span className="bformato">PDF, entrega separada por email</span>
+      <span className="bnome">{nb("Coleção completa · Notas do Café")}</span>
+      <span className="bfrase">{nb("115 edições, inteiras e em ordem, num PDF só.")}</span>
+      <span className="bpreco"><s>R$ 97</s> R$ 48,50</span>
+      <label htmlFor="bump-colecao" className="bbar">
+        <input id="bump-colecao" type="checkbox" checked={colecao} onChange={(e) => setColecao(e.target.checked)} />
+        <span className="bx" aria-hidden="true">{colecao ? "✓" : ""}</span>
+        <span>Levar a coleção</span>
+      </label>
+    </section>
+  );
+
   return (
     <>
       <PageBeacon slug={APP.slug} step="app-checkout" source="app" />
@@ -511,6 +535,7 @@ export default function AppCheckout() {
         </div>
         <div className="ck-pg">
         {pos === "B" && bumpCard}
+        {pos === "B" && colecaoCard}
 
         {/* app/82: linha só no computador acima do formulário */}
         <ViaPcLinha />
@@ -553,6 +578,7 @@ export default function AppCheckout() {
         </div>
 
         {pos === "A" && bumpCard}
+        {pos === "A" && colecaoCard}
         </div>
       </main>
 
@@ -658,6 +684,11 @@ a{color:inherit;text-decoration:none}
         .bbar:has(input:focus-visible){outline:3px solid #fff;outline-offset:4px}
         .bx{width:28px;height:28px;border-radius:8px;border:2px solid #140408;display:inline-flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff;flex:none;transition:background .2s ease;background:#fff}
         .bumpcard.on .bx{background:#140408}
+        /* 2º bump (bumps_app_0710): capa da Coleção e duas páginas na largura do cartão */
+        .bvit{width:100%;aspect-ratio:2/1;border-radius:12px;overflow:hidden;display:flex;align-items:center;justify-content:center;gap:8px;background:rgba(0,0,0,.28);margin:2px 0 4px}
+        .bvit img{height:86%;width:auto;border-radius:3px 6px 6px 3px;box-shadow:0 10px 24px rgba(0,0,0,.55)}
+        .bvit img.pg{height:74%;transform:rotate(3deg)}
+        .bvit img.pg2{transform:rotate(-3deg)}
         /* reforço: nota (método Amazon), leitores, voto */
         .ck-prova{margin:0 0 16px;padding:20px 18px;border:1px solid var(--hair);border-radius:16px;background:var(--bg-deep);display:flex;flex-direction:column;gap:16px}
         .ck-media{display:flex;align-items:center;gap:14px}
@@ -732,6 +763,7 @@ a{color:inherit;text-decoration:none}
           .ck-box{grid-column:2;grid-row:2}
           .ck-bonus{display:none}
           .bumpcard,.bumpcard.antes{grid-column:3;grid-row:1 / span 2;margin:0;padding:18px 16px}
+          .bumpcard.bcol,.bumpcard.bcol.antes{grid-column:2;grid-row:3;margin:18px 0 0}
           .hd-h1{font-size:2.3rem}
           .hd-par{--h:230px}
           .hd-leva{margin:16px 0 12px}
