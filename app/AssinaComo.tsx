@@ -1,9 +1,9 @@
 "use client";
 
 /* ============================================================
- * CAMPO «ASSINE COMO (OPCIONAL)» DAS PÁGINAS DE VOTO (exo-scriptorium/25)
+ * CAMPO «NOME E SOBRENOME (OPCIONAL)» DAS PÁGINAS DE VOTO (exo-scriptorium/25; rótulo e filtro do app/92)
  * AUTO-GERADO por _shared/scripts/exo25_assina.py. NÃO EDITAR À MÃO.
- * Fonte = _shared/voto-positivo/AssinaComo.template.tsx + o filtro nomeLimpo
+ * Fonte = _shared/voto-positivo/AssinaComo.template.tsx + o filtro nomeReal
  * de _shared/scriptorium-quiz/lib/voz.ts (exo/26), copiado na geração.
  *
  * modo "voto" (/voto-positivo e /voto-melhoria, só com nota 4 ou 5 na URL):
@@ -14,7 +14,8 @@
  * modo "pauta" (/voto-pauta): campo + botão «Assinar», grava na hora no voto
  * de pauta desta sessão (créditos da pauta, exo/27).
  * O banco refaz o filtro (public.assinatura_limpa, migration 0058): o daqui
- * só evita mandar o que vai voltar recusado. Rota de apagar: o leitor responde
+ * só evita mandar o que vai voltar recusado. app/92: o campo pede nome e sobrenome
+ * (nomeReal, as regras do bloco Leitores VIP); o banco segue com o filtro de antes. Rota de apagar: o leitor responde
  * a qualquer edição e o Forum tira o nome.
  * exo/139: o aviso do modo voto passa a dizer que a frase pode ser publicada (texto do switch, no
  * lugar do aviso do gam/219 citado acima) e o envio carimba edition_votes.aviso_publicacao pela RPC
@@ -24,16 +25,18 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 
-/* filtro copiado de _shared/scriptorium-quiz/lib/voz.ts (nomeLimpo, exo/26) */
+/* filtro copiado de _shared/scriptorium-quiz/lib/voz.ts (nomeLimpo e nomeReal, exo/26 e app/92) */
 export const NOME_MAX = 40;
 
 // Raízes barradas na assinatura. Casa por palavra inteira, sem acento: «Cuiabá» e «Putinga»
 // passam, o palavrão solto não. Lista curta de propósito: a casa lê o nome antes de imprimir.
-const OFENSIVAS = [
+// Anda junto da OFENSIVAS do bloco Leitores VIP (_shared/scripts/leitores_vip.py); o voz.test.ts trava.
+export const OFENSIVAS = [
   "porra", "caralho", "merda", "bosta", "puta", "puto", "cu", "cuzao", "foda", "fodase", "foder",
   "buceta", "boceta", "piroca", "viado", "viadinho", "bicha", "arrombado",
   "otario", "otaria", "babaca", "idiota", "imbecil", "vagabunda", "vagabundo", "corno", "desgraca",
   "fdp", "vsf", "vtnc", "pqp", "nazista", "hitler", "fuck", "shit", "bitch", "nigger",
+  "cacete", "rola", "pau", "xota", "xoxota", "punheta", "bunda", "peido", "safado", "safada",
 ];
 
 /** Controle, largura zero, marcas de direção e BOM: somem antes de qualquer conta. */
@@ -69,6 +72,78 @@ export function nomeLimpo(s?: string | null): NomeLido {
   const palavras = semAcento(t).toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
   if (palavras.some((p) => OFENSIVAS.includes(p))) return { ok: false, motivo: "ofensivo" };
   return { ok: true, nome: t };
+}
+
+// Nome e sobrenome (app/92): o formulário pede o que o bloco Leitores VIP imprime. Mesmas regras do
+// `nome_real` de _shared/scripts/leitores_vip.py, menos o Censo e a conferência à mão, que ficam só no
+// bloco: o que passa aqui passa lá, salvo primeiro nome fora do Censo (a casa libera à mão).
+// RAIZES reprova dentro da palavra («Bundinha»); curta de propósito pra não pegar sobrenome.
+export const RAIZES = ["bund", "porr", "caralh", "merd", "fod", "bucet", "bocet", "piroc", "punhet", "xoxot",
+  "cuzao", "arromb", "viad", "putinh", "putaria"];
+export const FALSOS = ["fulano", "fulana", "ciclano", "beltrano", "teste", "test", "anonimo", "anonima", "ninguem",
+  "leitor", "leitora", "usuario", "usuaria", "admin", "nome", "sobrenome", "eu", "mim", "sim", "nao", "xxx", "asdf",
+  "qwerty", "abc", "vip", "assinante"];
+export const PARTICULAS = ["da", "de", "do", "das", "dos", "e", "di", "du", "del", "van", "von", "la", "le", "y"];
+
+export const ROTULO_NOME = "Nome e sobrenome";
+export const EXEMPLO_NOME = "Ex.: Marina Souza";
+export const ERRO_SOBRENOME = "Falta o sobrenome. Escreva como Marina Souza.";
+export const ERRO_NOME = "Use nome e sobrenome, sem número, símbolo, email, link ou palavrão.";
+
+export type NomeReal =
+  | { ok: true; nome: string }
+  | { ok: false; motivo: "vazio" | "email" | "link" | "ofensivo" | "sem_letra" | "sobrenome" | "estranho" };
+
+const ehMaiuscula = (c: string) => c !== c.toLowerCase() && c === c.toUpperCase();
+const ehMinuscula = (c: string) => c !== c.toUpperCase() && c === c.toLowerCase();
+
+/** «MARIA DA SILVA» e «maria da silva» viram «Maria da Silva» (o `_titulo` do bloco). */
+function titulo(t: string): string {
+  return t.toLowerCase().split(" ").map((w, i) => (i && PARTICULAS.includes(w) ? w
+    : w.split("-").map((p) => p.charAt(0).toUpperCase() + p.slice(1)).join("-"))).join(" ");
+}
+
+/**
+ * Nome que o formulário aceita: o `nomeLimpo` e mais as regras do bloco. Duas palavras completas
+ * (partícula como «da» no meio vale), sem número nem símbolo, maiúscula só no começo da palavra,
+ * com vogal, sem letra repetida três vezes, sem palavrão nem nome de mentira. Apóstrofo curvo do
+ * celular vira o reto («D’Ávila» → «D'Ávila»). `sobrenome` = faltou o sobrenome ou ele veio abreviado.
+ */
+export function nomeReal(s?: string | null): NomeReal {
+  const lido = nomeLimpo((s ?? "").normalize("NFC").replace(/[’‘ʼ`´]/g, "'"));
+  if (!lido.ok) return lido;
+  let t = lido.nome.replace(/[.,;: ]+$/, "");
+  if (/\p{Nd}/u.test(t) || /[^\p{L}\p{N}\s'.-]|_/u.test(t)) return { ok: false, motivo: "estranho" };
+  const letras = Array.from(t).filter((c) => /\p{L}/u.test(c));
+  if (letras.length >= 4 && (letras.every(ehMaiuscula) || letras.every(ehMinuscula))) t = titulo(t);
+  const toks = t.split(" ");
+  if (toks.every((x) => /^(?:\p{L}\.?){1,4}$/u.test(x) && x.toUpperCase() === x)) return { ok: false, motivo: "sobrenome" };
+  let cheias = 0;
+  let ultimo = "";
+  for (let i = 0; i < toks.length; i++) {
+    const tok = toks[i];
+    const nu = semAcento(tok).toLowerCase().replace(/^[.']+|[.']+$/g, "");
+    // partícula no fim («Maria da») conta como sobrenome faltando: aqui o formulário é mais rígido que o bloco
+    if (i > 0 && PARTICULAS.includes(nu)) { ultimo = "particula"; continue; }
+    if (/^\p{L}\.?$/u.test(tok)) { ultimo = "inicial"; continue; }
+    const corpo = tok.replace(/['-]/g, "");
+    if (Array.from(corpo).length < 2 || !/^\p{L}+$/u.test(corpo)) return { ok: false, motivo: "estranho" };
+    if (tok.split(/['-]/).some((p) => p && Array.from(p).slice(1).some(ehMaiuscula))) return { ok: false, motivo: "estranho" };
+    if (!/[aeiouyáàâãéêíóôõúü]/.test(corpo.toLowerCase())) return { ok: false, motivo: "estranho" };
+    if (/(.)\1\1/u.test(corpo.toLowerCase())) return { ok: false, motivo: "estranho" };
+    cheias++;
+    ultimo = "cheia";
+  }
+  const palavras = semAcento(t).toLowerCase().split(/[^a-z]+/).filter(Boolean);
+  if (palavras.some((p) => OFENSIVAS.includes(p) || RAIZES.some((r) => p.includes(r)))) return { ok: false, motivo: "ofensivo" };
+  if (palavras.some((p) => FALSOS.includes(p))) return { ok: false, motivo: "estranho" };
+  if (cheias < 2 || ultimo === "inicial" || ultimo === "particula") return { ok: false, motivo: "sobrenome" };
+  return { ok: true, nome: t };
+}
+
+/** Linha de erro do campo: curta quando só falta o sobrenome. */
+export function erroDoNome(motivo: string): string {
+  return motivo === "sobrenome" ? ERRO_SOBRENOME : ERRO_NOME;
 }
 
 type Tema = { accent: string; heading: string; text: string; btnBg: string; btnText: string };
@@ -153,7 +228,7 @@ export default function AssinaComo({ slug, modo = "voto", tema }: { slug: string
     if (pub && !(new URLSearchParams(window.location.search).get("s") || "").includes("@")) setVisivel(false);
     try {
       const salvo = localStorage.getItem(CHAVE);
-      if (salvo && nomeLimpo(salvo).ok) setNome(salvo);
+      if (salvo && nomeReal(salvo).ok) setNome(salvo);
     } catch {}
   }, [modo]);
 
@@ -167,7 +242,7 @@ export default function AssinaComo({ slug, modo = "voto", tema }: { slug: string
       borderRadius: s.borderTopLeftRadius, color: s.color, fontFamily: s.fontFamily });
   }, [visivel, tema]);
 
-  const lido = nome.trim() ? nomeLimpo(nome) : null;
+  const lido = nome.trim() ? nomeReal(nome) : null;
   const valido = lido?.ok ? lido.nome : null;
   const erro = !!lido && !lido.ok;
   if (modo === "voto") pendente = valido;
@@ -210,11 +285,11 @@ export default function AssinaComo({ slug, modo = "voto", tema }: { slug: string
   return (
     <div ref={ref} style={{ width: "100%", maxWidth: 480, textAlign: "left", margin: modo === "pauta" ? "0 0 1.75rem" : "0 0 1rem" }}>
       <label htmlFor={uid} style={{ display: "block", fontSize: ".85rem", fontWeight: 600, color: tema ? tema.heading : cor, opacity: tema ? 1 : .85, marginBottom: 6 }}>
-        Assine como (opcional)
+        {ROTULO_NOME} (opcional)
       </label>
       <div style={{ display: "flex", gap: 8 }}>
         <input id={uid} type="text" value={nome} onChange={(e) => setNome(e.target.value)} maxLength={NOME_MAX}
-          placeholder="Seu nome ou iniciais" autoComplete="name" aria-invalid={erro} style={{ ...input, flex: 1, minWidth: 0 }} />
+          placeholder={EXEMPLO_NOME} autoComplete="name" aria-invalid={erro} style={{ ...input, flex: 1, minWidth: 0 }} />
         {modo === "pauta" && tema ? (
           <button type="button" onClick={assinar} disabled={!valido || estado !== "aberto"}
             style={{ flex: "none", border: "none", borderRadius: 10, padding: "0 1.1rem", fontSize: 15, fontWeight: 700, cursor: valido ? "pointer" : "default",
@@ -224,7 +299,7 @@ export default function AssinaComo({ slug, modo = "voto", tema }: { slug: string
         ) : null}
       </div>
       {erro ? (
-        <p role="alert" style={{ ...pequeno, opacity: 1 }}>Use nome, apelido ou iniciais, sem email, link ou palavrão.</p>
+        <p role="alert" style={{ ...pequeno, opacity: 1 }}>{erroDoNome(lido && !lido.ok ? lido.motivo : "")}</p>
       ) : (
         <p style={pequeno}>{aviso}{valido ? apagar : ""}</p>
       )}
