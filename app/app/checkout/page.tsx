@@ -763,7 +763,10 @@ a{color:inherit;text-decoration:none}
           .ck-box{grid-column:2;grid-row:2}
           .ck-bonus{display:none}
           .bumpcard,.bumpcard.antes{grid-column:3;grid-row:1 / span 2;margin:0;padding:18px 16px}
-          .bumpcard.bcol,.bumpcard.bcol.antes{grid-column:2;grid-row:3;margin:18px 0 0}
+          .ck-page{grid-template-rows:auto auto 1fr}
+          .ck-lado{grid-row:1 / span 3}
+          .bumpcard:not(.bcol),.bumpcard.antes:not(.bcol){grid-row:1 / span 3}
+          .bumpcard.bcol,.bumpcard.bcol.antes{grid-column:2;grid-row:3;align-self:start;margin:18px 0 0}
           .hd-h1{font-size:2.3rem}
           .hd-par{--h:230px}
           .hd-leva{margin:16px 0 12px}
