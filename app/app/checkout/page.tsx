@@ -534,8 +534,12 @@ export default function AppCheckout() {
 
         </div>
         <div className="ck-pg">
-        {pos === "B" && bumpCard}
-        {pos === "B" && colecaoCard}
+        {pos === "B" && (
+          <div className="ck-bumps">
+            {bumpCard}
+            {colecaoCard}
+          </div>
+        )}
 
         {/* app/82: linha só no computador acima do formulário */}
         <ViaPcLinha />
@@ -577,8 +581,12 @@ export default function AppCheckout() {
           {erro && <div className="ck-pend"><p><b>O checkout não abriu.</b></p><p>{erro}</p></div>}
         </div>
 
-        {pos === "A" && bumpCard}
-        {pos === "A" && colecaoCard}
+        {pos === "A" && (
+          <div className="ck-bumps">
+            {bumpCard}
+            {colecaoCard}
+          </div>
+        )}
         </div>
       </main>
 
@@ -689,6 +697,7 @@ a{color:inherit;text-decoration:none}
         .bvit img{height:86%;width:auto;border-radius:3px 6px 6px 3px;box-shadow:0 10px 24px rgba(0,0,0,.55)}
         .bvit img.pg{height:74%;transform:rotate(3deg)}
         .bvit img.pg2{transform:rotate(-3deg)}
+        .ck-bumps{display:contents}
         /* reforço: nota (método Amazon), leitores, voto */
         .ck-prova{margin:0 0 16px;padding:20px 18px;border:1px solid var(--hair);border-radius:16px;background:var(--bg-deep);display:flex;flex-direction:column;gap:16px}
         .ck-media{display:flex;align-items:center;gap:14px}
@@ -763,10 +772,8 @@ a{color:inherit;text-decoration:none}
           .ck-box{grid-column:2;grid-row:2}
           .ck-bonus{display:none}
           .bumpcard,.bumpcard.antes{grid-column:3;grid-row:1 / span 2;margin:0;padding:18px 16px}
-          .ck-page{grid-template-rows:auto auto 1fr}
-          .ck-lado{grid-row:1 / span 3}
-          .bumpcard:not(.bcol),.bumpcard.antes:not(.bcol){grid-row:1 / span 3}
-          .bumpcard.bcol,.bumpcard.bcol.antes{grid-column:2;grid-row:3;align-self:start;margin:18px 0 0}
+          .ck-bumps{grid-column:3;grid-row:1 / span 2;display:flex;flex-direction:column;gap:18px;align-self:start;min-width:0}
+          .ck-bumps .bumpcard,.ck-bumps .bumpcard.antes{margin:0}
           .hd-h1{font-size:2.3rem}
           .hd-par{--h:230px}
           .hd-leva{margin:16px 0 12px}
