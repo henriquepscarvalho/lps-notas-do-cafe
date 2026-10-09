@@ -54,6 +54,11 @@ export async function POST(req: Request) {
   const metade = body?.oferta === "metade" && janela;
   const rec = body?.oferta === "rec" && janela; // email 3 da recuperação (rec-v2)
   const valorBase = rec ? VALOR_REC : metade ? VALOR_METADE : VALOR_CHEIO;
+  // EXP-124 (ck124): o braço B monta o pedido na página e pergunta o preço antes de qualquer session, com o mesmo
+  // cálculo que a session usa (oferta e janela). Nada é criado na Stripe.
+  if (body?.so_preco === true) {
+    return NextResponse.json({ base: valorBase, app: VALOR_APP }, { headers: { "Cache-Control": "no-store" } });
+  }
 
   // Variante do split A/B/C (EXP-027): sai do cookie lp_eb que o middleware setou
   // na borda. Carimba em metadata.variant → o webhook central persiste em
@@ -106,6 +111,20 @@ export async function POST(req: Request) {
   // Stripe: session paga sem carimbo = furo do sorteio.
   const checkoutVariant = curto(body?.checkout_variant).slice(0, 12);
   if (checkoutVariant) params["metadata[checkout_variant]"] = checkoutVariant;
+  // EXP-124 (ck124): braço do modelo do checkout, sorteado no Pedido.tsx ("a" = 3 colunas de hoje, "b" = pedido no
+  // modelo OQEL). Chave própria: checkout_variant segue sendo o desenho da tela nos dois braços.
+  const ckModelo = /^[abc]$/.test(String(body?.ck_modelo ?? "")) ? String(body.ck_modelo) : "";
+  if (ckModelo) params["metadata[ck_modelo]"] = ckModelo;
+  // No B a Stripe abre dentro da folha do pedido: no papel dela e com o botão na cor da casa, igual à Estante. Quem
+  // pede a moldura é a página do B, mandando o hex em `ck_cor` (validado aqui); o A nunca manda. Vale também no
+  // braço forçado por `?v=B`, que sai sem carimbo. Só a moldura muda; itens, valores e metadados são os do A.
+  const ckCor = String(body?.ck_cor ?? "").toLowerCase();
+  if (/^#[0-9a-f]{6}$/.test(ckCor)) {
+    params["branding_settings[background_color]"] = "#F7F1E6";
+    params["branding_settings[border_style]"] = "rounded";
+    params["branding_settings[font_family]"] = "inter";
+    params["branding_settings[button_color]"] = ckCor;
+  }
   // Porta da página (ticket 13): sem ?src= na jornada, quem carimba a origem é a
   // própria porta que abriu o checkout. Sessão nunca nasce anônima, e "direto e
   // solto" deixa de ser o balde de tudo que o beacon não pegou.

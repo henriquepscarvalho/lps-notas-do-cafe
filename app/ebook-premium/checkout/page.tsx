@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import PageBeacon, { sendBeacon } from "../../PageBeacon";
+import Pedido, { PagarBeacon, Sorteando, carimboModelo, useModelo } from "./Pedido";
 import LpWidgets from "../../LpWidgets";
 import ExitIntent from "./ExitIntent";
 import PROVA from "../../../checkout-prova.json";
@@ -132,7 +133,8 @@ function desenho(): "cel" | "1col" | "2col" | "3col" {
   }
 }
 
-export default function EbookCheckout() {
+/* EXP-124 (ck124): o braço A, o checkout de hoje. Quem exporta a página é o EbookCheckout no fim do arquivo. */
+function EbookCheckoutA() {
   // Bump = o app do próprio guia pela metade (c4-20k/20, HC 04/09): a rota recebe
   // `bump: "app"`; o guia irmão a R$ 13,50 saiu do checkout e vive na Escada.
   const [bump, setBump] = useState(false);
@@ -195,6 +197,7 @@ export default function EbookCheckout() {
             // da session pra separar A e B por jornada no rio do C4.
             body: JSON.stringify({
               bump: bump ? "app" : false,
+              ...carimboModelo(), // EXP-124 (ck124): metadata.ck_modelo = "a" neste braço (vazio com a chave desligada)
               // sem split, o carimbo é o desenho da tela ("cel", "1col", "2col", "3col"); "hA-bB" etc. se as chaves ligarem
               checkout_variant: celular ? "cel" : SPLIT.cabecalho || SPLIT.bump ? `h${braco}-b${pos}` : desenho(),
               ...jornada(),
@@ -257,6 +260,8 @@ export default function EbookCheckout() {
   return (
     <>
       <PageBeacon slug={EBOOK.slug} step="ebook-premium-checkout" source="ebook-premium" />
+      {/* EXP-124 (ck124): o beacon do primeiro toque na Stripe, igual nos dois braços */}
+      <PagarBeacon slug={EBOOK.slug} passo="ebook-ck-pagar" />
       {/* saída do checkout (c4-20k/40): capítulo 1 na versão web, uma vez por sessão, só no gesto de sair */}
       <ExitIntent slug={EBOOK.slug} titulo={EBOOK.titulo} />
 
@@ -574,4 +579,20 @@ a{color:inherit;text-decoration:none}
       `}</style>
     </>
   );
+}
+
+/* EXP-124 (ck124, HC 08/10/26): todos os checkouts divididos entre (A) o de hoje, 3 colunas no computador, e (B) o
+   pedido no modelo OQEL (Pedido.tsx, idêntico nas casas da família). O A é o EbookCheckoutA acima, como antes (mais
+   o beacon ebook-ck-pagar, que os dois braços ganham); quem sorteia, carimba e manda o beacon do braço é o useModelo
+   (chave SPLIT_MODELO no Pedido.tsx). Até o sorteio decidir, só o fundo da casa, sem texto: nunca pisca de um braço
+   pro outro, e os hooks do A só rodam quando o A monta. O tema (fontes e tokens do <style> do A) e a cor do chat vão
+   pro B por props, como o resto da casa. */
+const TEMA = `@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700;1,900&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+:root{--bg:#0F0E0D;--bg-deep:#120B06;--text:#CFCBC8;--text-dim:#8E8986;--sage:#94908E;--hair:rgba(207,203,200,.12);--hair-accent:rgba(225,114,35,.30);--bright:#E17223;--serif:"Playfair Display",Georgia,serif;--sans:"Inter",system-ui,sans-serif;--mono:"IBM Plex Mono",ui-monospace,monospace}`;
+const CHAT = { cor: "var(--bright)", corTexto: "#140B04" };
+export default function EbookCheckout() {
+  const modelo = useModelo(EBOOK.slug);
+  if (modelo === "b") return <Pedido ebook={EBOOK} hero={HERO} pk={PK} avatares={AVATARES} prova={PROVA} tema={TEMA} chat={CHAT} />;
+  if (modelo === "a") return <EbookCheckoutA />;
+  return <Sorteando tema={TEMA} />;
 }

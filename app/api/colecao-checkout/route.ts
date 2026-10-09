@@ -25,6 +25,20 @@ const METADE_ATE = Date.parse("2026-10-05T23:59:59-03:00");
 // Stripe em inglês («Something went wrong»), sem sensação de perda pro leitor e 122 visitas em 3 dias sem
 // venda. Fechar de novo = voltar a data e o if de lp/route.ts.tpl.bak-aberto-2809.
 
+/* EXP-124 (HC 08/10/26, modelo do checkout do OQEL): o braço B monta o pedido na página e só cria a session no
+   «Finalizar o pedido», então pergunta na carga, sem tocar na Stripe, o preço de hoje (a mesma conta do POST: cheio,
+   ou metade dentro da janela do col/27) e se a casa tem bump. Quando a rodada fechar pela rota (o if do 410, molde
+   route.ts.tpl.bak-aberto-2809), o mesmo if entra aqui antes da resposta: o B lê o 410 na carga e mostra o aviso do A. */
+export async function GET(req: Request) {
+  const q = new URL(req.url).searchParams;
+  const agora = Date.now();
+  const metade = q.get("oferta") === "metade" && agora >= METADE_DE && agora <= METADE_ATE;
+  return NextResponse.json(
+    { aberto: true, valor: metade ? VALOR_COLECAO / 2 : VALOR_COLECAO, cheio: VALOR_COLECAO, bump: BUMP_PRICE ? VALOR_BUMP : 0 },
+    { headers: { "Cache-Control": "no-store" } },
+  );
+}
+
 export async function POST(req: Request) {
   // Conta Stripe = News Makers (decisão HC 31/08, ticket app/14), nunca a VDN.
   const apiKey = process.env.STRIPE_API_KEY_NM;
@@ -72,6 +86,19 @@ export async function POST(req: Request) {
   params["metadata[src]"] = src || "lp-colecao";
   const variante = curto(body?.checkout_variant);
   if (variante) params["metadata[checkout_variant]"] = variante;
+  // EXP-124: braço do modelo do checkout (a = 3 colunas de hoje, b = pedido do OQEL); a leitura separa a receita por braço aqui.
+  const modelo = curto(body?.ck_modelo).toLowerCase();
+  if (/^[abc]$/.test(modelo)) params["metadata[ck_modelo]"] = modelo;
+  // No B a Stripe abre dentro da folha do pedido: no papel dela e com o botão na cor da casa, igual à Estante. Quem
+  // pede a moldura é a página do B, mandando o hex em `ck_cor` (validado aqui); o A nunca manda. Vale também no
+  // braço forçado por `?v=B`, que sai sem carimbo. Só a moldura muda; itens, valores e metadados são os do A.
+  const ckCor = String(body?.ck_cor ?? "").toLowerCase();
+  if (/^#[0-9a-f]{6}$/.test(ckCor)) {
+    params["branding_settings[background_color]"] = "#F7F1E6";
+    params["branding_settings[border_style]"] = "rounded";
+    params["branding_settings[font_family]"] = "inter";
+    params["branding_settings[button_color]"] = ckCor;
+  }
   // col/28: id do assinante da beehiiv (sid={{subscriber_id}} do link do email, uuid sem sub_). A session só ganha email
   // quando paga; com o sid, quem tocou no formulário e saiu vira pessoa (GET /subscriptions/by_subscriber_id/{uuid}).
   // Só uuid: merge tag cru ou robô cai fora.

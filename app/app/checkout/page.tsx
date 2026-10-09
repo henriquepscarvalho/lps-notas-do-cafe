@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import PageBeacon, { sendBeacon } from "../../PageBeacon";
+import Pedido, { Aguardando, useModelo } from "./Pedido";
 import LpWidgets from "../../LpWidgets";
 import PROVA from "../../../checkout-prova.json";
 import MANIFEST from "../../../proof-manifest.json";
@@ -191,7 +192,7 @@ function prazoTexto(ms: number): string {
   return `${dia} ${p(brt.getUTCDate())}/${p(brt.getUTCMonth() + 1)}, ${p(brt.getUTCHours())}:${p(brt.getUTCMinutes())}`;
 }
 
-export default function AppCheckout() {
+function AppCheckoutA() {
   const [bump, setBump] = useState(false);
   const [colecao, setColecao] = useState(false);
   // ticket 35: a recuperação chega com ?oferta=bonus (o guia da ALQ de graça) ou ?oferta=metade (R$ 48,50);
@@ -813,4 +814,45 @@ a{color:inherit;text-decoration:none}
       `}</style>
     </>
   );
+}
+
+/* ============================================================
+   EXP-124 (HC 08/10/26): todos os checkouts se dividem entre (A) o de hoje, 3 colunas no computador, e (B) o pedido
+   no modelo do OQEL. O A é o AppCheckoutA acima, byte a byte como estava; o B é o Pedido.tsx ao lado, idêntico em
+   todas as casas, que recebe o que é da casa pelos props abaixo (as constantes do módulo e o que o A escreve inline).
+   O sorteio (useModelo) é 50/50 por visitante, em todo aparelho; `?v=A` ou `?v=B` força o braço pra prova;
+   SPLIT_MODELO, no Pedido.tsx, desliga tudo (todo mundo no A). Enquanto o sorteio não decidiu: fundo da casa, sem texto.
+   ============================================================ */
+const TEMA = `@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700;1,900&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+:root{--bg:#14110C;--bg-deep:#19170F;--text:#E9EAE3;--text-dim:#96917E;--sage:#96917E;--hair:rgba(233,234,227,.12);--hair-accent:rgba(226,120,44,.30);--bright:#E2782C;--serif:"Playfair Display",Georgia,serif;--sans:"Inter",system-ui,sans-serif;--mono:"IBM Plex Mono",ui-monospace,monospace}`;
+/* app/91: a Coleção da casa, 2º bump; capa, nome e frase lidos do cartão do A. */
+const COLECAO = {
+  ponte: "Você leva o guia. Leve junto tudo que a news já publicou.",
+  capa: "https://ecmveymyzdqiehvtqxms.supabase.co/storage/v1/object/public/assets/scriptorium/colecao/notas-do-cafe-capa.png",
+  capaAlt: "Capa da Coleção completa",
+  amostras: ["/colecao/amostra-1.webp", "/colecao/amostra-2.webp"],
+  formato: "PDF, entrega separada por email",
+  nome: "Coleção completa · Notas do Café",
+  frase: "115 edições, inteiras e em ordem, num PDF só.",
+  de: "R$ 97",
+  preco: "R$ 48,50",
+  leva: "Levar a coleção",
+};
+const REGRAS = { vencido: true, prazoTexto: true };
+function MarcaB() {
+  return (
+    <a href="/" className="brand" aria-label="Home">
+      <img src="/ebook-web/simbolo.png" alt="" width={32} height={32} />
+      <span className="wm"><span className="t">Notas</span><span className="s">{" do Café"}</span></span>
+    </a>
+  );
+}
+function WidgetsB() {
+  return <LpWidgets slug={APP.slug} produto="app" local="checkout" cor="#E0701F" corTexto="#FFF7F2" />;
+}
+export default function AppCheckout() {
+  const modelo = useModelo(APP.slug);
+  if (modelo === "B") return <Pedido app={APP} pk={PK} avatares={AVATARES} prova={PROVA} tema={TEMA} marca={<MarcaB />} widgets={<WidgetsB />} colecao={COLECAO} regras={REGRAS} />;
+  if (modelo === "A") return <AppCheckoutA />;
+  return <Aguardando tema={TEMA} />;
 }

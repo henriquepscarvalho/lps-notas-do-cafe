@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import PageBeacon, { sendBeacon } from "../../PageBeacon";
 import PROVA from "../../../checkout-prova.json";
 import MANIFEST from "../../../proof-manifest.json";
+import Pedido, { carimboModelo, useModelo } from "./Pedido";
 
 /* ============================================================
    TOKENS DA COLEÇÃO COMPLETA (colecao-rede, 22/09/26; a fábrica troca por casa)
@@ -143,7 +144,7 @@ function desenho(): "cel" | "1col" | "2col" | "3col" {
   }
 }
 
-export default function ColecaoCheckout() {
+function ColecaoCheckoutA() {
   const [bump, setBump] = useState(false);
   const [braco, setBraco] = useState<Braco | null>(null); // null até o sorteio: sem piscar de um braço pro outro
   useEffect(() => {
@@ -183,7 +184,7 @@ export default function ColecaoCheckout() {
           fetch("/api/colecao-checkout", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ bump, checkout_variant: SPLIT ? (braco === "B" ? "amostra" : "capa") : desenho(), ...jornada() }),
+            body: JSON.stringify({ bump, checkout_variant: SPLIT ? (braco === "B" ? "amostra" : "capa") : desenho(), ...carimboModelo(), ...jornada() }),
           })
             .then((r) => r.json())
             .then((d) => {
@@ -656,4 +657,26 @@ a{color:inherit;text-decoration:none}
       `}</style>
     </>
   );
+}
+
+/* EXP-124 (HC 08/10/26): todos os checkouts divididos entre (A) o de hoje, 3 colunas no computador, e (B) o modelo do
+   OQEL (pedido montado na página, Stripe só no «Finalizar o pedido»). O sorteio (localStorage `ck_modelo`, `?v=A|B`
+   força), os beacons `ck-modelo-a|b|x` e a moldura do B moram no Pedido.tsx, idêntico em toda casa; o que é da casa
+   viaja por props. RAIZ e MARCA são a linha :root e a marca do A, copiadas pela fábrica e pelo rollout (mesmos regex
+   do colecao_fabrica.py): até o sorteio decidir, a página mostra só o fundo da casa, sem texto, e o A só monta
+   quando o sorteio diz A (nunca A piscando pra B). Desligar = SPLIT_MODELO false no Pedido.tsx e subir. */
+const RAIZ = `:root{--bg:#14110C;--bg-deep:#19170F;--text:#E9EAE3;--text-dim:#96917E;--sage:#96917E;--hair:rgba(233,234,227,.12);--hair-accent:rgba(226,120,44,.30);--bright:#E2782C;--serif:"Playfair Display",Georgia,serif;--sans:"Inter",system-ui,sans-serif;--mono:"IBM Plex Mono",ui-monospace,monospace}`;
+const MARCA = (
+  <a href="/" className="brand" aria-label="Home">
+    <img src="/ebook-web/simbolo.png" alt="" width={32} height={32} />
+    <span className="wm"><span className="t">Notas</span><span className="s">{" do Café"}</span></span>
+  </a>
+);
+export default function ColecaoCheckout() {
+  const modelo = useModelo(COL.slug);
+  if (modelo === "b") {
+    return <Pedido col={COL} raiz={RAIZ} marca={MARCA} build={BUILD} pk={PK} prova={PROVA} avatares={AVATARES} exit={EXIT} holdout={false} guia={GUIA} guiaHref={GUIA_HREF} jornada={jornada} desenho={desenho} destaca={destaca} />;
+  }
+  if (modelo === "a") return <ColecaoCheckoutA />;
+  return <style>{`${RAIZ}body{background:var(--bg)}`}</style>;
 }

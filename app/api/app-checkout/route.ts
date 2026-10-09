@@ -120,6 +120,13 @@ export async function POST(req: Request) {
   const valorApp =
     oferta === "metade" || oferta === "leitor" || oferta === "dono" ? VALOR_METADE : oferta === "dono27" ? VALOR_DONO27 : VALOR_APP;
 
+  // EXP-124 (modelo B do checkout): a página monta o pedido antes de qualquer session e pergunta aqui quanto esta
+  // oferta vale (dono e dono27 dependem da posse lida acima). Sem session e sem Stripe; a rota segue a única dona
+  // do preço, e `oferta` volta resolvida, como no retorno da session.
+  if (body?.so_oferta === true) {
+    return NextResponse.json({ oferta, valorApp, valorBump: VALOR_BUMP, valorColecao: VALOR_COLECAO }, { headers: { "Cache-Control": "no-store" } });
+  }
+
   const origin = new URL(req.url).origin;
   const params: Record<string, string> = {
     ui_mode: "embedded",
@@ -167,6 +174,23 @@ export async function POST(req: Request) {
   if (fbc) params["metadata[fbc]"] = fbc;
   if (ip) params["metadata[ip]"] = ip;
   if (ua) params["metadata[ua]"] = ua;
+  // EXP-124: braço do modelo do checkout («a» = 3 colunas de hoje, «b» = pedido no modelo do OQEL) em
+  // metadata.ck_modelo. O B manda no corpo; o A segue byte a byte e o braço dele chega pelo cookie `ck_modelo`
+  // que o sorteio da página grava. Sem os dois (teste desligado), a chave não existe na session.
+  const ckCorpo = String(body?.ck_modelo ?? "").toLowerCase();
+  const ckCookie = cookie("ck_modelo").toLowerCase();
+  const ckModelo = /^[abc]$/.test(ckCorpo) ? ckCorpo : /^[abc]$/.test(ckCookie) ? ckCookie : "";
+  if (ckModelo) params["metadata[ck_modelo]"] = ckModelo;
+  // No B a Stripe abre dentro da folha do pedido: no papel dela e com o botão na cor da casa, igual à Estante. Quem
+  // pede a moldura é a página do B, mandando o hex em `ck_cor` (validado aqui); o A nunca manda. Vale também no
+  // braço forçado por `?v=B`, que sai sem carimbo. Só a moldura muda; itens, valores e metadados são os do A.
+  const ckCor = String(body?.ck_cor ?? "").toLowerCase();
+  if (/^#[0-9a-f]{6}$/.test(ckCor)) {
+    params["branding_settings[background_color]"] = "#F7F1E6";
+    params["branding_settings[border_style]"] = "rounded";
+    params["branding_settings[font_family]"] = "inter";
+    params["branding_settings[button_color]"] = ckCor;
+  }
 
   params["payment_intent_data[description]"] =
     `App ${TITULO} (${SC})` +
