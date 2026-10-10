@@ -75,6 +75,11 @@ const CFG = {
   "indique": {
     "premio": "10 wallpapers da casa pro celular",
     "href": "https://q.notasdocafe.com.br/indique"
+  },
+  "e129": {
+    "json": "https://ecmveymyzdqiehvtqxms.supabase.co/storage/v1/object/public/assets/news/notas-do-cafe/discover.json",
+    "flag": "https://ecmveymyzdqiehvtqxms.supabase.co/storage/v1/object/public/assets/exp/e129.json",
+    "sal": "e129-s1"
   }
 };
 
@@ -127,6 +132,243 @@ function CamisetaCard({ t, delay }: { t: typeof CFG.theme; delay: string }) {
 }
 
 interface Piece { id: number; left: number; delay: number; duration: number; size: number; emoji: string; }
+/* EXP-129 (pfa/118): pergunta de 1 toque no topo da página do voto 5, «Qual destes temas você quer ler
+ * amanhã?», com 3 temas da urna aberta da casa (o discover.json do bloco Discover do email). O toque grava
+ * em pauta_votes, a mesma tabela que a apuração da urna conta (1º voto por sub_hash), e a página mostra
+ * quando o tema mais votado sai. Sorteio 50/50 fixo por leitor: braço = paridade dos 8 primeiros hex de
+ * sha256(sal + ":" + chave), chave = 16 primeiros hex do sha256 do email do link do voto (`s=`, a mesma
+ * normalização do VoteBeacon, igual ao edition_votes.sub_hash); sem email, semente do aparelho.
+ * Sem urna aberta ninguém vê a pergunta (beacon `e129-fora`, nos dois braços).
+ * Chave de rede: CFG.e129.flag ({"ligado": true}); ausente, ilegível ou false = página de hoje pra todo
+ * mundo e nenhum beacon do teste. `?internal=1&e129=a|b` força o braço (prova; beacon sai interno).
+ * Beacon em lp_page_views: variant e129-a|b; id = chave (16 hex) + tipo (e email, d aparelho) + aleatório;
+ * journey_id = a jornada da sessão, a mesma dos atos de hoje. Leitor: leitores_pergunta_voto.py. */
+type E129 = { json: string; flag: string; sal: string };
+const E129C: E129 | null = (CFG as { e129?: E129 | null }).e129 ?? null;
+type Tema = { p: string; titulo: string };
+type Urna = { ed: number; temas: Tema[]; sai: { dia: string; ddmm: string } | null };
+type Ident = { chave: string; tipo: "e" | "d"; hash: string | null; email: string };
+
+async function hex256(s: string): Promise<string> {
+  const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
+  return Array.from(new Uint8Array(b)).map((x) => x.toString(16).padStart(2, "0")).join("");
+}
+
+function rnd16(n: number): string {
+  let s = "";
+  while (s.length < n) s += Math.floor(Math.random() * 16).toString(16);
+  return s;
+}
+
+function interno129(): boolean {
+  try {
+    const p = new URLSearchParams(window.location.search).get("internal");
+    if (p === "1") localStorage.setItem("vdn_internal", "1");
+    return localStorage.getItem("vdn_internal") === "1";
+  } catch {
+    return false;
+  }
+}
+
+/** Beacon do teste: mesmo corpo do sendBeacon, com o braço no variant e a chave do leitor no id. */
+function beacon129(step: string, ev: "apareceu" | "converteu", braco: string, id: Ident): void {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) return;
+  const k = `lpv_${CFG.slug}_${step}_${ev}`;
+  try {
+    if (sessionStorage.getItem(k)) return;
+    sessionStorage.setItem(k, "1");
+  } catch {
+    /* sessionStorage indisponível: segue e grava */
+  }
+  const h = id.chave + id.tipo + rnd16(15);
+  let source = "direct";
+  let journey: string | null = null;
+  try {
+    source = sessionStorage.getItem("vdn_source") || "direct";
+    journey = sessionStorage.getItem("vdn_journey");
+  } catch {}
+  fetch(`${url}/rest/v1/lp_page_views`, {
+    method: "POST",
+    keepalive: true,
+    headers: { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json", Prefer: "return=minimal" },
+    body: JSON.stringify({
+      id: `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20, 32)}`,
+      slug: CFG.slug,
+      funnel_step: step,
+      event_type: ev,
+      source,
+      journey_id: journey,
+      path: window.location.pathname,
+      referrer: document.referrer || null,
+      user_agent: navigator.userAgent,
+      variant: `e129-${braco}`,
+      is_internal: interno129(),
+    }),
+  }).catch(() => {
+    /* beacon best-effort, nunca quebra a página */
+  });
+}
+
+/** A escolha entra na urna da casa: mesma linha que a /voto-pauta grava, com o path desta página. */
+function gravaPauta(ed: number, opt: string, id: Ident): void {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) return;
+  const at = id.email.indexOf("@");
+  fetch(`${url}/rest/v1/pauta_votes`, {
+    method: "POST",
+    keepalive: true,
+    headers: { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json", Prefer: "return=minimal" },
+    body: JSON.stringify({
+      id: crypto.randomUUID(),
+      slug: CFG.slug,
+      edition: ed,
+      opt,
+      sub_hash: id.hash,
+      email_mask: at > 0 ? id.email[0] + "****@" + id.email.slice(at + 1) : null,
+      path: window.location.pathname,
+      referrer: document.referrer || null,
+      user_agent: navigator.userAgent,
+      is_internal: interno129(),
+    }),
+  }).catch(() => {
+    /* best-effort */
+  });
+}
+
+type Oferta129 = { ed?: number; fecha_em?: string; sai?: { dia: string; ddmm: string } | null; pautas?: Record<string, { titulo?: string }> };
+
+/** Oferta aberta que fecha primeiro, com 3 ou mais temas; 3 sorteados entre os da oferta, em ordem sorteada. */
+function urnaAberta(d: unknown): Urna | null {
+  const ofs = ((d as { ofertas?: Oferta129[] } | null)?.ofertas || []).filter((o) => {
+    const f = o.fecha_em ? Date.parse(o.fecha_em) : NaN;
+    return Number.isFinite(f) && f > Date.now() && Number.isInteger(o.ed);
+  });
+  ofs.sort((x, y) => Date.parse(x.fecha_em as string) - Date.parse(y.fecha_em as string));
+  for (const o of ofs) {
+    const ps = o.pautas || {};
+    const temas = ["a", "b", "c", "d"].flatMap((p) => (ps[p] && ps[p].titulo ? [{ p, titulo: String(ps[p].titulo) }] : []));
+    if (temas.length < 3) continue;
+    for (let i = temas.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [temas[i], temas[j]] = [temas[j], temas[i]];
+    }
+    return { ed: o.ed as number, temas: temas.slice(0, 3), sai: o.sai || null };
+  }
+  return null;
+}
+
+/** Quando o tema mais votado sai, sem prometer além do discover.json: «amanhã», «na terça» ou «nos próximos dias». */
+function quando129(u: Urna, comData: boolean): string {
+  const s = u.sai;
+  if (!s) return "nos próximos dias";
+  let amanha = "";
+  try {
+    amanha = new Date(Date.now() + 864e5).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo", day: "2-digit", month: "2-digit" });
+  } catch {}
+  if (s.ddmm === amanha) return "amanhã";
+  const art = s.dia === "sábado" || s.dia === "domingo" ? "no" : "na";
+  return comData ? `${art} ${s.dia}, ${s.ddmm}` : `${art} ${s.dia}`;
+}
+
+function PerguntaTema() {
+  const t = CFG.theme;
+  const [urna, setUrna] = useState<Urna | null>(null);
+  const [ident, setIdent] = useState<Ident | null>(null);
+  const [escolha, setEscolha] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!E129C) return;
+    let vivo = true;
+    const busca = (u: string): Promise<unknown> =>
+      Promise.race([
+        fetch(u, { cache: "no-store" }).then((r) => (r.ok ? r.json() : null)).catch(() => null),
+        new Promise((r) => window.setTimeout(() => r(null), 3000)),
+      ]);
+    (async () => {
+      const q = new URLSearchParams(window.location.search);
+      const email = (q.get("s") || "").trim().toLowerCase();
+      let id: Ident;
+      try {
+        if (email.includes("@")) {
+          const hash = await hex256(email);
+          id = { chave: hash.slice(0, 16), tipo: "e", hash, email };
+        } else {
+          let sem = "";
+          try {
+            sem = localStorage.getItem("e129_seed") || "";
+            if (!sem) {
+              sem = rnd16(32);
+              localStorage.setItem("e129_seed", sem);
+            }
+          } catch {
+            sem = rnd16(32);
+          }
+          id = { chave: (await hex256("dev:" + sem)).slice(0, 16), tipo: "d", hash: null, email: "" };
+        }
+      } catch {
+        return; /* sem crypto.subtle: fica a página de hoje, sem beacon do teste */
+      }
+      const forca = interno129() ? (q.get("e129") || "").toLowerCase() : "";
+      const [flag, disc] = await Promise.all([busca(E129C.flag), busca(E129C.json)]);
+      const ligado = !!flag && (flag as { ligado?: unknown }).ligado === true;
+      if (!vivo || (!ligado && forca !== "a" && forca !== "b")) return;
+      const braco = forca === "a" || forca === "b" ? forca : parseInt((await hex256(`${E129C.sal}:${id.chave}`)).slice(0, 8), 16) % 2 === 0 ? "a" : "b";
+      const u = urnaAberta(disc);
+      if (!vivo) return;
+      beacon129(u ? "e129" : "e129-fora", "apareceu", braco, id);
+      if (braco !== "b" || !u) return;
+      beacon129("e129-tema", "apareceu", braco, id);
+      let ja: string | null = null;
+      try {
+        ja = sessionStorage.getItem(`pauta_${CFG.slug}_${u.ed}`);
+      } catch {}
+      setIdent(id);
+      setUrna(u);
+      if (ja && u.temas.some((m) => m.p === ja)) setEscolha(ja);
+    })();
+    return () => {
+      vivo = false;
+    };
+  }, []);
+
+  function escolher(p: string) {
+    if (escolha || !urna || !ident) return;
+    setEscolha(p);
+    try {
+      sessionStorage.setItem(`pauta_${CFG.slug}_${urna.ed}`, p);
+    } catch {}
+    beacon129("e129-tema", "converteu", "b", ident);
+    gravaPauta(urna.ed, p, ident);
+  }
+
+  if (!urna) return null;
+  return (
+    <div className="vp-tm" data-e129="b" style={{ borderColor: `${t.accent}55`, background: `${t.accent}0A`, animation: "vpUp .6s ease-out .05s both" }}>
+      <p className="vp-tm-q" style={{ color: t.heading, fontFamily: t.font }}>Qual destes temas você quer ler {quando129(urna, false)}?</p>
+      {urna.temas.map((m) => (
+        <button
+          key={m.p}
+          type="button"
+          className="vp-tm-op"
+          onClick={() => escolher(m.p)}
+          disabled={!!escolha}
+          aria-pressed={escolha === m.p}
+          style={escolha === m.p ? { background: t.btnBg, color: t.btnText, borderColor: t.btnBg } : { color: t.heading, borderColor: `${t.accent}55`, opacity: escolha ? 0.5 : 1 }}
+        >
+          {m.titulo}
+        </button>
+      ))}
+      {escolha ? (
+        <p className="vp-tm-ok" role="status" style={{ color: t.text }}>
+          Anotado. O tema mais votado sai {quando129(urna, true)}.
+        </p>
+      ) : null}
+    </div>
+  );
+}
 
 export default function VotoPositivo() {
   const [confetti, setConfetti] = useState<Piece[]>([]);
@@ -235,6 +477,12 @@ export default function VotoPositivo() {
         .vp-cm b { display:block; font-size:1rem; line-height:1.2; margin-bottom:4px }
         .vp-cm small { display:block; font-size:.8rem; line-height:1.45; color:var(--vp-text) }
         .vp-cm .vp-btn { grid-column:1 / -1; justify-self:start; width:auto; max-width:none; font-size:13.5px; padding:10px 14px }
+        .vp-tm { width:100%; max-width:480px; box-sizing:border-box; margin:0 0 1.75rem; padding:16px 14px 14px; border-radius:12px; border:1px solid; text-align:left; font-family:var(--font-body, system-ui, sans-serif); position:relative }
+        .vp-tm-q { font-size:1.2rem; font-weight:700; line-height:1.3; margin:0 0 6px }
+        .vp-tm-op { display:block; width:100%; box-sizing:border-box; text-align:left; background:transparent; border:1px solid; border-radius:10px; padding:14px; font:inherit; font-size:1rem; font-weight:600; line-height:1.3; cursor:pointer; margin-top:8px; transition:background .16s ease, opacity .16s ease }
+        .vp-tm-op:hover:not(:disabled) { background:rgba(127,127,127,.12) }
+        .vp-tm-op:disabled { cursor:default }
+        .vp-tm-ok { font-size:.95rem; line-height:1.5; margin:12px 0 0 }
         @media (max-width:480px){ .vp-btn{ width:100%; max-width:340px } }
       `}</style>
 
@@ -273,6 +521,7 @@ export default function VotoPositivo() {
         <h1 style={{ fontFamily: t.font, fontWeight: 800, fontSize: "clamp(2rem, 5vw, 3.25rem)", lineHeight: 1.1, letterSpacing: "-.015em", color: t.heading, marginBottom: "1.25rem", maxWidth: 640, animation: "vpUp .9s ease-out .7s both", position: "relative" }}>
           {CFG.headline} <span style={{ color: "var(--vp-accent)" }}>{CFG.highlight}</span>
         </h1>
+        <PerguntaTema />
 
         {!sent ? (
           /* ESTADO A, caixa de comentário primeiro */
