@@ -301,9 +301,10 @@ export default function EbookObrigado() {
           </p>
 
           <div className="ob-recibo">
-            <span className="ob-capa">
+            {/* CAPA-LINK (obg/18): a capa abre o mesmo destino do botão da missão 1 */}
+            <a className="ob-capa" href={temApp ? (EBOOK.appUrl || "/app") : EMAIL.gmail} target={temApp ? undefined : "_blank"} rel="noopener" onClick={temApp ? () => setAbriu(true) : abrirEmail}>
               <img src={EBOOK.capa} alt={`Capa do guia ${EBOOK.titulo}`} width={96} height={128} loading="eager" />
-            </span>
+            </a>
             <div className="ob-recibo-txt">
               <ul className="ob-itens">
                 {levados.map((nome) => (
@@ -411,9 +412,9 @@ export default function EbookObrigado() {
             {OUTRO.ativo && !jaLevouOutro && (
               <div className="outro" aria-label={`Guia ${OUTRO.titulo} (${OUTRO.news})`}>
                 <div className="outro-topo">
-                  <span className="outro-capa">
+                  <a className="outro-capa" href={outroHref} onClick={() => sendBeacon(EBOOK.slug, "obrigado-irma", { eventType: "converteu" })}>
                     <img src={OUTRO.capa} alt={`Capa do guia ${OUTRO.titulo}`} width={76} height={101} loading="lazy" />
-                  </span>
+                  </a>
                   <div>
                     <p className="outro-tag">{OUTRO.kicker}</p>
                     <h3>{OUTRO.titulo}</h3>

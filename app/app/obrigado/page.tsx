@@ -272,9 +272,10 @@ export default function AppObrigado() {
           <p className="sec-sub">Entre com o email desta compra: é ele que destranca seus guias.</p>
 
           <div className="ob-recibo">
-            <span className="ob-capa">
+            {/* CAPA-LINK (obg/18): a capa abre o mesmo destino do botão da missão 1 */}
+            <a className="ob-capa" href={APP.url} onClick={() => setAbriu(true)}>
               <img src={APP.capa} alt={`Tela do app ${APP.titulo}`} width={96} height={128} loading="eager" />
-            </span>
+            </a>
             <div className="ob-recibo-txt">
               <ul className="ob-itens">
                 <li>{APP.titulo}, o app</li>
@@ -378,9 +379,9 @@ export default function AppObrigado() {
             {OUTRO.ativo && !jaLevouOutro && (
               <div className="outro" aria-label={`Guia ${OUTRO.titulo} (${OUTRO.news})`}>
                 <div className="outro-topo">
-                  <span className="outro-capa">
+                  <a className="outro-capa" href={outroHref} onClick={() => sendBeacon(APP.slug, "obrigado-irma", { eventType: "converteu" })}>
                     <img src={OUTRO.capa} alt={`Capa do guia ${OUTRO.titulo}`} width={76} height={101} loading="lazy" />
-                  </span>
+                  </a>
                   <div>
                     <p className="outro-tag">{OUTRO.kicker}</p>
                     <h3>{OUTRO.titulo}</h3>

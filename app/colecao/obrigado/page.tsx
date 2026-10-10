@@ -249,9 +249,10 @@ export default function ColecaoObrigado() {
           </p>
 
           <div className="ob-recibo">
-            <span className="ob-capa">
+            {/* CAPA-LINK (obg/18): a capa abre o mesmo destino do botão da missão 1 */}
+            <a className="ob-capa" href={comBump && COL.appUrl ? COL.appUrl : EMAIL.gmail} target={comBump && COL.appUrl ? undefined : "_blank"} rel="noopener" onClick={comBump && COL.appUrl ? () => setAbriu(true) : abrirEmail}>
               <img src={COL.capa} alt={`Capa da Coleção completa da ${COL.news}`} width={96} height={128} loading="eager" />
-            </span>
+            </a>
             <div className="ob-recibo-txt">
               <ul className="ob-itens">
                 <li>Coleção completa da {COL.news}: {COL.n} edições num PDF</li>
@@ -349,9 +350,9 @@ export default function ColecaoObrigado() {
             {mostraGuia && (
               <div className="outro" aria-label={`Guia ${GUIA.titulo}`}>
                 <div className="outro-topo">
-                  <span className="outro-capa">
+                  <a className="outro-capa" href={GUIA.url} onClick={() => sendBeacon(COL.slug, "obrigado-guia", { eventType: "converteu" })}>
                     <img src={GUIA.capa} alt={`Capa do guia ${GUIA.titulo}`} width={76} height={101} loading="lazy" />
-                  </span>
+                  </a>
                   <div>
                     <p className="outro-tag">Guia {COL.news}</p>
                     <h3>{GUIA.titulo}</h3>
