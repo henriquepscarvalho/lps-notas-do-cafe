@@ -1,207 +1,194 @@
 "use client";
 
-import { useState } from "react";
+/* ============================================================
+ * PÁGINAS /voto-melhoria e /voto-feedback, MODELO CANÔNICO ÚNICO (rede Scriptorium)
+ * AUTO-GERADO por _shared/voto-melhoria/build.py
+ * NÃO EDITAR À MÃO. Fonte = page.template.tsx + copy.json (copy por casa)
+ * + o config.json do voto-positivo (identidade: marca, logo, tema).
+ * Para re-skinar TODAS as news: editar este template ou o copy.json e rodar
+ * `python3 _shared/voto-melhoria/build.py`.
+ *
+ * Fluxo: a nota já foi gravada pelo VoteBeacon no load; a caixa de comentário
+ * é a primeira ação. Depois do envio, «Recebido» na própria caixa, só quando
+ * submitVoteComment devolve true (gam/219); no false, a caixa fica com o texto,
+ * o aviso de que não chegou e o botão «Tentar de novo».
+ *
+ * Próximo ato (gam/194): abaixo da caixa, nos dois estados, o AtoSeguinte leva
+ * o leitor pra votar a próxima pauta (4 opções do discover.json da casa) ou,
+ * sem oferta aberta, pro hub do leitor. Antes do envio o bloco fica quieto;
+ * depois do envio ele é a saída da página. Beacon por destino em lp_page_views:
+ * voto-ato-pauta e voto-ato-hub.
+ *
+ * Caixa (fnx/330): casa com app/CaixaMelhoria.tsx recebe a caixa de duas caras
+ * (nota 4 elogio, nota 3 «o que você cortaria»); as outras, a textarea simples.
+ * build.py escolhe pelo arquivo; a caixa em si não muda aqui.
+ * ============================================================ */
+
+import { useEffect, useState } from "react";
 import PageBeacon from "../PageBeacon";
 import VoteBeacon, { submitVoteComment } from "../VoteBeacon";
 import AssinaComo, { enviarAssinatura } from "../AssinaComo"; // exo/25
+import AtoSeguinte from "../AtoSeguinte";
 
-export default function VotoMelhoria() {
-  const [comment, setComment] = useState("");
+const CFG = {
+  "slug": "notas-do-cafe",
+  "brand": "Notas do Café",
+  "logo": "/images/logo/simbolo.png",
+  "logoW": 56,
+  "logoH": 56,
+  "step": "voto-melhoria",
+  "theme": {
+    "bg": "#2C1810",
+    "text": "#D4C4AE",
+    "accent": "#C8963E",
+    "heading": "#F5EDE0",
+    "btnBg": "#C8963E",
+    "btnText": "#2C1810",
+    "glow": "rgba(200,150,62,0.14)",
+    "font": "var(--font-heading)"
+  },
+  "copy": {
+    "kicker": "Voto registrado",
+    "headline": "O que faria virar",
+    "highlight": "5?",
+    "sub": "Quase um café perfeito. Conte o que faltou: lemos cada resposta, e o pedido que volta muda a xícara.",
+    "placeholder": "O que faltou na xícara de hoje?",
+    "recebidoTitulo": "Recebido",
+    "recebidoTexto": "Sua resposta vai pra bancada de edição. Lemos cada uma; quando o mesmo pedido volta, a xícara muda."
+  },
+  "ato": {
+    "pauta": {
+      "json": "https://ecmveymyzdqiehvtqxms.supabase.co/storage/v1/object/public/assets/news/notas-do-cafe/discover.json",
+      "rota": "/voto-pauta"
+    },
+    "hub": {
+      "href": "https://q.notasdocafe.com.br/xp"
+    }
+  }
+};
+
+
+export default function VotoPagina() {
+  const t = CFG.theme;
   const [sent, setSent] = useState(false);
+  const [comment, setComment] = useState("");
   const [sending, setSending] = useState(false);
   const [falhou, setFalhou] = useState(false);
+  // caf/41: a pergunta-aberta que fecha a edição chega no link do voto (&q=, insert_voto)
+  // e vira o título da caixa; sem q, a caixa fica como sempre.
+  const [pergunta, setPergunta] = useState("");
+  useEffect(() => {
+    try {
+      const v = new URLSearchParams(window.location.search).get("q") || "";
+      setPergunta(v.trim().slice(0, 200));
+    } catch {
+      /* sem URL legível: caixa como sempre */
+    }
+  }, []);
+  const vis = {} as const;
 
   async function handleSubmit() {
     if (sending || !comment.trim()) return;
     setSending(true);
-    if (!(await submitVoteComment("notas-do-cafe", comment))) {
+    // gam/219: «Recebido» só com a resposta gravada; no false o leitor vê o erro e tenta de novo
+    if (!(await submitVoteComment(CFG.slug, comment))) {
       setFalhou(true);
       setSending(false);
       return;
     }
     setFalhou(false);
-    await enviarAssinatura("notas-do-cafe"); // exo/25
+    await enviarAssinatura(CFG.slug); // exo/25
     setSent(true);
     setSending(false);
   }
 
   return (
     <>
-      <PageBeacon slug="notas-do-cafe" step="voto-melhoria" />
-      <VoteBeacon slug="notas-do-cafe" />
+      <PageBeacon slug={CFG.slug} step={CFG.step} />
+      <VoteBeacon slug={CFG.slug} />
+
       <style>{`
-        @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(12px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes vpUp { from { opacity:0; transform:translateY(12px) } to { opacity:1; transform:translateY(0) } }
+        .vp-btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; font-weight:700; font-size:16px; padding:15px 28px; border-radius:10px; text-decoration:none; line-height:1; border:none; cursor:pointer; transition:transform .16s ease, opacity .16s ease }
+        .vp-btn:hover { transform:translateY(-1px); opacity:.92 }
+        .vp-btn:disabled { cursor:default; opacity:.45; transform:none }
+        .vp-ta { width:100%; box-sizing:border-box; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:.9rem 1rem; font-family:var(--font-body, system-ui, sans-serif); font-size:.95rem; line-height:1.6; resize:vertical; outline:none; transition:border-color .18s ease }
+        .vp-ta:focus { border-color:var(--vp-accent) }
+        .vp-ta::placeholder { color:var(--vp-text); opacity:.5 }
+        .vp-box { width:100%; max-width:480px; box-sizing:border-box; padding:1.5rem; border-radius:14px; border:1px solid; background:rgba(255,255,255,0.03); position:relative }
+        @media (max-width:480px){ .vp-btn{ width:100%; max-width:340px } }
       `}</style>
 
       <main
         style={{
-          minHeight: "100vh",
+          minHeight: "100dvh",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          padding: "4rem 1.5rem",
+          padding: "2.5rem 1.5rem",
           textAlign: "center",
-          background: "var(--bg)",
           position: "relative",
+          background: t.bg,
+          ["--vp-accent" as string]: t.accent,
+          ["--vp-text" as string]: t.text,
         }}
       >
-        {/* Gold glow */}
-        <div
-          style={{
-            position: "absolute",
-            top: "30%",
-            left: "50%",
-            transform: "translateX(-50%)",
-            width: "min(500px, 100vw)",
-            height: "500px",
-            background: "radial-gradient(circle, rgba(200,150,62,0.10) 0%, transparent 65%)",
-            pointerEvents: "none",
-          }}
-        />
+        {/* glow de acento atrás do conteúdo */}
+        <div style={{ position: "absolute", top: "28%", left: "50%", transform: "translateX(-50%)", width: 480, height: 480, maxWidth: "92vw", background: `radial-gradient(circle, ${t.glow}, transparent 65%)`, pointerEvents: "none" }} />
 
-        <a href="/" style={{ marginBottom: "2rem", animation: "fadeUp 0.9s ease-out 0.3s both", position: "relative" }}>
-          <img
-            src="/images/logo/simbolo.png"
-            alt="Notas do Café"
-            width={64}
-            height={64}
-          />
+        <a href="/" style={{ marginBottom: "1.75rem", animation: "vpUp .9s ease-out .3s both", position: "relative" }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={CFG.logo} alt={CFG.brand} width={CFG.logoW} height={CFG.logoH} style={{ height: "auto", maxWidth: "70vw" }} />
         </a>
 
-        <p
-          style={{
-            fontFamily: "var(--font-body)",
-            fontSize: "0.7rem",
-            fontWeight: 600,
-            letterSpacing: "0.22em",
-            textTransform: "uppercase",
-            color: "var(--accent)",
-            marginBottom: "1rem",
-            animation: "fadeUp 0.9s ease-out 0.5s both",
-            position: "relative",
-          }}
-        >
-          Voto registrado
-        </p>
+        <p style={{ fontFamily: t.font, letterSpacing: ".22em", textTransform: "uppercase", fontSize: 12, fontWeight: 600, color: "var(--vp-accent)", marginBottom: "1rem", animation: "vpUp .9s ease-out .5s both", position: "relative" }}>{CFG.copy.kicker}</p>
 
-        <h1
-          style={{
-            fontFamily: "var(--font-heading)",
-            fontSize: "clamp(2rem, 5vw, 3.5rem)",
-            fontWeight: 700,
-            lineHeight: 1.1,
-            color: "var(--text)",
-            marginBottom: "1.25rem",
-            maxWidth: "640px",
-            animation: "fadeUp 0.9s ease-out 0.7s both",
-            position: "relative",
-          }}
-        >
-          O que faria virar{" "}
-          <em style={{ fontStyle: "italic", color: "var(--accent)" }}>5</em>?
+        <h1 style={{ fontFamily: t.font, fontWeight: 800, fontSize: "clamp(2rem, 5vw, 3.25rem)", lineHeight: 1.1, letterSpacing: "-.015em", color: t.heading, marginBottom: "1.25rem", maxWidth: 640, animation: "vpUp .9s ease-out .7s both", position: "relative", ...vis }}>
+          {CFG.copy.headline} <span style={{ color: "var(--vp-accent)" }}>{CFG.copy.highlight}</span>
         </h1>
 
-        <p
-          style={{
-            fontSize: "1.125rem",
-            color: "var(--text-secondary)",
-            maxWidth: "480px",
-            lineHeight: 1.8,
-            marginBottom: "2.5rem",
-            animation: "fadeUp 0.9s ease-out 0.9s both",
-            position: "relative",
-          }}
-        >
-          Quase um café perfeito. Conte o que faltou: lemos cada resposta, e o pedido que volta muda a xícara.
+        <p style={{ fontSize: "1.125rem", color: t.text, maxWidth: 480, lineHeight: 1.7, marginBottom: "1.75rem", animation: "vpUp .9s ease-out .9s both", position: "relative", ...vis }}>
+          {CFG.copy.sub}
         </p>
 
-        <div
-          style={{
-            background: "rgba(200,150,62,0.06)",
-            border: "1px solid rgba(200,150,62,0.25)",
-            borderRadius: "8px",
-            padding: "2rem",
-            maxWidth: "480px",
-            width: "100%",
-            animation: "fadeUp 0.9s ease-out 1.1s both",
-            position: "relative",
-          }}
-        >
+        <div className="vp-box" style={{ borderColor: `${t.accent}40`, color: t.heading, animation: "vpUp .9s ease-out 1.1s both", ...vis }}>
           {sent ? (
             <>
-              <h3
-                style={{
-                  fontFamily: "var(--font-heading)",
-                  fontSize: "1.375rem",
-                  fontWeight: 700,
-                  color: "var(--text)",
-                  marginBottom: "0.75rem",
-                }}
-              >
-                Recebido
-              </h3>
-              <p style={{ fontSize: "0.9375rem", color: "var(--text-secondary)", lineHeight: 1.7 }}>
-                Sua resposta vai pra bancada de edição. Lemos cada uma; quando o mesmo pedido volta, a xícara muda.
-              </p>
+              <h3 style={{ fontFamily: t.font, fontSize: "1.25rem", fontWeight: 700, color: t.heading, marginBottom: ".75rem" }}>{CFG.copy.recebidoTitulo}</h3>
+              <p style={{ fontSize: ".9375rem", color: t.text, lineHeight: 1.7 }}>{CFG.copy.recebidoTexto}</p>
             </>
           ) : (
             <>
+              {pergunta ? (
+                <p data-pergunta style={{ fontFamily: t.font, fontSize: "1.125rem", fontStyle: "italic", color: t.heading, margin: "0 0 .75rem", lineHeight: 1.4, textAlign: "left" }}>
+                  {pergunta}
+                </p>
+              ) : null}
               <textarea
+                className="vp-ta"
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
-                placeholder="O que faltou na xícara de hoje?"
+                placeholder={pergunta ? "Sua resposta" : CFG.copy.placeholder}
                 rows={4}
                 maxLength={2000}
-                style={{
-                  width: "100%",
-                  background: "var(--bg)",
-                  border: "1px solid rgba(200,150,62,0.3)",
-                  borderRadius: "4px",
-                  padding: "0.9rem 1rem",
-                  fontFamily: "var(--font-body)",
-                  fontSize: "0.9375rem",
-                  color: "var(--text)",
-                  lineHeight: 1.6,
-                  resize: "vertical",
-                  outline: "none",
-                  marginBottom: "1rem",
-                }}
+                style={{ color: t.heading, marginBottom: "1rem" }}
               />
-              <AssinaComo slug="notas-do-cafe" />
-              <button
-                onClick={handleSubmit}
-                disabled={sending || !comment.trim()}
-                style={{
-                  display: "inline-block",
-                  fontFamily: "var(--font-body)",
-                  fontSize: "0.8rem",
-                  fontWeight: 700,
-                  letterSpacing: "0.12em",
-                  textTransform: "uppercase",
-                  padding: "0.95rem 2rem",
-                  background: "var(--accent)",
-                  color: "var(--bg)",
-                  borderRadius: "4px",
-                  border: "none",
-                  cursor: comment.trim() ? "pointer" : "default",
-                  opacity: comment.trim() ? 1 : 0.5,
-                  transition: "background 0.3s",
-                }}
-              >
+              <AssinaComo slug={CFG.slug} />
+              <button className="vp-btn" onClick={handleSubmit} disabled={sending || !comment.trim()} style={{ background: t.btnBg, color: t.btnText }}>
                 {sending ? "Enviando..." : falhou ? "Tentar de novo" : "Enviar resposta"}
               </button>
               {falhou ? (
-                <p role="alert" data-voto-erro style={{ fontSize: ".9rem", lineHeight: 1.5, marginTop: ".85rem", opacity: 0.85 }}>
+                <p role="alert" data-voto-erro style={{ fontSize: ".9rem", color: t.text, lineHeight: 1.5, marginTop: ".85rem" }}>
                   Sua resposta não chegou. Tente de novo; se falhar outra vez, responda o email da edição.
                 </p>
               ) : null}
             </>
           )}
         </div>
+
+        {/* Próximo ato: quieto antes do envio, saída da página depois dele (gam/194). */}
+        <AtoSeguinte slug={CFG.slug} pauta={CFG.ato.pauta} hub={CFG.ato.hub} t={t} delay={sent ? ".2s" : "1.3s"} destaque={sent} />
       </main>
     </>
   );

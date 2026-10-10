@@ -32,6 +32,7 @@ import PageBeacon, { sendBeacon } from "../PageBeacon";
 import VoteBeacon, { submitVoteComment } from "../VoteBeacon";
 import AssinaComo, { enviarAssinatura } from "../AssinaComo";
 import { useEffect as useEfCam, useState as useStCam } from "react";
+import { useEffect as useEfAto } from "react";
 
 const CFG = {
   "slug": "notas-do-cafe",
@@ -97,6 +98,27 @@ function PremioIndique({ t, email, delay }: { t: typeof CFG.theme; email: string
       Seu 1º amigo confirmado libera {INDIQUE.premio}.{" "}
       <a href={`${INDIQUE.href}?${q.toString()}`} style={{ color: t.heading }}>Ver meus prêmios</a>
     </p>
+  );
+}
+/* Faixa do guia como primeiro próximo ato (gam/194): a mesma faixa do c4-20k/72, agora com o beacon
+ * voto-ato-guia (apareceu ao montar, converteu no clique em «Conhecer o guia»), pra o painel medir o
+ * clique no próximo ato por destino. Casa fora do switch segue com a faixa de antes, sem beacon. */
+function GuiaFaixa({ delay }: { delay: string }) {
+  const t = CFG.theme;
+  useEfAto(() => {
+    sendBeacon(CFG.slug, "voto-ato-guia");
+  }, []);
+  if (!OFERTA) return null;
+  return (
+    <div className="vp-of" style={{ background: `${t.accent}0F`, borderColor: `${t.accent}33`, animation: `vpUp .9s ease-out ${delay} both` }}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={OFERTA.capa} alt={`Capa do guia ${OFERTA.titulo}`} width={56} height={78} />
+      <div>
+        <b style={{ fontFamily: t.font, color: t.heading }}>{OFERTA.titulo}</b>
+        {OFERTA.promessa ? <small>{OFERTA.promessa}</small> : null}
+      </div>
+      <a href={OFERTA.href} className="vp-btn" style={{ background: t.btnBg, color: t.btnText }} onClick={() => sendBeacon(CFG.slug, "voto-ato-guia", { eventType: "converteu" })}>Conhecer o guia</a>
+    </div>
   );
 }
 /* Lista de espera da camiseta da casa (camiseta-da-casa/03, mecânica m1): card abaixo da faixa
@@ -437,19 +459,8 @@ export default function VotoPositivo() {
 
   const t = CFG.theme;
 
-  /* Faixa do guia da casa (c4-20k/72, variante D). Mesma faixa nos dois estados. */
-  const guia = (delay: string) =>
-    OFERTA ? (
-      <div className="vp-of" style={{ background: `${t.accent}0F`, borderColor: `${t.accent}33`, animation: `vpUp .9s ease-out ${delay} both` }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={OFERTA.capa} alt={`Capa do guia ${OFERTA.titulo}`} width={56} height={78} />
-        <div>
-          <b style={{ fontFamily: t.font, color: t.heading }}>{OFERTA.titulo}</b>
-          {OFERTA.promessa ? <small>{OFERTA.promessa}</small> : null}
-        </div>
-        <a href={OFERTA.href} className="vp-btn" style={{ background: t.btnBg, color: t.btnText }}>Conhecer o guia</a>
-      </div>
-    ) : null;
+  /* Faixa do guia nos dois estados; no ESTADO B ela é o primeiro próximo ato (gam/194). */
+  const guia = (delay: string) => (OFERTA ? <GuiaFaixa delay={delay} /> : null);
 
   return (
     <>
@@ -567,17 +578,17 @@ export default function VotoPositivo() {
         ) : (
           /* ESTADO B, pós-envio: agradecimento + WhatsApp */
           <>
-            <p style={{ fontSize: "1.125rem", color: t.text, maxWidth: 480, lineHeight: 1.7, marginBottom: "2.5rem", animation: "vpUp .7s ease-out .05s both", position: "relative" }}>{CFG.paragraph}</p>
+            <p style={{ fontSize: "1.125rem", color: t.text, maxWidth: 480, lineHeight: 1.7, marginBottom: ".5rem", animation: "vpUp .7s ease-out .05s both", position: "relative" }}>{CFG.paragraph}</p>
 
-            <a href={shareUrl} target="_blank" rel="noopener noreferrer" onClick={() => sendBeacon(CFG.slug, "voto-whatsapp", { eventType: "converteu" })} className="vp-btn" style={{ background: t.btnBg, color: t.btnText, animation: "vpUp .7s ease-out .25s both", position: "relative" }}>
+            {guia(".25s")}
+
+            <a href={shareUrl} target="_blank" rel="noopener noreferrer" onClick={() => sendBeacon(CFG.slug, "voto-whatsapp", { eventType: "converteu" })} className="vp-btn" style={{ background: "transparent", color: t.heading, border: `1px solid ${t.accent}66`, fontSize: 13.5, padding: "10px 14px", marginTop: "1rem", animation: "vpUp .7s ease-out .4s both", position: "relative" }}>
               Indicar pra um amigo no WhatsApp
             </a>
-            <PremioIndique t={t} email={email} delay=".3s" />
+            <PremioIndique t={t} email={email} delay=".45s" />
+            <CamisetaCard t={t} delay=".5s" />
 
-            {guia(".35s")}
-            <CamisetaCard t={t} delay=".4s" />
-
-            <p style={{ fontFamily: t.font, fontStyle: "italic", fontSize: "1rem", color: t.text, opacity: .7, marginTop: "3rem", animation: "vpUp .7s ease-out .45s both", position: "relative" }}>{CFG.tagline}</p>
+            <p style={{ fontFamily: t.font, fontStyle: "italic", fontSize: "1rem", color: t.text, opacity: .7, marginTop: "3rem", animation: "vpUp .7s ease-out .55s both", position: "relative" }}>{CFG.tagline}</p>
           </>
         )}
       </main>
