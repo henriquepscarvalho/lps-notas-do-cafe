@@ -1,33 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 
 /**
- * Porta de venda do guia: sorteio 1/3 entre as três LPs (EXP-060 na rede, c4-20k/85, HC 15/09/26).
+ * Porta de venda do guia: a B (o mecanismo) é a única LP, EXP-060 venceu em 10/10/26 (c4-20k/168).
  *
- *   A → /ebook-premium-d   a D de sempre (controle)
- *   B → /ebook-premium-b   molde B, o mecanismo (a dor com nome e o método em 4 gestos)
- *   C → /ebook-premium-c   molde C, a promessa com o teste (a unidade 01 aberta pra fazer agora)
+ *   /ebook-premium, /ebook-premium-d e /ebook-premium-c → 307 pra /ebook-premium-b com a query
+ *   inteira (?src, ?internal, ?jump, utm_*). Link antigo que caía direto na -d (onda-*, edicao) chega na B.
  *
- * Mesma porta da EE (c4-20k/62 → 63): a bifurcação mora AQUI, o banner da edição
- * diária, a automação de monetização e a recuperação seguem apontando pro mesmo
- * /ebook-premium, e o braço perdedor morre trocando este arquivo, sem reescrever
- * nenhum email. B e C são gerados por _shared/scripts/build_lp_ebook_bc.py; as
- * rotas -b e -c do EXP-027 (encerrado em 31/08) foram sobrescritas por eles.
- *
- * Cookie PRÓPRIO desta rodada (`lp_v`), de propósito: o `lp_eb` do EXP-027 ficou
- * gravado em quem visitou desde julho e reusá-lo compararia populações diferentes
- * (memória reference_split_novo_precisa_de_chave_de_cookie_propria). 1 ano, lax.
- *
- * Sorteio antes de qualquer render/beacon; redirect 307 preservando a query
- * (?src, ?internal, ?jump, utm_*). Hit direto em -b/-c/-d (link compartilhado) não
- * sorteia: serve a rota e grava o cookie só se ainda não existe, pra pessoa
- * continuar no mesmo braço quando voltar pelo /ebook-premium. `?v=a|b|c|d`
- * força pra revisão sem gravar o forçado (a conferência não polui o bucket).
- * Reverter = templates/middleware-porta-ebook-d.ts (tudo pra -d, sem cookie).
+ * Leitura de 10/10: a B levou 28,2% das visitas ao checkout contra 12,5% da D (59 de 209 contra
+ * 25 de 200, +12,4 pp padronizados por casa, p 0,004). O sorteio 1/3 no cookie `lp_v` (c4-20k/85)
+ * acabou: o cookie não decide mais a rota e é regravado como `b` em quem vê a B, porque o
+ * /api/create-session carimba metadata.variant por ele.
+ * `?v=d|c` (ou `a`) abre a página pedida pra conferência interna, sem gravar nada; o ?v= segue na
+ * query do 307 pra rota pedida reconhecer a conferência.
+ * /ebook-premium/checkout fica fora do matcher (EXP-058, EXP-059 e o ExitIntent moram lá).
+ * Reverter = git revert do commit c4-20k/168 (volta o sorteio 1/3 de templates/middleware-porta-ebook-bcd.ts).
  */
 
 const COOKIE = "lp_v";
 type Arm = "d" | "b" | "c";
-const ARMS: readonly Arm[] = ["d", "b", "c"];
+const UNICA: Arm = "b"; // EXP-060: a B venceu, -d e -c só abrem com ?v=
 const ROUTE: Record<Arm, string> = { d: "/ebook-premium-d", b: "/ebook-premium-b", c: "/ebook-premium-c" };
 
 function valid(v: string | undefined | null): Arm | null {
@@ -113,23 +104,19 @@ export function middleware(req: NextRequest) {
   if (req.nextUrl.pathname === "/app") return appDestino(req); // EXP-072 (destino) e, no braço lp, flb/20 (vídeo)
   const { pathname, searchParams } = req.nextUrl;
   const forced = valid(searchParams.get("v"));
-  const routeArm = (ARMS as readonly string[]).find((a) => pathname === ROUTE[a as Arm]) as Arm | undefined;
-  const cookieArm = valid(req.cookies.get(COOKIE)?.value);
-  const sorteado = cookieArm ?? ARMS[Math.floor(Math.random() * ARMS.length)];
-  const arm: Arm = forced ?? routeArm ?? sorteado;
+  const arm: Arm = forced ?? UNICA;
 
   let res: NextResponse;
   if (pathname !== ROUTE[arm]) {
-    const url = req.nextUrl.clone(); // preserva query (?src, ?internal, ?jump, utm_*)
+    const url = req.nextUrl.clone(); // preserva query (?src, ?internal, ?jump, utm_* e o ?v= da conferência)
     url.pathname = ROUTE[arm];
-    url.searchParams.delete("v");
     res = NextResponse.redirect(url, 307);
   } else {
     res = NextResponse.next();
   }
-  // grava o sorteio (ou a rota direta de quem chegou sem cookie), nunca o ?v= forçado
-  if (!forced && !cookieArm) {
-    res.cookies.set(COOKIE, arm, { path: "/", maxAge: 60 * 60 * 24 * 365, sameSite: "lax" });
+  // lp_v=b em quem vê a B (o /api/create-session carimba metadata.variant por ele); o ?v= forçado não grava
+  if (!forced && req.cookies.get(COOKIE)?.value !== UNICA) {
+    res.cookies.set(COOKIE, UNICA, { path: "/", maxAge: 60 * 60 * 24 * 365, sameSite: "lax" });
   }
   return res;
 }
