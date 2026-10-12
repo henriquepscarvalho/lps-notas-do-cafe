@@ -311,7 +311,7 @@ export default function ColecaoObrigado() {
 
             {mostraOferta && oferta && (
               <div className="bib">
-                <p className="btag">Só nesta página</p>
+                <p className="btag">Pra quem levou a Coleção</p>
                 <h3>{oferta.nome}</h3>
                 <p className="bsub">
                   A família inteira: {oferta.itens.length} guias no mesmo formato, com o da {COL.news} incluído.
