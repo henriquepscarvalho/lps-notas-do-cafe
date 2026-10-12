@@ -44,6 +44,12 @@ export default function ArtigosIndex() {
           </Link>
         ))}
       </section>
+
+      {/* Entrada fixa do /media-kit (exo/197, REC 12/10): fora das edições, pela decisão de 08/10 do rodape_links. */}
+      <footer style={{ maxWidth: 720, margin: "0 auto", padding: "1.2rem 24px 3rem", borderTop: "1px solid rgba(200, 150, 62, 0.14)", fontFamily: "var(--font-body)", fontSize: "0.8rem", color: "#9E8E7A", display: "flex", flexWrap: "wrap", gap: "8px 20px" }}>
+        <a href="/media-kit?src=site" style={{ color: "#C8963E", textDecoration: "none", fontWeight: 600 }}>Anuncie na Notas do Café</a>
+        <Link href="/privacidade" style={{ color: "#9E8E7A", textDecoration: "underline" }}>Política de privacidade</Link>
+      </footer>
     </main>
   );
 }

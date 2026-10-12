@@ -175,6 +175,8 @@ export default async function ArtigoPage({
           <p>
             Notas do Café é uma newsletter diária de curadoria de café especial brasileiro. Este guia reconstrói a análise a partir da edição fonte e de referências públicas verificáveis.{" "}
             <Link href="/privacidade" style={{ color: "#9E8E7A", textDecoration: "underline" }}>Política de privacidade</Link>
+            {" · "}
+            <a href="/media-kit?src=site" style={{ color: "#C8963E", textDecoration: "none", fontWeight: 600 }}>Anuncie na Notas do Café</a>
           </p>
         </footer>
       </article>
