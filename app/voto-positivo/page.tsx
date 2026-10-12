@@ -33,6 +33,10 @@ import VoteBeacon, { submitVoteComment } from "../VoteBeacon";
 import AssinaComo, { enviarAssinatura } from "../AssinaComo";
 import { useEffect as useEfCam, useState as useStCam } from "react";
 import { useEffect as useEfAto } from "react";
+/* Voto pela edição na web (exo/201, hipótese c1): o link chega sem o email e o voto grava sem pessoa.
+ * O cartão VotoEmail (app/VotoEmail.tsx) pede o email opcional só nesse voto, no braço B do sorteio por
+ * aparelho: abaixo da caixa no ESTADO A e logo depois do agradecimento no ESTADO B. */
+import VotoEmail from "../VotoEmail";
 
 const CFG = {
   "slug": "notas-do-cafe",
@@ -81,6 +85,15 @@ const CFG = {
     "json": "https://ecmveymyzdqiehvtqxms.supabase.co/storage/v1/object/public/assets/news/notas-do-cafe/discover.json",
     "flag": "https://ecmveymyzdqiehvtqxms.supabase.co/storage/v1/object/public/assets/exp/e129.json",
     "sal": "e129-s1"
+  },
+  "votoEmail": {
+    "flag": "https://ecmveymyzdqiehvtqxms.supabase.co/storage/v1/object/public/assets/exp/e201.json",
+    "sal": "e201",
+    "titulo": "Seu voto chegou sem o seu nome",
+    "texto": "Pela edição na web, a casa não sabe quem votou. Deixe o email em que você recebe as edições e o voto ganha o seu nome.",
+    "nota": "Opcional. Ao enviar, você autoriza o uso deste email só pra ligar o voto à sua inscrição. Se ele não estiver na lista da casa, nada fica guardado.",
+    "okTitulo": "Anotado",
+    "ok": "Se este email recebe as edições da casa, o voto passa a contar com o seu nome. Pra desfazer, responda qualquer edição."
   }
 };
 
@@ -571,6 +584,7 @@ export default function VotoPositivo() {
                 </p>
               ) : null}
             </div>
+            <VotoEmail slug={CFG.slug} cfg={CFG.votoEmail} t={t} />
 
             {guia("1.3s")}
             <CamisetaCard t={t} delay="1.35s" />
@@ -579,6 +593,7 @@ export default function VotoPositivo() {
           /* ESTADO B, pós-envio: agradecimento + WhatsApp */
           <>
             <p style={{ fontSize: "1.125rem", color: t.text, maxWidth: 480, lineHeight: 1.7, marginBottom: ".5rem", animation: "vpUp .7s ease-out .05s both", position: "relative" }}>{CFG.paragraph}</p>
+            <VotoEmail slug={CFG.slug} cfg={CFG.votoEmail} t={t} estilo={{ marginTop: "1rem" }} />
 
             {guia(".25s")}
 

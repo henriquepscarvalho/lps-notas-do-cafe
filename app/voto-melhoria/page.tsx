@@ -29,6 +29,9 @@ import PageBeacon from "../PageBeacon";
 import VoteBeacon, { submitVoteComment } from "../VoteBeacon";
 import AssinaComo, { enviarAssinatura } from "../AssinaComo"; // exo/25
 import AtoSeguinte from "../AtoSeguinte";
+/* Voto pela edição na web (exo/201, hipótese c1): o cartão VotoEmail (app/VotoEmail.tsx) pede o email
+ * opcional só no voto que chegou sem pessoa, no braço B do sorteio por aparelho, entre a caixa e o próximo ato. */
+import VotoEmail from "../VotoEmail";
 
 const CFG = {
   "slug": "notas-do-cafe",
@@ -64,6 +67,15 @@ const CFG = {
     "hub": {
       "href": "https://q.notasdocafe.com.br/xp"
     }
+  },
+  "votoEmail": {
+    "flag": "https://ecmveymyzdqiehvtqxms.supabase.co/storage/v1/object/public/assets/exp/e201.json",
+    "sal": "e201",
+    "titulo": "Seu voto chegou sem o seu nome",
+    "texto": "Pela edição na web, a casa não sabe quem votou. Deixe o email em que você recebe as edições e o voto ganha o seu nome.",
+    "nota": "Opcional. Ao enviar, você autoriza o uso deste email só pra ligar o voto à sua inscrição. Se ele não estiver na lista da casa, nada fica guardado.",
+    "okTitulo": "Anotado",
+    "ok": "Se este email recebe as edições da casa, o voto passa a contar com o seu nome. Pra desfazer, responda qualquer edição."
   }
 };
 
@@ -187,6 +199,7 @@ export default function VotoPagina() {
           )}
         </div>
 
+        <VotoEmail slug={CFG.slug} cfg={CFG.votoEmail} t={t} estilo={{ marginTop: "1.25rem" }} />
         {/* Próximo ato: quieto antes do envio, saída da página depois dele (gam/194). */}
         <AtoSeguinte slug={CFG.slug} pauta={CFG.ato.pauta} hub={CFG.ato.hub} t={t} delay={sent ? ".2s" : "1.3s"} destaque={sent} />
       </main>
