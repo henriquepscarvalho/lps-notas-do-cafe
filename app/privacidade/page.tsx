@@ -39,6 +39,11 @@ export default function Privacidade() {
           Se você informa o celular na pesquisa ou entra no nosso grupo de WhatsApp, o número fica guardado junto do seu email. Ele serve pra mandar o lembrete da edição e cuidar da sua assinatura. O grupo roda na Sendflow, como operadora. Pra ver, corrigir ou apagar o número, escreva pra leia@notasdocafe.com.br.
         </p>
 
+        <h2 id="voto-web" style={h2}>Email opcional na página de voto</h2>
+        <p style={p}>
+          Quando você vota pela edição aberta no navegador, a página de voto pode oferecer um campo opcional de email. Preencher é escolha sua: ao enviar, você autoriza o uso do email só pra ligar o voto à inscrição que já tem na newsletter (base legal: consentimento, LGPD art. 7º, I). O próprio navegador transforma o email num código antes do envio, e só esse código chega até nós. Se ele corresponder a uma inscrição ativa, o voto passa a contar com o seu nome. Se não corresponder, o código é descartado e nada fica guardado. O campo não cria inscrição nem dispara email. Pra retirar a autorização e desfazer o vínculo, responda qualquer edição.
+        </p>
+
         <h2 style={h2}>Como usamos</h2>
         <p style={p}>
           O email é usado para enviar a newsletter diária e comunicados sobre ela. Você pode cancelar
