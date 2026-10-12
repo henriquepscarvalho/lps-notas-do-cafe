@@ -224,6 +224,55 @@ async function emailNaDenylist(email: string): Promise<boolean> {
 // quebra a chave do braco_map.json e o `de` do sorteio (null calado). Limpa antes de usar.
 const limpaEnv = (v?: string) => v?.replace(/\\n|\\r/g, "").trim() || undefined;
 
+// welcome3 (psl/37, 12/10/26): braço do welcome «Dia 0 de 3» gravado no cadastro, antes do POST
+// /journeys. Regra única em _shared/scripts/welcome3.py: sha256(lower(email) + ":welcome3") mod 2,
+// B grava welcome3_css e welcome3_off, A não grava nada (welcome de hoje byte a byte). Só vale com a
+// pub no gate do combo e depois de WELCOME3_GO_LIVE; gate fora do ar = braço A, nunca derruba o cadastro.
+const WELCOME3_GATE_URL = "https://scriptorium-combo.vercel.app/welcome3_rollout.json";
+const WELCOME3_GO_LIVE = 1792378800000; // 2026-10-19 00:00 BRT, trava da largada
+const WELCOME3_PROVA = /\+prova-welcome3-[^@]*vivo-ate-\d{4}@/;
+let welcome3Gate: { em: number; pubs: string[] } | null = null;
+
+async function welcome3Braco(email: string): Promise<"A" | "B"> {
+  const e = String(email || "").trim().toLowerCase();
+  const dig = new Uint8Array(await globalThis.crypto.subtle.digest("SHA-256", new TextEncoder().encode(`${e}:welcome3`)));
+  return (dig[31] & 1) === 1 ? "B" : "A";
+}
+
+async function welcome3Puro(email: string, pubId: string, pubs: string[], agora: number) {
+  const e = String(email || "").trim().toLowerCase();
+  if (!pubId || !(pubs || []).includes(pubId)) return [];
+  if (agora < WELCOME3_GO_LIVE && !WELCOME3_PROVA.test(e)) return [];
+  if ((await welcome3Braco(e)) !== "B") return [];
+  return [
+    { name: "welcome3_css", value: "display:block" },
+    { name: "welcome3_off", value: "display:none;mso-hide:all" },
+  ];
+}
+
+async function welcome3Campos(email: string, pubId: string | undefined): Promise<{ name: string; value: string }[]> {
+  try {
+    const e = String(email || "").trim().toLowerCase();
+    if (!pubId || (Date.now() < WELCOME3_GO_LIVE && !WELCOME3_PROVA.test(e))) return [];
+    if (!welcome3Gate || Date.now() - welcome3Gate.em > 60_000) {
+      let pubs = welcome3Gate?.pubs || [];
+      try {
+        const r = await fetch(WELCOME3_GATE_URL, { cache: "no-store", signal: AbortSignal.timeout(1500) });
+        if (r.ok) {
+          const j = (await r.json()) as { pubs?: Record<string, string> };
+          pubs = Object.values(j?.pubs || {}).filter((p) => typeof p === "string");
+        }
+      } catch {
+        // segue com a última cópia boa (ou nenhuma) e tenta de novo em 60 s
+      }
+      welcome3Gate = { em: Date.now(), pubs };
+    }
+    return await welcome3Puro(e, pubId, welcome3Gate.pubs, Date.now());
+  } catch {
+    return [];
+  }
+}
+
 export async function POST(req: Request) {
   const body = await req.json().catch(() => ({} as any));
 
@@ -318,6 +367,9 @@ export async function POST(req: Request) {
     autoId = sorteio.automationId;
     custom_fields.push({ name: "braco", value: sorteio.braco }, { name: "braco_exp", value: sorteio.exp });
   }
+
+  // welcome3 (psl/37): braço do welcome «Dia 0 de 3» no cadastro, antes do POST /journeys
+  custom_fields.push(...(await welcome3Campos(email, pubId)));
 
   const headers = {
     Authorization: `Bearer ${apiKey}`,
