@@ -19,7 +19,7 @@ const COL = {
   news: "Notas do Café",
   kicker: "Coleção completa",
   titulo: "Todas as edições num PDF só",
-  capa: "https://ecmveymyzdqiehvtqxms.supabase.co/storage/v1/object/public/assets/scriptorium/colecao/notas-do-cafe-capa.png",
+  capa: "/colecao/capa.webp",
   capaAlt: "Capa da Coleção completa da Notas do Café",
   leva: "115 edições, de abril de 2026 até esta semana, inteiras e em ordem, com sumário por mês",
   bump: {
@@ -27,13 +27,14 @@ const COL = {
       "ponte": "Você está levando todas as edições. Leve junto a coleção completa de outra newsletter, pela metade do preço.",
       "frase": "Churrasco todo dia: cortes, técnicas, equipamentos e harmonizações. 117 edições, de abril de 2026 até esta semana, num PDF só.",
       "formato": "PDF, entrega separada por email",
-      "capa": "https://ecmveymyzdqiehvtqxms.supabase.co/storage/v1/object/public/assets/scriptorium/colecao/brasa-certa-capa.png",
+      "capa": "/colecao/capa-bump.webp",
       "capaAlt": "Capa da Coleção completa: Brasa Certa",
       "preco": "R$ 48,50",
       "de": "R$ 97"
   },
   despedida: "Sem frescura. Bom café. Notas do Café",
 };
+/* CAF-60 (12/10/26): capa, capa do bump e símbolo em WebP servidos pela casa (colecao_fabrica.leve). */
 const BUILD = "legivel-colecao-20260928-0956";
 
 /* Saída do checkout (HC 23/09, JSON col_exit_intent): quem faz o gesto de sair ANTES de tocar no formulário
@@ -320,7 +321,7 @@ function ColecaoCheckoutA() {
       <nav>
         <div className="wrap nav-inner">
           <a href="/" className="brand" aria-label="Home">
-            <img src="/ebook-web/simbolo.png" alt="" width={32} height={32} />
+            <img src="/colecao/simbolo.webp" alt="" width={32} height={32} />
             <span className="wm"><span className="t">Notas</span><span className="s">{" do Café"}</span></span>
           </a>
         </div>
@@ -668,7 +669,7 @@ a{color:inherit;text-decoration:none}
 const RAIZ = `:root{--bg:#14110C;--bg-deep:#19170F;--text:#E9EAE3;--text-dim:#96917E;--sage:#96917E;--hair:rgba(233,234,227,.12);--hair-accent:rgba(226,120,44,.30);--bright:#E2782C;--serif:"Playfair Display",Georgia,serif;--sans:"Inter",system-ui,sans-serif;--mono:"IBM Plex Mono",ui-monospace,monospace}`;
 const MARCA = (
   <a href="/" className="brand" aria-label="Home">
-    <img src="/ebook-web/simbolo.png" alt="" width={32} height={32} />
+    <img src="/colecao/simbolo.webp" alt="" width={32} height={32} />
     <span className="wm"><span className="t">Notas</span><span className="s">{" do Café"}</span></span>
   </a>
 );

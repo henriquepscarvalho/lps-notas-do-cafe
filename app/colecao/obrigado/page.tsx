@@ -11,7 +11,7 @@ const COL = {
   news: "Notas do Café",
   kicker: "Coleção completa",
   n: "115",
-  capa: "https://ecmveymyzdqiehvtqxms.supabase.co/storage/v1/object/public/assets/scriptorium/colecao/notas-do-cafe-capa.png",
+  capa: "/colecao/capa.webp",
   formato: "PDF, todas as edições em ordem",
   bumpTitulo: "Coleção completa · Brasa Certa",
   appUrl: "",
@@ -228,7 +228,7 @@ export default function ColecaoObrigado() {
       <nav>
         <div className="wrap nav-inner">
           <a href="/" className="brand" aria-label="Home">
-            <img src="/ebook-web/simbolo.png" alt="" width={32} height={32} />
+            <img src="/colecao/simbolo.webp" alt="" width={32} height={32} />
             <span className="wm"><span className="t">Notas</span><span className="s">{" do Café"}</span></span>
           </a>
         </div>

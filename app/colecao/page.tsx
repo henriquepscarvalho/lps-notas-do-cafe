@@ -36,7 +36,7 @@ const COL = {
   desde: "abril de 2026",
   paginas: 739,
   meses: 6,
-  capa: "https://ecmveymyzdqiehvtqxms.supabase.co/storage/v1/object/public/assets/scriptorium/colecao/notas-do-cafe-capa.png",
+  capa: "/colecao/capa.webp",
   capaAlt: `Capa da Coleção completa ${DA_NEWS}`,
   despedida: "Sem frescura. Bom café. Notas do Café",
 };
@@ -53,7 +53,7 @@ const HREF = "/colecao/checkout?src=lp-colecao";
    a resposta da casa devolve o link direto do checkout, que segue aberto). Reabrir = a data da rodada seguinte.
    ?estado=espera|oferta na URL força o estado pra conferência visual. */
 const OFERTA = { abre: "2026-09-29T00:00:00-03:00", fecha: "2026-10-02T23:59:59-03:00", fechaTxt: "sexta 02/10, 23:59", par: "Brasa Certa", parN: "117" };
-const PAR_CAPA = "https://ecmveymyzdqiehvtqxms.supabase.co/storage/v1/object/public/assets/scriptorium/colecao/brasa-certa-capa.png";   // col/51: capa da Coleção da news do bônus 1 (a mesma do bump do checkout)
+const PAR_CAPA = "/colecao/capa-bump.webp";   // col/51: capa da Coleção da news do bônus 1 (a mesma do bump do checkout)
 const LEIA = "leia@notasdocafe.com.br";   // col/14: email_from_address da publicação (EE = hc@), lido pela fábrica, roteado pro worker
 type Estado = "permanente" | "oferta" | "espera";
 
@@ -263,7 +263,7 @@ export default function ColecaoLP() {
       <nav>
         <div className="wrap nav-inner">
           <a href="/" className="brand" aria-label="Home">
-            <img src="/ebook-web/simbolo.png" alt="" width={32} height={32} />
+            <img src="/colecao/simbolo.webp" alt="" width={32} height={32} />
             <span className="wm"><span className="t">Notas</span><span className="s">{" do Café"}</span></span>
           </a>
           {estado === "espera"
