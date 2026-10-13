@@ -253,7 +253,7 @@ export default function AppObrigado() {
       <nav>
         <div className="wrap nav-inner">
           <a href="/" className="brand" aria-label="Home">
-            <img src="/app-ouro/simbolo.png" alt="" width={32} height={32} />
+            <img src="/app-ouro/simbolo.webp" alt="" width={32} height={32} />
             <span className="wm"><span className="t">Notas</span><span className="s">{" do Café"}</span></span>
           </a>
         </div>
