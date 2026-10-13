@@ -928,7 +928,7 @@ ul{list-style:none}
         @media (max-width:639px){
           .hero{min-height:auto;align-items:flex-start}
           section.hero .hero-col .h1{font-size:clamp(1.9rem,7.4vw,3.6rem);line-height:1.06}
-          .hero-col>.h1{order:1}.hero-col>.sub{order:2}.hero-col>.capa-link{order:3}.hero-col>.aviso-espera{order:4}
+          .hero-col>.h1{order:1}.hero-col>.sub{order:2}.hero-col>.capa-link{order:3}.hero-col>.aviso-espera{order:6}/* DOBRA-ESPERA (lpca/40): na lista de espera o aviso desce pra depois do formulário; o botão fica na 1ª tela */
           .hero-col>.pedido{order:5}.hero-col>.prazo{order:6}.hero-col>.capa-leg{order:7}.hero-col>.prova-hero{order:8}
           .hero .hd-par{--h:200px}
           .hero .capa-link{margin-top:18px}
