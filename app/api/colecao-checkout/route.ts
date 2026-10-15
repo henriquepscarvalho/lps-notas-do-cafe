@@ -148,12 +148,20 @@ export async function POST(req: Request) {
     // checkout-sem-endereco-v1 (HC 01/10/26): produto digital, sem bloco de endereço no checkout. Endereço
     // só chega quando a própria Stripe pede (boleto); o webhook do Pharos grava user_* vazio no resto.
     params["customer_creation"] = "always";
-    params["custom_fields[0][key]"] = "cpf";
+    // checkout-nome-nf-v1 (HC 14/10/26): nome por campo de texto pra nota fiscal (o Pix não traz
+    // nome); o webhook do Pharos grava como user_nome. O CPF vem logo abaixo, em custom_fields[1].
+    params["custom_fields[0][key]"] = "nome";
     params["custom_fields[0][label][type]"] = "custom";
-    params["custom_fields[0][label][custom]"] = "CPF ou CNPJ (só números)";
-    params["custom_fields[0][type]"] = "numeric";
-    params["custom_fields[0][numeric][minimum_length]"] = "11";
-    params["custom_fields[0][numeric][maximum_length]"] = "14";
+    params["custom_fields[0][label][custom]"] = "Nome completo (pra nota fiscal)";
+    params["custom_fields[0][type]"] = "text";
+    params["custom_fields[0][text][minimum_length]"] = "5";
+    params["custom_fields[0][text][maximum_length]"] = "120";
+    params["custom_fields[1][key]"] = "cpf";
+    params["custom_fields[1][label][type]"] = "custom";
+    params["custom_fields[1][label][custom]"] = "CPF ou CNPJ (só números)";
+    params["custom_fields[1][type]"] = "numeric";
+    params["custom_fields[1][numeric][minimum_length]"] = "11";
+    params["custom_fields[1][numeric][maximum_length]"] = "14";
     // c4-20k/126 (HC 23/09/26): cartão salvo religado só no cartão, pro upsell de um clique da obrigado.
     // No nível do PaymentIntent a Stripe tirava o Pix da session inteira (24/08); no nível do cartão
     // Pix e boleto seguem na session e só o cartão fica ligado ao Customer.
